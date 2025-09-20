@@ -1,0 +1,64 @@
+/* 
+ * แก้ไขตำแหน่งของ QR code และปุ่ม CONTACT US ที่ซ้อนทับกัน
+ */
+
+/* ปรับตำแหน่งของ QR code ให้อยู่ด้านล่างของปุ่ม CONTACT US */
+.contact-qrcode-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    margin-top: 20px;
+}
+
+/* ปรับขนาดและตำแหน่งของปุ่ม CONTACT US */
+.contact-button {
+    position: relative;
+    z-index: 10;
+    margin-bottom: 20px; /* เพิ่มระยะห่างระหว่างปุ่มกับ QR code */
+}
+
+/* จัดวาง QR code ให้อยู่ด้านล่างของปุ่ม */
+.qrcode-wrapper {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 600px;
+    margin-top: 10px;
+}
+
+/* ปรับขนาดของ QR code แต่ละอัน */
+.qrcode-item {
+    width: 48%;
+    text-align: center;
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ปรับขนาดของรูป QR code */
+.qrcode-item img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* เพิ่มคำอธิบายใต้ QR code */
+.qrcode-label {
+    margin-top: 5px;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+/* สำหรับหน้าจอขนาดเล็ก */
+@media (max-width: 768px) {
+    .qrcode-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .qrcode-item {
+        width: 80%;
+        margin-bottom: 15px;
+    }
+}

@@ -1,0 +1,343 @@
+/* Hover Dropdown Styles for Desktop */
+@media (min-width: 992px) {
+    /* Main navbar dropdown hover */
+    .navbar .dropdown:hover > .dropdown-menu,
+    .navbar .dropdown-submenu:hover > .dropdown-menu {
+        display: block;
+        margin-top: 0;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+    
+    /* Remove the caret click requirement */
+    .navbar .dropdown-toggle::after {
+        transition: transform 0.3s ease;
+    }
+    
+    .navbar .dropdown:hover .dropdown-toggle::after {
+        transform: rotate(180deg);
+    }
+    
+    /* Smooth animation for dropdown appearance */
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Style for dropdown menu */
+    .navbar .dropdown-menu {
+        background: linear-gradient(135deg, #fdfcfe 0%, #f9f7fc 100%);
+        border: 1px solid rgba(139, 122, 168, 0.15);
+        box-shadow: 0 6px 20px rgba(139, 122, 168, 0.12);
+        border-radius: 8px;
+        padding: 0.5rem 0;
+        min-width: 200px;
+    }
+    
+    /* Main navbar dropdown menu specific */
+    .main-navbar .dropdown-menu {
+        background: linear-gradient(135deg, #fdfcfe 0%, #f9f7fc 100%);
+        border-top: 2px solid var(--primary-color);
+    }
+    
+    /* Secondary navbar dropdown menu specific */
+    .secondary-navbar .dropdown-menu {
+        background: linear-gradient(135deg, #faf9fc 0%, #f5f3f9 100%);
+        border-top: 2px solid var(--primary-light);
+    }
+    
+    /* Dropdown items hover effect */
+    .navbar .dropdown-item {
+        padding: 0.5rem 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        color: var(--text-primary);
+        border-radius: 4px;
+        margin: 2px 8px;
+    }
+    
+    .navbar .dropdown-item:hover {
+        background: linear-gradient(135deg, rgba(184, 169, 212, 0.2), rgba(139, 122, 168, 0.15));
+        padding-left: 2rem;
+        color: var(--primary-dark);
+    }
+    
+    .navbar .dropdown-item:hover::before {
+        content: "▸";
+        position: absolute;
+        left: 1rem;
+        color: var(--primary-color);
+    }
+    
+    /* Active dropdown item */
+    .navbar .dropdown-item.active,
+    .navbar .dropdown-item:active {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+        color: white;
+    }
+    
+    /* Nested dropdown (submenu) positioning */
+    .dropdown-submenu {
+        position: relative;
+    }
+    
+    .dropdown-submenu > .dropdown-menu {
+        top: 0;
+        left: 100%;
+        margin-top: -6px;
+        margin-left: -1px;
+    }
+    
+    /* Show nested dropdown on hover */
+    .dropdown-submenu:hover > .dropdown-menu {
+        display: block;
+    }
+    
+    /* Arrow for submenu items */
+    .dropdown-submenu > a:after {
+        content: "▸";
+        float: right;
+        color: #8B7AA8;
+    }
+    
+    /* Secondary navbar specific styles */
+    .secondary-navbar .dropdown:hover > .dropdown-menu {
+        display: block;
+        animation: slideDown 0.3s ease-in-out;
+    }
+    
+    @keyframes slideDown {
+        0% {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* New section navbar specific styles */
+    .new-section-navbar .dropdown:hover > .dropdown-menu {
+        display: block;
+        background: linear-gradient(135deg, #f8f7fb 0%, #f3f1f8 100%);
+        border-top: 3px solid var(--primary-color);
+        animation: fadeIn 0.3s ease-in-out;
+        box-shadow: 0 6px 20px rgba(139, 122, 168, 0.15);
+    }
+    
+    /* New section navbar dropdown items */
+    .new-section-navbar .dropdown-item {
+        color: var(--text-primary);
+        padding: 0.6rem 1.5rem;
+        transition: all 0.3s ease;
+        border-radius: 4px;
+        margin: 2px 8px;
+    }
+    
+    .new-section-navbar .dropdown-item:hover {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+        color: white;
+        padding-left: 2rem;
+    }
+    
+    .new-section-navbar .dropdown-item:hover::before {
+        color: white;
+    }
+    
+    /* New section navbar dropdown menu styling */
+    .new-section-navbar .dropdown-menu {
+        background: linear-gradient(135deg, #f8f7fb 0%, #f3f1f8 100%);
+        border: 1px solid rgba(139, 122, 168, 0.2);
+        border-top: 3px solid var(--primary-color);
+        padding: 0.5rem 0;
+    }
+    
+    /* Prevent dropdown from closing when hovering between trigger and menu */
+    .navbar .dropdown {
+        position: relative;
+    }
+    
+    .navbar .dropdown-menu {
+        margin: 0;
+    }
+    
+    /* Add delay before hiding to prevent accidental closing */
+    .navbar .dropdown-menu {
+        transition: opacity 0.3s, visibility 0.3s;
+    }
+    
+    /* Keep dropdown open when moving cursor from trigger to menu */
+    .navbar .dropdown:hover .dropdown-menu,
+    .navbar .dropdown .dropdown-menu:hover {
+        opacity: 1;
+        visibility: visible;
+        display: block;
+    }
+}
+
+/* Mobile styles - keep click behavior */
+@media (max-width: 991px) {
+    /* On mobile, maintain Bootstrap's default click behavior */
+    .navbar .dropdown-menu {
+        position: static;
+        float: none;
+        width: auto;
+        margin-top: 0;
+        background-color: white;
+        border: 0;
+        box-shadow: none;
+    }
+    
+    .dropdown-submenu .dropdown-menu {
+        padding-left: 1rem;
+    }
+}
+
+/* Additional hover effects */
+.navbar .nav-link {
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.navbar .nav-link:hover {
+    color: var(--primary-color) !important;
+}
+
+/* Underline effect on hover for main nav items */
+@media (min-width: 992px) {
+    .navbar .nav-link::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 50%;
+        background-color: var(--primary-color);
+        transition: all 0.3s ease;
+    }
+    
+    .navbar .nav-link:hover::after {
+        width: 100%;
+        left: 0;
+    }
+    
+    /* Don't show underline for dropdown items */
+    .navbar .dropdown-item::after {
+        display: none;
+    }
+}
+
+/* Ensure dropdowns work properly with Bootstrap 5 */
+.navbar .dropdown-toggle {
+    position: relative;
+}
+
+/* Fix for Bootstrap 5 dropdown positioning */
+.navbar .dropdown-menu[data-bs-popper] {
+    position: absolute;
+    inset: 0px auto auto 0px;
+    margin: 0px;
+    transform: translate(0px, 40px);
+}
+
+/* Smooth transition for all dropdown menus */
+.dropdown-menu {
+    display: block;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
+    transform: translateY(-10px);
+}
+
+.dropdown:hover > .dropdown-menu,
+.dropdown-submenu:hover > .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Fix z-index issues */
+.navbar {
+    z-index: 1030;
+}
+
+.navbar .dropdown-menu {
+    z-index: 1031;
+}
+
+.dropdown-submenu > .dropdown-menu {
+    z-index: 1032;
+}
+
+/* Ensure secondary navbar dropdowns work */
+.secondary-navbar {
+    z-index: 1029;
+}
+
+.secondary-navbar .dropdown-menu {
+    z-index: 1031;
+}
+
+/* Special styling for main navbar and secondary navbar */
+.main-navbar .dropdown-menu,
+.secondary-navbar .dropdown-menu,
+.new-section-navbar .dropdown-menu {
+    margin-top: 0 !important;
+}
+
+/* Remove dropdown arrow rotation on mobile */
+@media (max-width: 991px) {
+    .navbar .dropdown-toggle::after {
+        transform: none !important;
+    }
+}
+
+/* Dropdown divider styling */
+.navbar .dropdown-divider {
+    margin: 0.5rem 0;
+    border-top: 1px solid rgba(139, 122, 168, 0.15);
+}
+
+/* Ensure consistent styling across all navbars */
+.main-navbar .dropdown-menu,
+.secondary-navbar .dropdown-menu,
+.new-section-navbar .dropdown-menu {
+    /* Prevent text selection during hover */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Fix for dropdown menu positioning in new_section_navbar */
+.new-section-navbar .dropdown {
+    position: static;
+}
+
+.new-section-navbar .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: auto;
+    right: auto;
+}
+
+/* Ensure new_section_navbar has proper background */
+.new-section-navbar {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+}
+
+/* New section navbar link colors */
+.new-section-navbar .nav-link {
+    color: white !important;
+    font-weight: 500;
+}
+
+.new-section-navbar .nav-link:hover {
+    color: var(--accent-color) !important;
+}

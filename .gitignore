@@ -1,0 +1,73 @@
+# Operating System Files
+.DS_Store
+Thumbs.db
+*.log
+
+# Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Backup Files
+*.bak
+*.backup
+*.old
+
+# Database Files
+*.sql
+*.sqlite
+*.db
+
+# Log Files
+logs/
+*.log
+
+# Runtime Files
+cache/
+tmp/
+temp/
+
+# Upload Directories (if they contain user-generated content)
+# uploads/
+# admin/slideshow/uploads/
+# admin/rankings/uploads/
+
+# Configuration Files (uncomment if you have sensitive data)
+# config.php
+# database.php
+
+# Node.js (if applicable)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# PHP
+/vendor/
+composer.lock
+
+# Environment Files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# XAMPP Specific
+xampp/
+
+# Image Uploads (comment out if you want to include uploaded images)
+uploads/news/gallery/
+uploads/featured_*.jpg
+uploads/gallery_*.jpg
+images/slideshow/slide_*.jpg
+images/rankings/ranking_*.jpg
+admin/slideshow/uploads/slide_*.jpg
+admin/rankings/uploads/ranking_*.jpg
+
+# Temporary Files
+*.tmp
+*.temp
+~*

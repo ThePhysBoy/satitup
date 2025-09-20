@@ -1,0 +1,311 @@
+<?php
+/**
+ * Edit News - Modern Template
+ */
+
+$conn = require_once '../includes/db_config.php';
+require_once '../includes/auth_functions.php';
+require_once 'news_functions.php';
+
+requireLogin();
+if (!isAdmin() && !isPrOfficer()) { header("Location: ../index.php"); exit; }
+
+$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+if ($id <= 0) { header("Location: index.php"); exit; }
+
+$news = getNewsById($id, $conn);
+if (!$news) { header("Location: index.php"); exit; }
+
+// Categories
+$stmt = $conn->prepare("SELECT * FROM news_categories ORDER BY name");
+$stmt->execute();
+$categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+// Handle updates
+$errors = [];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+	$title = trim($_POST['title'] ?? '');
+	$excerpt = trim($_POST['excerpt'] ?? '');
+	$content = trim($_POST['content'] ?? '');
+	$category_id = (int)($_POST['category_id'] ?? 0);
+	$status = $_POST['status'] ?? 'draft';
+
+	if ($title === '') $errors['title'] = 'กรุณากรอกหัวข้อข่าว';
+	if ($content === '') $errors['content'] = 'กรุณากรอกเนื้อหาข่าว';
+	if ($category_id <= 0) $errors['category_id'] = 'กรุณาเลือกหมวดหมู่';
+
+	// Featured image upload (optional)
+	$featured_image = $news['featured_image'];
+	if (isset($_FILES['featured_image']) && $_FILES['featured_image']['error'] === 0) {
+		$upload = uploadImage($_FILES['featured_image'], 'news/featured');
+		if ($upload['success']) {
+			// delete old
+			if (!empty($featured_image) && file_exists('../../' . $featured_image)) { @unlink('../../' . $featured_image); }
+			$featured_image = $upload['path'];
+		} else {
+			$errors['featured_image'] = $upload['error'];
+		}
+	}
+
+	if (empty($errors)) {
+		$stmt = $conn->prepare("UPDATE news SET title=?, excerpt=?, content=?, category_id=?, status=?, featured_image=?, updated_at=NOW(), published_at = CASE WHEN ?='published' AND published_at IS NULL THEN NOW() ELSE published_at END WHERE id=?");
+		$stmt->bind_param('sssisssi', $title, $excerpt, $content, $category_id, $status, $featured_image, $status, $id);
+		if ($stmt->execute()) {
+			// Handle gallery uploads
+			if (isset($_FILES['images'])) {
+				$images = reArrayFiles($_FILES['images']);
+				foreach ($images as $index => $image) {
+					if ($image['error'] === 0) {
+						$up = uploadImage($image, 'news/gallery');
+						if ($up['success']) {
+							$path = $up['path'];
+							$caption = $_POST['captions'][$index] ?? '';
+							$order = (int)($_POST['orders'][$index] ?? ($index+1));
+							$s2 = $conn->prepare("INSERT INTO news_images (news_id, image_path, caption, display_order) VALUES (?, ?, ?, ?)");
+							$s2->bind_param('issi', $id, $path, $caption, $order);
+							$s2->execute();
+						}
+					}
+				}
+			}
+			header("Location: edit_new.php?id=$id&success=1"); exit;
+		} else {
+			$errors['database'] = 'บันทึกไม่สำเร็จ: ' . $conn->error;
+		}
+	}
+	// refresh news
+	$news = getNewsById($id, $conn);
+}
+
+$images = getNewsImages($id, $conn);
+$page_title = 'แก้ไขข่าว';
+$page_header_icon = '<i class="fas fa-edit me-2"></i>';
+$back_button = true;
+$back_button_url = 'index.php';
+$back_button_text = 'กลับไปหน้ารายการข่าว';
+
+// Build content
+ob_start();
+?>
+
+<?php if (isset($_GET['success'])): ?>
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="fas fa-check-circle me-2"></i> บันทึกข้อมูลเรียบร้อยแล้ว
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<?php endif; ?>
+
+<?php if (!empty($errors)): ?>
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i> พบข้อผิดพลาด:
+    <ul class="mb-0 mt-2">
+        <?php foreach($errors as $e): ?>
+            <li><?php echo htmlspecialchars($e); ?></li>
+        <?php endforeach; ?>
+    </ul>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<?php endif; ?>
+
+<div class="row">
+    <div class="col-12 mb-3">
+        <div class="d-flex justify-content-end">
+            <a href="../../news/detail.php?slug=<?php echo urlencode($news['slug']); ?>" target="_blank" class="btn btn-outline-primary">
+                <i class="fas fa-external-link-alt me-1"></i> ดูหน้าเว็บ
+            </a>
+        </div>
+    </div>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card-modern mb-4">
+                <div class="card-header-modern">
+                    <h5><i class="fas fa-newspaper me-2"></i>รายละเอียดข่าว</h5>
+                </div>
+                <div class="card-body-modern">
+                    <div class="mb-3">
+                        <label class="form-label-modern">หัวข้อข่าว</label>
+                        <input class="form-control form-control-modern" name="title" value="<?php echo htmlspecialchars($news['title']); ?>" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label-modern">สรุปย่อ</label>
+                        <textarea class="form-control form-control-modern" name="excerpt" rows="3"><?php echo htmlspecialchars($news['excerpt']); ?></textarea>
+                        <div class="form-text">สรุปย่อจะแสดงในหน้ารายการข่าวและด้านบนของเนื้อหาข่าว</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label-modern">เนื้อหา</label>
+                        <textarea id="content" class="form-control form-control-modern" name="content" rows="12"><?php echo htmlspecialchars($news['content']); ?></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-modern mb-4">
+                <div class="card-header-modern">
+                    <h5><i class="fas fa-images me-2"></i>แกลเลอรี่รูปภาพ</h5>
+                </div>
+                <div class="card-body-modern">
+                    <?php if (count($images) > 0): ?>
+                    <div class="row g-3 mb-4">
+                        <?php foreach ($images as $img): ?>
+                        <div class="col-md-3">
+                            <div class="position-relative">
+                                <img src="../../<?php echo htmlspecialchars($img['image_path']); ?>" class="img-fluid rounded" style="width: 100%; height: 120px; object-fit: contain; background-color: #f8f9fa;" alt="">
+                                <div class="position-absolute top-0 end-0 p-2">
+                                    <form method="post" action="delete_image.php" onsubmit="return confirm('ยืนยันการลบรูปภาพนี้?');">
+                                        <input type="hidden" name="image_id" value="<?php echo $img['id']; ?>">
+                                        <button type="submit" class="btn btn-sm btn-danger rounded-circle">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                                <div class="mt-2 text-center small">
+                                    <span class="badge bg-secondary">ลำดับ: <?php echo (int)$img['display_order']; ?></span>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php else: ?>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> ยังไม่มีรูปภาพในแกลเลอรี่
+                    </div>
+                    <?php endif; ?>
+                    
+                    <div class="mb-3">
+                        <label class="form-label-modern">เพิ่มรูปภาพใหม่</label>
+                        <input type="file" class="form-control form-control-modern" name="images[]" multiple accept="image/*">
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i> รองรับหลายรูปภาพ (JPG, PNG, GIF, WEBP)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card-modern mb-4">
+                <div class="card-header-modern">
+                    <h5><i class="fas fa-paper-plane me-2"></i>การเผยแพร่</h5>
+                </div>
+                <div class="card-body-modern">
+                    <div class="mb-3">
+                        <label class="form-label-modern">สถานะ</label>
+                        <select class="form-select form-select-modern" name="status">
+                            <option value="draft" <?php echo $news['status']==='draft'?'selected':''; ?>>ฉบับร่าง</option>
+                            <option value="published" <?php echo $news['status']==='published'?'selected':''; ?>>เผยแพร่</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label-modern">วันที่สร้าง</label>
+                        <input type="text" class="form-control form-control-modern" value="<?php echo date('d/m/Y H:i', strtotime($news['created_at'])); ?>" readonly>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label-modern">วันที่แก้ไขล่าสุด</label>
+                        <input type="text" class="form-control form-control-modern" value="<?php echo date('d/m/Y H:i', strtotime($news['updated_at'])); ?>" readonly>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-modern">
+                            <i class="fas fa-save me-2"></i>บันทึกข้อมูล
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-modern mb-4">
+                <div class="card-header-modern">
+                    <h5><i class="fas fa-folder me-2"></i>หมวดหมู่</h5>
+                </div>
+                <div class="card-body-modern">
+                    <select class="form-select form-select-modern" name="category_id" required>
+                        <option value="">-- เลือกหมวดหมู่ --</option>
+                        <?php foreach ($categories as $cat): ?>
+                        <option value="<?php echo $cat['id']; ?>" <?php echo $news['category_id']==$cat['id']?'selected':''; ?>><?php echo htmlspecialchars($cat['name']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="card-modern mb-4">
+                <div class="card-header-modern">
+                    <h5><i class="fas fa-image me-2"></i>รูปภาพหลัก</h5>
+                </div>
+                <div class="card-body-modern">
+                    <?php if (!empty($news['featured_image'])): ?>
+                    <div class="text-center mb-3">
+                        <img src="../../<?php echo htmlspecialchars($news['featured_image']); ?>" class="img-fluid rounded" style="max-height: 200px; object-fit: contain;" alt="">
+                    </div>
+                    <div class="d-grid mb-3">
+                        <form method="post" action="delete_featured.php" onsubmit="return confirm('ยืนยันการลบรูปภาพหลัก?');">
+                            <input type="hidden" name="news_id" value="<?php echo $id; ?>">
+                            <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                                <i class="fas fa-trash me-1"></i> ลบรูปภาพหลัก
+                            </button>
+                        </form>
+                    </div>
+                    <hr>
+                    <?php endif; ?>
+                    
+                    <div class="mb-3">
+                        <label class="form-label-modern">อัพโหลดรูปภาพหลักใหม่</label>
+                        <input type="file" class="form-control form-control-modern" name="featured_image" accept="image/*">
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i> ขนาดแนะนำ 1200x630 พิกเซล
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<?php
+// Set summernote flag for template
+$include_summernote = true;
+
+// Add custom scripts for this page
+$custom_scripts = <<<EOT
+<script>
+    $(document).ready(function() {
+        $('#content').summernote({
+            height: 300,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'italic', 'clear']],
+                ['fontname', ['fontname']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ],
+            callbacks: {
+                onImageUpload: function(files) {
+                    // You could implement image upload here if needed
+                    for (let i = 0; i < files.length; i++) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            $('#content').summernote('insertNode', img);
+                        };
+                        reader.readAsDataURL(files[i]);
+                    }
+                }
+            }
+        });
+    });
+</script>
+EOT;
+
+$content = ob_get_clean();
+
+// Include the template
+include 'template.php';
+?>

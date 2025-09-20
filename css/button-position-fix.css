@@ -1,0 +1,48 @@
+/* 
+ * แก้ไขตำแหน่งของปุ่มเลื่อนเพจและไอคอนแชท AI ที่ซ้อนทับกัน
+ */
+
+/* ปรับตำแหน่งของปุ่มเลื่อนเพจ (back-to-top) ให้อยู่ด้านซ้ายของปุ่มแชท */
+.back-to-top {
+    bottom: 30px;
+    right: 100px !important; /* ย้ายไปทางซ้ายของปุ่มแชท */
+}
+
+/* ปรับตำแหน่งของปุ่มแชท AI (chatbot-toggle) */
+.chatbot-toggle {
+    bottom: 20px;
+    right: 20px;
+}
+
+/* สำหรับหน้าจอขนาดเล็ก (มือถือ) */
+@media (max-width: 767px) {
+    /* ปรับให้ปุ่มเลื่อนเพจอยู่ด้านซ้ายมากขึ้น */
+    .back-to-top {
+        bottom: 30px;
+        right: 90px !important;
+        width: 45px;
+        height: 45px;
+    }
+    
+    /* ปรับขนาดปุ่มแชทให้เล็กลงเล็กน้อย */
+    .chatbot-toggle {
+        width: 55px;
+        height: 55px;
+    }
+}
+
+/* สำหรับหน้าจอขนาดเล็กมาก */
+@media (max-width: 480px) {
+    /* ปรับให้ปุ่มเลื่อนเพจอยู่ด้านซ้ายล่าง */
+    .back-to-top {
+        bottom: 30px;
+        left: 20px;
+        right: auto !important;
+    }
+    
+    /* คงตำแหน่งปุ่มแชทไว้ที่มุมขวาล่าง */
+    .chatbot-toggle {
+        bottom: 20px;
+        right: 20px;
+    }
+}

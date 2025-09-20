@@ -1,0 +1,168 @@
+/* 
+ * Animation สำหรับปุ่ม AI Chatbot
+ * เพิ่มการเคลื่อนไหวแบบไดนามิกให้ปุ่มแชทบอท
+ */
+
+/* กำหนด Animation สำหรับการเด้งขึ้นลง */
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-12px);
+    }
+    60% {
+        transform: translateY(-7px);
+    }
+    80% {
+        transform: translateY(-3px);
+    }
+}
+
+/* กำหนด Animation สำหรับการเปลี่ยนสี สลับระหว่างม่วงและส้ม */
+@keyframes colorPulse {
+    0%, 100% {
+        box-shadow: 0 3px 15px rgba(123, 59, 149, 0.5);
+        background: linear-gradient(135deg, #7b3b95 0%, #9b59b6 100%);
+    }
+    33% {
+        box-shadow: 0 5px 25px rgba(123, 59, 149, 0.8);
+        background: linear-gradient(135deg, #8e44ad 0%, #b56fd7 100%);
+    }
+    50% {
+        box-shadow: 0 5px 20px rgba(255, 140, 0, 0.7);
+        background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%);
+    }
+    83% {
+        box-shadow: 0 5px 20px rgba(255, 165, 0, 0.7);
+        background: linear-gradient(135deg, #ff9500 0%, #ffb347 100%);
+    }
+}
+
+/* กำหนด Animation สำหรับการหมุน */
+@keyframes wiggle {
+    0%, 100% {
+        transform: rotate(0);
+    }
+    25% {
+        transform: rotate(-15deg);
+    }
+    75% {
+        transform: rotate(15deg);
+    }
+}
+
+/* กำหนด Animation สำหรับการสั่น */
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-4px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(4px);
+    }
+}
+
+/* กำหนด Animation สำหรับการหมุนรอบตัวเอง */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* กำหนด Animation สำหรับการเรืองแสง */
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 3px 15px rgba(123, 59, 149, 0.5);
+    }
+    50% {
+        box-shadow: 0 5px 25px rgba(155, 89, 182, 0.9);
+    }
+}
+
+/* ปรับแต่งปุ่ม Chatbot */
+.chatbot-toggle {
+    animation: 
+        bounce 4s infinite ease-in-out, 
+        colorPulse 7s infinite alternate,
+        wiggle 8s infinite ease-in-out;
+    transition: all 0.3s ease;
+}
+
+/* เมื่อ Hover ที่ปุ่ม */
+.chatbot-toggle:hover {
+    animation: shake 0.5s ease-in-out;
+    transform: scale(1.1);
+}
+
+/* เมื่อคลิกที่ปุ่ม */
+.chatbot-toggle:active {
+    animation: spin 0.5s ease-in-out;
+}
+
+/* เพิ่มเอฟเฟกต์ไอคอนภายในปุ่ม */
+.chatbot-toggle i {
+    transition: all 0.3s ease;
+}
+
+.chatbot-toggle:hover i {
+    transform: scale(1.2);
+}
+
+/* เพิ่มเอฟเฟกต์ "มีข้อความใหม่" */
+.chatbot-toggle::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 18px;
+    height: 18px;
+    background-color: #ff8c00; /* สีส้ม */
+    border-radius: 50%;
+    border: 2px solid white;
+    animation: glow 1.5s infinite alternate, shake 1s infinite ease-in-out;
+    display: none; /* ซ่อนไว้ก่อน จะแสดงเมื่อมีข้อความใหม่ */
+    z-index: 10;
+}
+
+/* คลาสสำหรับแสดงว่ามีข้อความใหม่ */
+.chatbot-toggle.has-new-message::after {
+    display: block;
+}
+
+/* เพิ่มเอฟเฟกต์เมื่อมีข้อความใหม่ */
+.chatbot-toggle.has-new-message {
+    animation: 
+        bounce 2s infinite ease-in-out, 
+        colorPulse 3s infinite alternate,
+        shake 5s infinite ease-in-out;
+}
+
+/* ปรับแต่งเพิ่มเติมสำหรับหน้าจอมือถือ */
+@media (max-width: 767px) {
+    .chatbot-toggle {
+        animation: 
+            bounce 3s infinite ease-in-out, 
+            colorPulse 5s infinite alternate,
+            wiggle 10s infinite ease-in-out;
+    }
+    
+    /* ปรับขนาดจุดแจ้งเตือนให้เล็กลงบนมือถือ */
+    .chatbot-toggle::after {
+        width: 15px;
+        height: 15px;
+    }
+    
+    /* เพิ่มเอฟเฟกต์เมื่อมีข้อความใหม่บนมือถือ */
+    .chatbot-toggle.has-new-message {
+        animation: 
+            bounce 2s infinite ease-in-out, 
+            colorPulse 3s infinite alternate,
+            shake 4s infinite ease-in-out;
+    }
+}

@@ -1,0 +1,14 @@
+# ไฟล์ที่เก็บ API key
+.api_key
+
+# ไฟล์ที่สร้างโดย IDE
+.idea/
+.vscode/
+*.sublime-*
+
+# ไฟล์ระบบ
+.DS_Store
+Thumbs.db
+
+# ไฟล์ log
+*.log
