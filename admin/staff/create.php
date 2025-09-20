@@ -354,9 +354,18 @@ ob_start();
                                                     <?php endif; ?>
                                                 <?php endforeach; ?>
                                             </optgroup>
-                                            <optgroup label="สายบริการ">
+                                            <optgroup label="ประถมศึกษา">
                                                 <?php foreach ($departments as $dept): ?>
-                                                    <?php if ($dept['type'] === 'service'): ?>
+                                                    <?php if ($dept['type'] === 'primary'): ?>
+                                                        <option value="<?php echo $dept['id']; ?>" <?php echo isset($_POST['department_id']) && $_POST['department_id'] == $dept['id'] ? 'selected' : ''; ?>>
+                                                            <?php echo htmlspecialchars($dept['name']); ?>
+                                                        </option>
+                                                    <?php endif; ?>
+                                                <?php endforeach; ?>
+                                            </optgroup>
+                                            <optgroup label="สายสนับสนุน">
+                                                <?php foreach ($departments as $dept): ?>
+                                                    <?php if ($dept['type'] === 'support' || $dept['type'] === 'service'): ?>
                                                         <option value="<?php echo $dept['id']; ?>" <?php echo isset($_POST['department_id']) && $_POST['department_id'] == $dept['id'] ? 'selected' : ''; ?>>
                                                             <?php echo htmlspecialchars($dept['name']); ?>
                                                         </option>
