@@ -1,0 +1,80 @@
+{
+    "booking-room": {
+        "title": "คู่มือการใช้งาน - ระบบจองห้องประชุม",
+        "pdf_url": "/manuals/booking-room-manual.pdf",
+        "video_url": "https://youtube.com/watch?v=example1",
+        "online_doc": "https://docs.google.com/document/d/example1"
+    },
+    "meeting-calendar": {
+        "title": "คู่มือการใช้งาน - ระบบจองการประชุม",
+        "pdf_url": "/manuals/meeting-calendar-manual.pdf",
+        "video_url": "https://youtube.com/watch?v=example2",
+        "online_doc": "https://docs.google.com/document/d/example2"
+    },
+    "up-dms": {
+        "title": "คู่มือการใช้งาน - UP DMS",
+        "pdf_url": "/manuals/up-dms-manual.pdf",
+        "video_url": null,
+        "online_doc": null
+    },
+    "smart-hr": {
+        "title": "คู่มือการใช้งาน - SmartHR",
+        "pdf_url": "/manuals/smart-hr-manual.pdf",
+        "video_url": null,
+        "online_doc": null
+    },
+    "finance-track": {
+        "title": "คู่มือการใช้งาน - ระบบติดตามเอกสารการเงิน",
+        "pdf_url": "/manuals/finance-track-manual.pdf",
+        "video_url": null,
+        "online_doc": null
+    },
+    "ims": {
+        "title": "คู่มือการใช้งาน - ระบบ IMS",
+        "pdf_url": "/manuals/ims-manual.pdf",
+        "video_url": null,
+        "online_doc": null
+    },
+    "alist": {
+        "title": "คู่มือการใช้งาน - ระบบค้นหาหนังสือ ALIST",
+        "pdf_url": "/manuals/alist-manual.pdf",
+        "video_url": null,
+        "online_doc": null
+    },
+    "e-receipt": {
+        "title": "คู่มือการใช้งาน - ระบบ e-Receipt",
+        "pdf_url": "/manuals/e-receipt-manual.pdf",
+        "video_url": null,
+        "online_doc": null
+    },
+    "payment": {
+        "title": "คู่มือการใช้งาน - ระบบชำระเงิน",
+        "pdf_url": "/manuals/payment-manual.pdf",
+        "video_url": null,
+        "online_doc": null
+    },
+    "email-up": {
+        "title": "คู่มือการใช้งาน - Email UP",
+        "pdf_url": "/manuals/email-up-manual.pdf",
+        "video_url": "https://youtube.com/watch?v=example3",
+        "online_doc": null
+    },
+    "password": {
+        "title": "คู่มือการใช้งาน - เปลี่ยนรหัสผ่าน",
+        "pdf_url": "/manuals/password-manual.pdf",
+        "video_url": null,
+        "online_doc": null
+    },
+    "lab": {
+        "title": "คู่มือการใช้งาน - ห้องปฎิบัติการวิทยาศาสตร์",
+        "pdf_url": "/manuals/lab-manual.pdf",
+        "video_url": null,
+        "online_doc": null
+    },
+    "academic": {
+        "title": "คู่มือการใช้งาน - ระบบบริหารงานวิชาการ",
+        "pdf_url": "/manuals/academic-manual.pdf",
+        "video_url": null,
+        "online_doc": null
+    }
+}

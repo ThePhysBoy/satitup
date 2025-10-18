@@ -14,17 +14,28 @@ if (!canManageStaff()) {
 // Get departments for dropdown
 $departments = getDepartments(null, $conn);
 
+// Debug: Show current departments
+if (isset($_GET['debug']) && $_GET['debug'] == '1') {
+    echo "<!-- Debug: Found " . count($departments) . " departments -->";
+    foreach ($departments as $dept) {
+        echo "<!-- ID: {$dept['id']}, Name: {$dept['name']}, Type: {$dept['type']} -->";
+    }
+}
+
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate form data
     $title = trim($_POST['title'] ?? '');
     $first_name = trim($_POST['first_name'] ?? '');
     $last_name = trim($_POST['last_name'] ?? '');
+    $position = trim($_POST['position'] ?? '');
     $department_id = (int)($_POST['department_id'] ?? 0);
     $email = trim($_POST['email'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
-    $education = trim($_POST['education'] ?? '');
+    $expertise = trim($_POST['expertise'] ?? '');
+    $work_status = $_POST['work_status'] ?? 'working';
     $bio = trim($_POST['bio'] ?? '');
+    $google_scholar_url = trim($_POST['google_scholar_url'] ?? '');
     $is_head = isset($_POST['is_head']) ? 1 : 0;
     $order_number = (int)($_POST['order_number'] ?? 0);
     $status = $_POST['status'] ?? 'active';
@@ -60,6 +71,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if ($department_id <= 0) {
         $errors[] = "กรุณาเลือกหน่วยงาน/กลุ่มสาระ";
+    } elseif (empty($departments)) {
+        $errors[] = "ไม่มีหน่วยงานให้เลือก กรุณาเพิ่มหน่วยงานก่อน";
     }
     
     if (empty($positions)) {
@@ -70,9 +83,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $image_path = '';
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         $upload_result = uploadStaffPhoto($_FILES['image']);
-        
+
         if ($upload_result['success']) {
             $image_path = $upload_result['path'];
+        } else {
+            $errors[] = $upload_result['error'];
+        }
+    }
+
+    // Process CV file upload
+    $cv_file_path = '';
+    if (isset($_FILES['cv_file_path']) && $_FILES['cv_file_path']['error'] === UPLOAD_ERR_OK) {
+        $upload_result = uploadStaffCV($_FILES['cv_file_path']);
+
+        if ($upload_result['success']) {
+            $cv_file_path = $upload_result['path'];
         } else {
             $errors[] = $upload_result['error'];
         }
@@ -84,9 +109,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->begin_transaction();
         
         try {
-            // Insert staff data
-            $stmt = $conn->prepare("INSERT INTO staff (title, first_name, last_name, department_id, image_path, email, phone, education, bio, is_head, order_number, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssisssssiis", $title, $first_name, $last_name, $department_id, $image_path, $email, $phone, $education, $bio, $is_head, $order_number, $status);
+            // Insert staff data - ตรวจสอบว่ามี column ใหม่หรือไม่
+            $check_col = $conn->query("SHOW COLUMNS FROM staff LIKE 'position'");
+            if ($check_col->num_rows > 0) {
+                // มี column ใหม่
+                $stmt = $conn->prepare("INSERT INTO staff (title, first_name, last_name, position, department_id, image_path, email, phone, expertise, bio, cv_file_path, google_scholar_url, work_status, is_head, order_number, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("ssssissssssssiss", $title, $first_name, $last_name, $position, $department_id, $image_path, $email, $phone, $expertise, $bio, $cv_file_path, $google_scholar_url, $work_status, $is_head, $order_number, $status);
+            } else {
+                // ยังไม่มี column ใหม่ ใช้แบบเดิม
+                $stmt = $conn->prepare("INSERT INTO staff (title, first_name, last_name, department_id, image_path, email, phone, bio, cv_file_path, google_scholar_url, is_head, order_number, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("sssississsiis", $title, $first_name, $last_name, $department_id, $image_path, $email, $phone, $bio, $cv_file_path, $google_scholar_url, $is_head, $order_number, $status);
+            }
             $stmt->execute();
             
             $staff_id = $conn->insert_id;
@@ -306,6 +339,14 @@ ob_start();
                                     </div>
                                 </div>
                                 <div class="row mb-3">
+                                    <label for="position" class="col-sm-3 col-form-label">ตำแหน่ง</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="position" name="position" 
+                                               value="<?php echo isset($_POST['position']) ? htmlspecialchars($_POST['position']) : ''; ?>"
+                                               placeholder="เช่น ครู, ครูผู้ช่วย, ครูชำนาญการ">
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
                                     <label for="email" class="col-sm-3 col-form-label">อีเมล</label>
                                     <div class="col-sm-9">
                                         <input type="email" class="form-control" id="email" name="email" 
@@ -343,36 +384,64 @@ ob_start();
                                 <div class="row mb-3">
                                     <label for="department_id" class="col-sm-3 col-form-label">หน่วยงาน <span class="text-danger">*</span></label>
                                     <div class="col-sm-9">
-                                        <select class="form-select" id="department_id" name="department_id" required>
-                                            <option value="">-- เลือกหน่วยงาน/กลุ่มสาระ --</option>
-                                            <optgroup label="สายวิชาการ">
-                                                <?php foreach ($departments as $dept): ?>
-                                                    <?php if ($dept['type'] === 'academic'): ?>
-                                                        <option value="<?php echo $dept['id']; ?>" <?php echo isset($_POST['department_id']) && $_POST['department_id'] == $dept['id'] ? 'selected' : ''; ?>>
-                                                            <?php echo htmlspecialchars($dept['name']); ?>
-                                                        </option>
-                                                    <?php endif; ?>
-                                                <?php endforeach; ?>
-                                            </optgroup>
-                                            <optgroup label="ประถมศึกษา">
-                                                <?php foreach ($departments as $dept): ?>
-                                                    <?php if ($dept['type'] === 'primary'): ?>
-                                                        <option value="<?php echo $dept['id']; ?>" <?php echo isset($_POST['department_id']) && $_POST['department_id'] == $dept['id'] ? 'selected' : ''; ?>>
-                                                            <?php echo htmlspecialchars($dept['name']); ?>
-                                                        </option>
-                                                    <?php endif; ?>
-                                                <?php endforeach; ?>
-                                            </optgroup>
-                                            <optgroup label="สายสนับสนุน">
-                                                <?php foreach ($departments as $dept): ?>
-                                                    <?php if ($dept['type'] === 'support' || $dept['type'] === 'service'): ?>
-                                                        <option value="<?php echo $dept['id']; ?>" <?php echo isset($_POST['department_id']) && $_POST['department_id'] == $dept['id'] ? 'selected' : ''; ?>>
-                                                            <?php echo htmlspecialchars($dept['name']); ?>
-                                                        </option>
-                                                    <?php endif; ?>
-                                                <?php endforeach; ?>
-                                            </optgroup>
-                                        </select>
+                                        <?php if (empty($departments)): ?>
+                                            <div class="alert alert-warning">
+                                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                                ไม่พบข้อมูลหน่วยงาน กรุณาเพิ่มหน่วยงานก่อน
+                                                <a href="department_manager.php" class="btn btn-sm btn-primary ms-2">จัดการหน่วยงาน</a>
+                                            </div>
+                                            <select class="form-select" id="department_id" name="department_id" disabled>
+                                                <option value="">-- ไม่มีหน่วยงานให้เลือก --</option>
+                                            </select>
+                                        <?php else: ?>
+                                            <select class="form-select" id="department_id" name="department_id" required>
+                                                <option value="">-- เลือกหน่วยงาน/กลุ่มสาระ --</option>
+                                                <?php
+                                                // Group departments by type
+                                                $grouped_departments = [
+                                                    'academic' => [],
+                                                    'support' => [],
+                                                    'primary' => []
+                                                ];
+
+                                                foreach ($departments as $dept) {
+                                                    if (isset($grouped_departments[$dept['type']])) {
+                                                        $grouped_departments[$dept['type']][] = $dept;
+                                                    }
+                                                }
+                                                ?>
+
+                                                <?php if (!empty($grouped_departments['academic'])): ?>
+                                                    <optgroup label="สายวิชาการ">
+                                                        <?php foreach ($grouped_departments['academic'] as $dept): ?>
+                                                            <option value="<?php echo $dept['id']; ?>" <?php echo isset($_POST['department_id']) && $_POST['department_id'] == $dept['id'] ? 'selected' : ''; ?>>
+                                                                <?php echo htmlspecialchars($dept['name']); ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </optgroup>
+                                                <?php endif; ?>
+
+                                                <?php if (!empty($grouped_departments['primary'])): ?>
+                                                    <optgroup label="ประถมศึกษา">
+                                                        <?php foreach ($grouped_departments['primary'] as $dept): ?>
+                                                            <option value="<?php echo $dept['id']; ?>" <?php echo isset($_POST['department_id']) && $_POST['department_id'] == $dept['id'] ? 'selected' : ''; ?>>
+                                                                <?php echo htmlspecialchars($dept['name']); ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </optgroup>
+                                                <?php endif; ?>
+
+                                                <?php if (!empty($grouped_departments['support'])): ?>
+                                                    <optgroup label="สายสนับสนุน">
+                                                        <?php foreach ($grouped_departments['support'] as $dept): ?>
+                                                            <option value="<?php echo $dept['id']; ?>" <?php echo isset($_POST['department_id']) && $_POST['department_id'] == $dept['id'] ? 'selected' : ''; ?>>
+                                                                <?php echo htmlspecialchars($dept['name']); ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </optgroup>
+                                                <?php endif; ?>
+                                            </select>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                                 <div class="row mb-3">
@@ -415,7 +484,18 @@ ob_start();
                                     </div>
                                 </div>
                                 <div class="row mb-3">
-                                    <label for="status" class="col-sm-3 col-form-label">สถานะ</label>
+                                    <label for="work_status" class="col-sm-3 col-form-label">สถานะการทำงาน</label>
+                                    <div class="col-sm-9">
+                                        <select class="form-select" id="work_status" name="work_status">
+                                            <option value="working" <?php echo (!isset($_POST['work_status']) || $_POST['work_status'] === 'working') ? 'selected' : ''; ?>>ปฏิบัติงาน</option>
+                                            <option value="retired" <?php echo (isset($_POST['work_status']) && $_POST['work_status'] === 'retired') ? 'selected' : ''; ?>>เกษียณอายุ</option>
+                                            <option value="leave" <?php echo (isset($_POST['work_status']) && $_POST['work_status'] === 'leave') ? 'selected' : ''; ?>>ลาศึกษาต่อ</option>
+                                            <option value="resigned" <?php echo (isset($_POST['work_status']) && $_POST['work_status'] === 'resigned') ? 'selected' : ''; ?>>ลาออก</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <label for="status" class="col-sm-3 col-form-label">สถานะในระบบ</label>
                                     <div class="col-sm-9">
                                         <select class="form-select" id="status" name="status">
                                             <option value="active" <?php echo (!isset($_POST['status']) || $_POST['status'] === 'active') ? 'selected' : ''; ?>>เปิดใช้งาน</option>
@@ -435,9 +515,26 @@ ob_start();
                             </div>
                             <div class="card-body">
                                 <div class="row mb-3">
-                                    <label for="education" class="col-sm-2 col-form-label">ประวัติการศึกษา</label>
+                                    <label for="expertise" class="col-sm-2 col-form-label">ความเชี่ยวชาญ</label>
                                     <div class="col-sm-10">
-                                        <textarea class="form-control" id="education" name="education" rows="3"><?php echo isset($_POST['education']) ? htmlspecialchars($_POST['education']) : ''; ?></textarea>
+                                        <textarea class="form-control" id="expertise" name="expertise" rows="3"
+                                                  placeholder="เช่น Microfluidics / MeV Ion Beam / Image processing"><?php echo isset($_POST['expertise']) ? htmlspecialchars($_POST['expertise']) : ''; ?></textarea>
+                                        <small class="form-text text-muted">ระบุความเชี่ยวชาญหรือสาขาที่สนใจ</small>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <label for="cv_file_path" class="col-sm-2 col-form-label">ไฟล์ CV (PDF)</label>
+                                    <div class="col-sm-10">
+                                        <input type="file" class="form-control" id="cv_file_path" name="cv_file_path" accept=".pdf">
+                                        <small class="form-text text-muted">อัปโหลดไฟล์ PDF ของประวัติส่วนตัว (ไม่บังคับ)</small>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <label for="google_scholar_url" class="col-sm-2 col-form-label">Google Scholar</label>
+                                    <div class="col-sm-10">
+                                        <input type="url" class="form-control" id="google_scholar_url" name="google_scholar_url"
+                                               value="<?php echo isset($_POST['google_scholar_url']) ? htmlspecialchars($_POST['google_scholar_url']) : ''; ?>"
+                                               placeholder="https://scholar.google.com/citations?user=...">
                                     </div>
                                 </div>
                                 <div class="row mb-3">

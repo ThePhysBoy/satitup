@@ -22,24 +22,11 @@ $id = $_GET['id'];
 $title = '';
 $description = '';
 $link = '';
-$ranking_type = '';
 $display_order = 0;
 $active = 1;
 $current_image = '';
 $errors = [];
 $success_message = '';
-
-// Get ranking types
-$ranking_types = [
-    'general' => 'ทั่วไป',
-    'the_impact' => 'THE Impact Rankings',
-    'the_world' => 'THE World University Rankings',
-    'qs_world' => 'QS World University Rankings',
-    'qs_asia' => 'QS Asia University Rankings',
-    'ui_green' => 'UI GreenMetric',
-    'scimago' => 'Scimago Institutions Rankings',
-    'webometrics' => 'Webometrics'
-];
 
 // Get ranking item data
 $stmt = $conn->prepare("SELECT * FROM university_rankings WHERE id = ?");
@@ -56,7 +43,6 @@ $ranking = $result->fetch_assoc();
 $title = $ranking['title'];
 $description = $ranking['description'];
 $link = $ranking['link'];
-$ranking_type = $ranking['ranking_type'];
 $display_order = $ranking['display_order'];
 $active = $ranking['active'];
 $current_image = $ranking['image_path'];
@@ -67,7 +53,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = $_POST['title'] ?? '';
     $description = $_POST['description'] ?? '';
     $link = $_POST['link'] ?? '';
-    $ranking_type = $_POST['ranking_type'] ?? 'general';
     $display_order = isset($_POST['display_order']) ? (int)$_POST['display_order'] : 0;
     $active = isset($_POST['active']) ? 1 : 0;
     
@@ -140,8 +125,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // If no errors, update the database
         if (empty($errors)) {
-            $stmt = $conn->prepare("UPDATE university_rankings SET title = ?, description = ?, image_path = ?, link = ?, ranking_type = ?, display_order = ?, active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
-            $stmt->bind_param("sssssiis", $title, $description, $image_path, $link, $ranking_type, $display_order, $active, $id);
+            $stmt = $conn->prepare("UPDATE university_rankings SET title = ?, description = ?, image_path = ?, link = ?, display_order = ?, active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+            $stmt->bind_param("ssssiis", $title, $description, $image_path, $link, $display_order, $active, $id);
             
             if ($stmt->execute()) {
                 $success_message = "อัพเดตข้อมูลเรียบร้อยแล้ว";
@@ -443,18 +428,10 @@ if (isset($_POST['delete_image']) && $_POST['delete_image'] === '1') {
                             
                             <div class="row mb-3">
                                 <div class="col-md-6">
-                                    <label for="ranking_type" class="form-label">ประเภทการจัดอันดับ</label>
-                                    <select class="form-select" id="ranking_type" name="ranking_type">
-                                        <?php foreach ($ranking_types as $key => $value): ?>
-                                            <option value="<?php echo $key; ?>" <?php echo $ranking_type === $key ? 'selected' : ''; ?>><?php echo $value; ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
                                     <label for="display_order" class="form-label">ลำดับการแสดงผล</label>
                                     <input type="number" class="form-control" id="display_order" name="display_order" value="<?php echo $display_order; ?>" min="0">
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-6">
                                     <div class="form-check mt-4">
                                         <input class="form-check-input" type="checkbox" id="active" name="active" <?php echo $active ? 'checked' : ''; ?>>
                                         <label class="form-check-label" for="active">

@@ -125,10 +125,10 @@ include 'navbar_fix.php';
                                                     <div class="row">
                                                         <div class="col-md-3 text-center">
                                                             <?php if (!empty($staff['image_path'])): ?>
-                                                                <img src="../<?php echo htmlspecialchars($staff['image_path']); ?>" 
+                                                                <img src="../<?php echo htmlspecialchars($staff['image_path']); ?>"
                                                                      class="img-fluid rounded-circle staff-image" alt="รูปบุคลากร">
                                                             <?php else: ?>
-                                                                <img src="../assets/img/user-placeholder.png" 
+                                                                <img src="../assets/img/user-placeholder.png"
                                                                      class="img-fluid rounded-circle staff-image" alt="ไม่มีรูปภาพ">
                                                             <?php endif; ?>
                                                         </div>
@@ -187,10 +187,10 @@ include 'navbar_fix.php';
                                             <div class="card staff-card h-100">
                                                 <div class="card-body text-center">
                                                     <?php if (!empty($staff['image_path'])): ?>
-                                                        <img src="../<?php echo htmlspecialchars($staff['image_path']); ?>" 
+                                                        <img src="../<?php echo htmlspecialchars($staff['image_path']); ?>"
                                                              class="img-fluid rounded-circle staff-image mb-3" alt="รูปบุคลากร">
                                                     <?php else: ?>
-                                                        <img src="../assets/img/user-placeholder.png" 
+                                                        <img src="../assets/img/user-placeholder.png"
                                                              class="img-fluid rounded-circle staff-image mb-3" alt="ไม่มีรูปภาพ">
                                                     <?php endif; ?>
                                                     

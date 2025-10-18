@@ -1,0 +1,396 @@
+/* CSS สำหรับ Video Quick Links */
+
+/* Video Quick Links Section */
+.video-quick-links-section {
+    background: linear-gradient(135deg, #e0e7ff 0%, #f0f4ff 100%);
+    padding: 60px 0;
+}
+
+.video-quick-links-section .section-title {
+    color: #333;
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    position: relative;
+    display: inline-block;
+}
+
+.video-quick-links-section .section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, #8B7AA8, #9B8AB8);
+    border-radius: 2px;
+}
+
+.video-quick-links-section .section-subtitle {
+    color: #5a6268;
+    font-size: 1.1rem;
+}
+
+/* Featured Video */
+.featured-video-container {
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    padding: 15px;
+}
+
+.featured-video-info {
+    padding: 10px;
+}
+
+.featured-video-info h4 {
+    font-size: 1.3rem;
+    margin-bottom: 5px;
+}
+
+.featured-video-placeholder {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 10px;
+    color: #666;
+}
+
+/* Video Slider */
+.latest-videos-slider {
+    margin: 20px 0;
+}
+
+.video-slider-container {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    padding: 10px 0;
+    margin: 0 auto;
+}
+
+.video-slider {
+    display: flex;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    gap: 15px;
+    width: max-content;
+    padding: 0 10px;
+}
+
+.video-item {
+    min-width: calc(20% - 12px);  /* 20% สำหรับ 5 รายการ */
+    max-width: calc(20% - 12px);
+    flex: 0 0 auto;
+    transition: transform 0.3s ease;
+}
+
+/* Video Cards */
+.video-card {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.video-card:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.video-thumbnail {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+}
+
+.video-thumbnail img {
+    transition: transform 0.5s ease;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.video-thumbnail:hover img {
+    transform: scale(1.05);
+}
+
+.video-play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1rem;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.video-thumbnail:hover .video-play-button {
+    opacity: 1;
+    background: rgba(139, 122, 168, 0.8);
+}
+
+.video-new-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 5;
+}
+
+.video-new-badge .badge {
+    font-size: 0.75rem;
+    padding: 5px 10px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 10px 5px rgba(220, 53, 69, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+    }
+}
+
+.video-info-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
+    color: white;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.video-thumbnail:hover .video-info-overlay {
+    opacity: 1;
+}
+
+.video-info-overlay h5 {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.video-info-overlay .category {
+    font-size: 0.75rem;
+    margin: 0;
+    opacity: 0.8;
+}
+
+/* Slider Controls - ปุ่มเลื่อนสีเทาเข้ม */
+.slider-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.slider-control-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #495057;  /* สีเทาเข้ม แตกต่างจากปุ่ม play */
+    color: white;
+    border: 2px solid #343a40;
+    transition: all 0.3s ease;
+    opacity: 0.8;
+}
+
+.slider-control-btn:hover {
+    background-color: #343a40;  /* สีเทาเข้มขึ้นเมื่อ hover */
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.slider-control-btn:focus {
+    box-shadow: 0 0 0 0.25rem rgba(73, 80, 87, 0.25);
+}
+
+.slider-control-btn i {
+    font-size: 0.8rem;
+}
+
+/* ปุ่มดูวิดีโอทั้งหมด */
+.latest-videos-slider .btn-primary {
+    background: linear-gradient(135deg, #8B7AA8 0%, #9B8AB8 100%);
+    border: none;
+    padding: 6px 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(139, 122, 168, 0.3);
+}
+
+.latest-videos-slider .btn-primary:hover {
+    background: linear-gradient(135deg, #7A6897 0%, #8A79A7 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(139, 122, 168, 0.4);
+}
+
+/* จัดเรียง controls ให้สวยงาม */
+.latest-videos-slider .gap-2 {
+    gap: 0.5rem!important;
+}
+
+.latest-videos-slider .gap-3 {
+    gap: 1rem!important;
+}
+
+/* Video Tooltip */
+.video-tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    max-width: 300px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Video Popup */
+.video-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.video-popup.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.video-popup-content {
+    width: 90%;
+    max-width: 900px;
+    position: relative;
+}
+
+.video-popup-close {
+    position: absolute;
+    top: -40px;
+    right: -10px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+}
+
+.video-popup-close:hover {
+    color: #f8f9fa;
+    transform: scale(1.1);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .video-item {
+        min-width: calc(25% - 12px);  /* 4 รายการบนหน้าจอขนาดกลาง */
+        max-width: calc(25% - 12px);
+    }
+}
+
+@media (max-width: 991px) {
+    .video-item {
+        min-width: calc(33.333% - 10px);  /* 3 รายการบนแท็บเล็ต */
+        max-width: calc(33.333% - 10px);
+    }
+    
+    .latest-videos-slider .btn-primary {
+        padding: 5px 12px;
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .video-item {
+        min-width: calc(50% - 8px);  /* 2 รายการบนมือถือ */
+        max-width: calc(50% - 8px);
+    }
+    
+    .video-slider {
+        gap: 10px;
+    }
+    
+    .video-play-button {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+    }
+    
+    .video-info-overlay h5 {
+        font-size: 0.8rem;
+    }
+    
+    .video-info-overlay .category {
+        font-size: 0.7rem;
+    }
+    
+    .latest-videos-slider .d-flex {
+        flex-wrap: wrap;
+        gap: 0.5rem!important;
+    }
+    
+    .latest-videos-slider h4 {
+        font-size: 1.2rem;
+        width: 100%;
+        text-align: center;
+        margin-bottom: 0.5rem!important;
+    }
+    
+    .latest-videos-slider .btn-primary {
+        order: 1;
+        flex: 1;
+    }
+    
+    .latest-videos-slider .slider-controls {
+        order: 2;
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .video-item {
+        min-width: 100%;  /* 1 รายการบนมือถือขนาดเล็ก */
+        max-width: 100%;
+    }
+    
+    .video-slider {
+        padding: 0 5px;
+    }
+}

@@ -30,15 +30,17 @@
   };
 
   /** Navigation Dropdown */
-  $("#header .menu").dropdown_menu();
+  if (typeof $.fn.dropdown_menu !== 'undefined') {
+    $("#header .menu").dropdown_menu();
+  }
 
   /** Mobile Menu */
-  if (isMobile.any()) {
+  if (isMobile.any() && typeof $.fn.doubleTapToGo !== 'undefined') {
     $(".menu li:has(ul)").doubleTapToGo();
   }
 
   /** Main Navigation Sticky */
-  if (!isMobile.any()) {
+  if (!isMobile.any() && typeof $.fn.waypoint !== 'undefined') {
     $("#main-nav").waypoint("sticky", {
       handler: function (direction) {
         if (direction == "down") {
@@ -52,7 +54,7 @@
   }
 
   /** Sticky Booking Rom */
-  if (!isMobile.any()) {
+  if (!isMobile.any() && typeof $.fn.waypoint !== 'undefined') {
     $("#header").waypoint({
       handler: function (direction) {
         if (direction == "down") {
@@ -146,7 +148,8 @@
   /** Stellar */
   if (
     !isMobile.any() &&
-    $(".parallax-container, .parallax, .parallax-bg").length > 0
+    $(".parallax-container, .parallax, .parallax-bg").length > 0 &&
+    typeof $.stellar === 'function'
   ) {
     $.stellar({
       horizontalScrolling: false,
@@ -156,7 +159,7 @@
   }
 
   /** Contact Map */
-  if ($("#map-holder").length > 0) {
+  if ($("#map-holder").length > 0 && typeof $.fn.gmap3 !== 'undefined' && typeof google !== 'undefined') {
     $("#map-container")
       .width("100%")
       .height("100%")
@@ -255,15 +258,22 @@
   $('a[target="_self"]').on("click", function (e) {
     e.preventDefault();
     var target = $(this).attr("href");
-    $(target).velocity("scroll", {
-      duration: 1000,
-      easing: "easeOutCubic",
-      offset: -($("#main-nav").outerHeight() + 30),
-    });
+    if (typeof $.fn.velocity !== 'undefined') {
+      $(target).velocity("scroll", {
+        duration: 1000,
+        easing: "easeOutCubic",
+        offset: -($("#main-nav").outerHeight() + 30),
+      });
+    } else {
+      // Fallback to standard jQuery animation
+      $('html, body').animate({
+        scrollTop: $(target).offset().top - ($("#main-nav").outerHeight() + 30)
+      }, 1000);
+    }
   });
 
   /** Lightbox */
-  if ($('a[rel="lightbox"]').length > 0) {
+  if ($('a[rel="lightbox"]').length > 0 && typeof $.fn.boxer !== 'undefined') {
     $(function () {
       $('a[rel="lightbox"]').boxer({
         fixed: true,
@@ -272,12 +282,12 @@
   }
 
   /** Booking Select */
-  if (!isMobile.any() && $(".select-or-die").length > 0) {
+  if (!isMobile.any() && $(".select-or-die").length > 0 && typeof $.fn.selectOrDie !== 'undefined') {
     $(".select-or-die").selectOrDie();
   }
 
   /** Video Bg */
-  if ($("#video-bg").length > 0) {
+  if ($("#video-bg").length > 0 && typeof $.fn.wallpaper !== 'undefined') {
     $("#video-bg").wallpaper({
       source: {
         poster: "images/sunny.jpg",
@@ -289,7 +299,7 @@
   }
 
   /** 404 Video Bg */
-  if ($("#videobg-2").length > 0) {
+  if ($("#videobg-2").length > 0 && typeof $.fn.wallpaper !== 'undefined') {
     $("#videobg-2").wallpaper({
       source: {
         poster: "images/birds.jpg",
@@ -301,7 +311,7 @@
   }
 
   /** Recreation Video Bg */
-  if ($("#videobg-3").length > 0) {
+  if ($("#videobg-3").length > 0 && typeof $.fn.wallpaper !== 'undefined') {
     $("#videobg-3").wallpaper({
       source: {
         poster: "images/snorkelling.jpg",
@@ -316,25 +326,39 @@
   $(".search-button").on("click", function (e) {
     e.preventDefault();
 
-    $("#search-form").velocity("fadeIn");
+    if (typeof $.fn.velocity !== 'undefined') {
+      $("#search-form").velocity("fadeIn");
+    } else {
+      $("#search-form").fadeIn();
+    }
     $(".search-field").focus();
 
     $("#main-nav").mouseleave(function () {
-      $("#search-form").velocity("fadeOut");
+      if (typeof $.fn.velocity !== 'undefined') {
+        $("#search-form").velocity("fadeOut");
+      } else {
+        $("#search-form").fadeOut();
+      }
     });
   });
 
   $(".close-search").on("click", function (e) {
     e.preventDefault();
 
-    $("#search-form").velocity("fadeOut");
+    if (typeof $.fn.velocity !== 'undefined') {
+      $("#search-form").velocity("fadeOut");
+    } else {
+      $("#search-form").fadeOut();
+    }
   });
 
   /** Tooltips */
-  $("[data-toggle='tooltip']").tooltip();
+  if (typeof $.fn.tooltip !== 'undefined') {
+    $("[data-toggle='tooltip']").tooltip();
+  }
 
   /** Date Picker */
-  if ($('.form-control[data-provide="datepicker"]').length > 0) {
+  if ($('.form-control[data-provide="datepicker"]').length > 0 && typeof $.fn.datepicker !== 'undefined') {
     $('.form-control[data-provide="datepicker"]')
       .datepicker()
       .on("show", function (e) {
@@ -343,52 +367,70 @@
   }
 
   /** Animations */
-  if ($(".animated").length > 0 && !isMobile.any()) {
+  if ($(".animated").length > 0 && !isMobile.any() && typeof $.fn.waypoint !== 'undefined') {
     $(".animated").waypoint(
       function () {
         var target = $(this);
         if (!target.hasClass("animated_off")) {
-          $(target).delay(150).velocity("transition.slideUpIn");
+          if (typeof $.fn.velocity !== 'undefined') {
+            $(target).delay(150).velocity("transition.slideUpIn");
+          } else {
+            $(target).delay(150).fadeIn();
+          }
           target.addClass("animated_off");
         }
       },
       {
-        offset: $.waypoints("viewportHeight"),
+        offset: typeof $.waypoints === 'function' ? $.waypoints("viewportHeight") : '100%',
       }
     );
   } else {
     $(".animated").css("opacity", 1);
   }
-  if ($(".animated-children").length > 0 && !isMobile.any()) {
+  if ($(".animated-children").length > 0 && !isMobile.any() && typeof $.fn.waypoint !== 'undefined') {
     $(".animated-children").waypoint(
       function () {
         var target = $(this);
         if (!target.hasClass("animated_off")) {
-          $('[class*="col-"]', target)
-            .children()
-            .velocity("transition.slideUpIn", { stagger: 100 });
+          if (typeof $.fn.velocity !== 'undefined') {
+            $('[class*="col-"]', target)
+              .children()
+              .velocity("transition.slideUpIn", { stagger: 100 });
+          } else {
+            $('[class*="col-"]', target)
+              .children()
+              .each(function(index) {
+                $(this).delay(index * 100).fadeIn();
+              });
+          }
           target.addClass("animated_off");
         }
       },
       {
-        offset: $.waypoints("viewportHeight"),
+        offset: typeof $.waypoints === 'function' ? $.waypoints("viewportHeight") : '100%',
       }
     );
   } else {
     $('[class*="col-"]', ".animated-children").css("opacity", 1);
   }
-  if (!isMobile.any()) {
+  if (!isMobile.any() && typeof $.fn.waypoint !== 'undefined') {
     $("#footer").waypoint(
       function () {
         if (!$("#footer").hasClass("animated_off")) {
-          $("aside", "#footer")
-            .delay(50)
-            .velocity("transition.slideUpIn", { drag: true, stagger: 50 });
+          if (typeof $.fn.velocity !== 'undefined') {
+            $("aside", "#footer")
+              .delay(50)
+              .velocity("transition.slideUpIn", { drag: true, stagger: 50 });
+          } else {
+            $("aside", "#footer").each(function(index) {
+              $(this).delay(50 + (index * 50)).fadeIn();
+            });
+          }
           $("#footer").addClass("animated_off");
         }
       },
       {
-        offset: $.waypoints("viewportHeight"),
+        offset: typeof $.waypoints === 'function' ? $.waypoints("viewportHeight") : '100%',
       }
     );
   } else {
@@ -410,7 +452,7 @@
   }
 
   /** Attractions Isotope */
-  if ($("#isotope").length > 0) {
+  if ($("#isotope").length > 0 && typeof $.fn.isotope !== 'undefined') {
     $("#isotope").isotope();
     $("#isotope-filter a").on("click", function (e) {
       e.preventDefault();
@@ -419,9 +461,15 @@
       $(this).parent().siblings().removeClass("selected");
       $(this).parent().addClass("selected");
       if (!$("#footer").hasClass("animated_off")) {
-        $("aside", "#footer")
-          .delay(150)
-          .velocity("transition.slideUpIn", { drag: true, stagger: 50 });
+        if (typeof $.fn.velocity !== 'undefined') {
+          $("aside", "#footer")
+            .delay(150)
+            .velocity("transition.slideUpIn", { drag: true, stagger: 50 });
+        } else {
+          $("aside", "#footer").each(function(index) {
+            $(this).delay(150 + (index * 50)).fadeIn();
+          });
+        }
         $("#footer").addClass("animated_off");
       }
     });

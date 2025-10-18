@@ -1,24 +1,24 @@
 <!-- แถบนำทางส่วนใหม่ (New Section Navigation Bar) -->
 <!-- แถบนำทางนี้แสดงเมนูเพิ่มเติมที่เกี่ยวข้องกับการสมัครเรียน, วิดีโอ, ระบบบริหาร, และบริการต่างๆ -->
-<nav class="navbar navbar-expand-lg new-section-navbar" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-light)); margin-top: 0; position: relative; z-index: 100;">
+<nav class="navbar navbar-expand-lg new-section-navbar" style="background: linear-gradient(135deg, #8B7AA8, #A698BC); margin-top: 0; position: relative; z-index: 100;">
     <!-- 
     สไตล์ inline ที่กำหนด:
-    - background: พื้นหลังไล่ระดับสีจากสีหลักไปยังสีหลักอ่อน (จากซ้ายบนไปขวาล่าง)
+    - background: พื้นหลังไล่ระดับสีมวง (#8B7AA8 ไป #A698BC)
     - margin-top: 0 - ไม่มีขอบด้านบน
     - position: relative - กำหนดตำแหน่งสัมพัทธ์
     - z-index: 100 - ลำดับการซ้อนทับ (ค่ายิ่งสูงยิ่งอยู่ด้านบน)
     -->
     
-    <!-- container-fluid คือคอนเทนเนอร์ที่กว้างเต็มหน้าจอ, justify-content-center จัดให้เนื้อหาอยู่ตรงกลาง -->
-    <div class="container-fluid justify-content-center">
+    <!-- container-fluid คือคอนเทนเนอร์ที่กว้างเต็มหน้าจอ -->
+    <div class="container-fluid">
         <!-- ส่วนเมนูที่จะยุบเมื่อหน้าจอเล็กลง แต่ตั้งค่า show ให้แสดงตลอด -->
         <div class="collapse navbar-collapse show" id="newSectionNavbar">
-            <!-- รายการเมนูหลัก -->
-            <ul class="navbar-nav">
+            <!-- รายการเมนูหลัก - กระจายเต็มพื้นที่ -->
+            <ul class="navbar-nav w-100 d-flex justify-content-between">
                 <!-- เมนูแบบดรอปดาวน์สำหรับการสมัครเรียน -->
                 <li class="nav-item dropdown">
                     <!-- ลิงก์หลักที่เปิดเมนูดรอปดาวน์ -->
-                    <a class="nav-link dropdown-toggle" href="#" id="navApply" role="button" data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle text-white" href="#" id="navApply" role="button" data-bs-toggle="dropdown">
                         <!-- ไอคอน Font Awesome แสดงสัญลักษณ์การลงนาม -->
                         <i class="fas fa-file-signature"></i> สมัครเรียน
                     </a>
@@ -35,7 +35,7 @@
                 <!-- เมนูแบบดรอปดาวน์สำหรับวีดิทัศน์แนะนำ -->
                 <li class="nav-item dropdown">
                     <!-- ลิงก์หลักที่เปิดเมนูดรอปดาวน์ -->
-                    <a class="nav-link dropdown-toggle" href="#" id="navVideos" role="button" data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle text-white" href="#" id="navVideos" role="button" data-bs-toggle="dropdown">
                         <!-- ไอคอน Font Awesome แสดงสัญลักษณ์วิดีโอ -->
                         <i class="fas fa-video"></i> วีดิทัศน์แนะนำ
                     </a>
@@ -53,25 +53,16 @@
                 <!-- เมนูแบบดรอปดาวน์สำหรับระบบบริหารงานวิชาการ -->
                 <li class="nav-item dropdown">
                     <!-- ลิงก์หลักที่เปิดเมนูดรอปดาวน์ -->
-                    <a class="nav-link dropdown-toggle" href="#" id="navAcademicManagement" role="button" data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle text-white" href="https://academic.satit.up.ac.th/index#/teacher/processgradeinfo" target="_blank">
                         <!-- ไอคอน Font Awesome แสดงสัญลักษณ์เฟือง (การตั้งค่า) -->
                         <i class="fas fa-cogs"></i> ระบบบริหารงานวิชาการ
                     </a>
-                    <!-- รายการเมนูย่อยในดรอปดาวน์ -->
-                    <ul class="dropdown-menu" aria-labelledby="navAcademicManagement">
-                        <!-- ลิงก์ไปยังหน้าต่างๆ ของระบบบริหารงานวิชาการ -->
-                        <li><a class="dropdown-item" href="academic-grade-calculation.php">การตัดเกรด</a></li>
-                        <li><a class="dropdown-item" href="academic-grade-submission.php">การส่งเกรด</a></li>
-                        <li><a class="dropdown-item" href="academic-grade-correction.php">การแก้ผลการเรียน</a></li>
-                        <li><a class="dropdown-item" href="academic-status-0-r-ms.php">0 ร มส</a></li>
-                        <li><a class="dropdown-item" href="academic-timetable.php">ตารางสอน</a></li>
-                    </ul>
                 </li>
 
                 <!-- เมนูลิงก์เดียวสำหรับทุนการศึกษา -->
                 <li class="nav-item">
                     <!-- ลิงก์ไปยังหน้าทุนการศึกษา -->
-                    <a class="nav-link" href="scholarships.php">
+                    <a class="nav-link text-white" href="scholarships.php">
                         <!-- ไอคอน Font Awesome แสดงสัญลักษณ์มือถือเงิน -->
                         <i class="fas fa-hand-holding-usd"></i> ทุนการศึกษา
                     </a>
@@ -80,7 +71,7 @@
                 <!-- เมนูแบบดรอปดาวน์สำหรับการนำเสนอผลงาน/การแข่งขัน -->
                 <li class="nav-item dropdown">
                     <!-- ลิงก์หลักที่เปิดเมนูดรอปดาวน์ -->
-                    <a class="nav-link dropdown-toggle" href="#" id="navPresentations" role="button" data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle text-white" href="#" id="navPresentations" role="button" data-bs-toggle="dropdown">
                         <!-- ไอคอน Font Awesome แสดงสัญลักษณ์ถ้วยรางวัล -->
                         <i class="fas fa-trophy"></i> การนำเสนอผลงาน/การแข่งขัน
                     </a>
@@ -98,7 +89,7 @@
                 <!-- เมนูลิงก์เดียวสำหรับ Green Office -->
                 <li class="nav-item">
                     <!-- ลิงก์ไปยังหน้า Green Office -->
-                    <a class="nav-link" href="green-office.php">
+                    <a class="nav-link text-white" href="green-office.php">
                         <!-- ไอคอน Font Awesome แสดงสัญลักษณ์ใบไม้ -->
                         <i class="fas fa-leaf"></i> Green Office
                     </a>
@@ -107,7 +98,7 @@
                 <!-- เมนูลิงก์เดียวสำหรับ SAR (Self Assessment Report) -->
                 <li class="nav-item">
                     <!-- ลิงก์ไปยังหน้า SAR -->
-                    <a class="nav-link" href="sar.php">
+                    <a class="nav-link text-white" href="sar.php">
                         <!-- ไอคอน Font Awesome แสดงสัญลักษณ์กราฟเส้น -->
                         <i class="fas fa-chart-line"></i> SAR
                     </a>
@@ -116,7 +107,7 @@
                 <!-- เมนูลิงก์เดียวสำหรับหอพัก -->
                 <li class="nav-item">
                     <!-- ลิงก์ไปยังหน้าหอพัก -->
-                    <a class="nav-link" href="dormitory.php">
+                    <a class="nav-link text-white" href="dormitory.php">
                         <!-- ไอคอน Font Awesome แสดงสัญลักษณ์อาคาร -->
                         <i class="fas fa-building"></i> หอพัก
                     </a>
@@ -125,7 +116,7 @@
                 <!-- เมนูลิงก์เดียวสำหรับประเมินภาระงาน -->
                 <li class="nav-item">
                     <!-- ลิงก์ไปยังหน้าประเมินภาระงาน -->
-                    <a class="nav-link" href="workload-assessment.php">
+                    <a class="nav-link text-white" href="workload-assessment.php">
                         <!-- ไอคอน Font Awesome แสดงสัญลักษณ์รายการงาน -->
                         <i class="fas fa-tasks"></i> ประเมินภาระงาน
                     </a>

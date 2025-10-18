@@ -89,6 +89,15 @@ ob_start();
                         <div class="badge bg-primary mb-3 px-3 py-2">หัวหน้า<?php echo htmlspecialchars($staff['department_name'] ?? 'หน่วยงาน'); ?></div>
                     <?php endif; ?>
                     
+                    <?php if (!empty($staff['cv_file_path']) && file_exists('../../' . $staff['cv_file_path'])): ?>
+                    <div class="mb-3">
+                        <a href="../../<?php echo htmlspecialchars($staff['cv_file_path']); ?>" 
+                           class="btn btn-danger btn-block" target="_blank">
+                            <i class="fas fa-file-pdf me-2"></i> ดาวน์โหลด CV (PDF)
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    
                     <div class="list-group list-group-flush text-start mt-4">
                         <div class="list-group-item d-flex justify-content-between align-items-center">
                             <span><i class="fas fa-building me-2"></i> หน่วยงาน/กลุ่มสาระ</span>
@@ -135,6 +144,39 @@ ob_start();
         
         <!-- Staff Details -->
         <div class="col-lg-8">
+            <?php if (!empty($staff['cv_file_path']) && file_exists('../../' . $staff['cv_file_path'])): ?>
+            <!-- CV PDF Viewer -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-file-pdf me-2"></i> Curriculum Vitae (CV)
+                    </h6>
+                    <div>
+                        <a href="../../<?php echo htmlspecialchars($staff['cv_file_path']); ?>" 
+                           class="btn btn-sm btn-danger" target="_blank">
+                            <i class="fas fa-external-link-alt"></i> เปิดในแท็บใหม่
+                        </a>
+                        <a href="../../<?php echo htmlspecialchars($staff['cv_file_path']); ?>" 
+                           class="btn btn-sm btn-success" download>
+                            <i class="fas fa-download"></i> ดาวน์โหลด
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <embed src="../../<?php echo htmlspecialchars($staff['cv_file_path']); ?>" 
+                           type="application/pdf" 
+                           width="100%" 
+                           height="600px" 
+                           style="border: 1px solid #ddd; border-radius: 5px;">
+                    <p class="text-muted text-center mt-2 mb-0">
+                        <small>หากไม่สามารถแสดง PDF ได้ กรุณา 
+                        <a href="../../<?php echo htmlspecialchars($staff['cv_file_path']); ?>" target="_blank">คลิกที่นี่</a>
+                        เพื่อเปิดในแท็บใหม่</small>
+                    </p>
+                </div>
+            </div>
+            <?php endif; ?>
+            
             <!-- Positions -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">

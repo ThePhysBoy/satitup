@@ -85,19 +85,106 @@
     }
 }
 
-/* ปรับแต่งปุ่ม Chatbot */
-.chatbot-toggle {
-    animation: 
-        bounce 4s infinite ease-in-out, 
-        colorPulse 7s infinite alternate,
-        wiggle 8s infinite ease-in-out;
-    transition: all 0.3s ease;
+/* เอฟเฟกต์กระพริบสีทอง */
+@keyframes golden-pulse {
+    0% {
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    }
+    25% {
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2), 0 0 15px rgba(255, 215, 0, 0.3);
+    }
+    50% {
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2), 0 0 25px rgba(255, 215, 0, 0.5);
+    }
+    75% {
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2), 0 0 15px rgba(255, 215, 0, 0.3);
+    }
+    100% {
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    }
 }
 
-/* เมื่อ Hover ที่ปุ่ม */
+/* เอฟเฟกต์สั่นเบาๆ */
+@keyframes gentle-shake {
+    0%, 100% {
+        transform: translateX(0) translateY(0);
+    }
+    10% {
+        transform: translateX(-1px) translateY(-1px);
+    }
+    20% {
+        transform: translateX(1px) translateY(0);
+    }
+    30% {
+        transform: translateX(-1px) translateY(1px);
+    }
+    40% {
+        transform: translateX(1px) translateY(-1px);
+    }
+    50% {
+        transform: translateX(0) translateY(0);
+    }
+}
+
+/* เอฟเฟกต์พิเศษเฉพาะ DesUPGPT */
+@keyframes desup-pulse {
+    0% {
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(255, 215, 0, 0.4);
+    }
+    25% {
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2), 0 0 0 5px rgba(255, 215, 0, 0.3);
+    }
+    50% {
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2), 0 0 0 10px rgba(255, 215, 0, 0.2);
+    }
+    75% {
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2), 0 0 0 5px rgba(255, 215, 0, 0.3);
+    }
+    100% {
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(255, 215, 0, 0.4);
+    }
+}
+
+/* ปรับแต่งปุ่ม Chatbot - DesUPGPT Edition */
+.chatbot-toggle {
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    width: 60px !important;
+    height: 60px !important;
+    background: #7b3b95 !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #fff !important;
+    cursor: pointer !important;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2) !important;
+    z-index: 999999 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    animation: none !important;
+    transition: none !important;
+}
+
+/* เพิ่มกรอบสีทองรอบปุ่ม */
+.chatbot-toggle {
+    border: 3px solid #ffd700 !important;
+    box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 215, 0, 0.5) !important;
+}
+
+/* เมื่อ Hover ที่ปุ่ม - DesUPGPT Special Effects */
 .chatbot-toggle:hover {
-    animation: shake 0.5s ease-in-out;
-    transform: scale(1.1);
+    animation: shake 0.5s ease-in-out, golden-pulse 0.5s infinite, gentle-shake 0.5s infinite, desup-pulse 0.3s infinite;
+    transform: scale(1.15);
+    box-shadow:
+        0 5px 15px rgba(255, 215, 0, 0.4),
+        0 0 30px rgba(255, 215, 0, 0.6),
+        0 0 40px rgba(123, 59, 149, 0.8),
+        inset 0 0 20px rgba(255, 215, 0, 0.3);
+    background: linear-gradient(135deg, #ffd700 0%, #7b3b95 50%, #9b59b6 100%);
 }
 
 /* เมื่อคลิกที่ปุ่ม */
@@ -111,28 +198,174 @@
 }
 
 .chatbot-toggle:hover i {
-    transform: scale(1.2);
+    transform: scale(1.3);
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
 }
 
-/* เพิ่มเอฟเฟกต์ "มีข้อความใหม่" */
+/* เพิ่มข้อความ "DesUPGPT" ข้างปุ่ม */
+.chatbot-toggle::before {
+    content: '🤖 DesUPGPT';
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.8);
+    background: rgba(0, 0, 0, 0.3);
+    padding: 2px 6px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 215, 0, 0.5);
+    white-space: nowrap;
+    z-index: 999999;
+}
+
+/* แอนิเมชันกระดอนข้อความทุก 30 วินาที */
+@keyframes text-bounce {
+    0%, 100% {
+        transform: translateX(-50%) translateY(0);
+    }
+    1% {
+        transform: translateX(-50%) translateY(-3px);
+    }
+    2% {
+        transform: translateX(-50%) translateY(3px);
+    }
+    3% {
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+@keyframes desup-text-glow {
+    0%, 100% {
+        opacity: 0.7;
+        text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+    }
+    50% {
+        opacity: 1;
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+    }
+}
+
+/* เพิ่มเอฟเฟกต์ "มีข้อความใหม่" - DesUPGPT Edition */
 .chatbot-toggle::after {
     content: '';
     position: absolute;
-    top: 0;
-    right: 0;
-    width: 18px;
-    height: 18px;
-    background-color: #ff8c00; /* สีส้ม */
+    top: -5px;
+    right: -5px;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(45deg, #ff8c00, #ffd700);
     border-radius: 50%;
-    border: 2px solid white;
-    animation: glow 1.5s infinite alternate, shake 1s infinite ease-in-out;
+    border: 3px solid #fff;
+    animation: desup-message-pulse 1.5s infinite alternate, shake 1s infinite ease-in-out;
     display: none; /* ซ่อนไว้ก่อน จะแสดงเมื่อมีข้อความใหม่ */
     z-index: 10;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
 }
 
 /* คลาสสำหรับแสดงว่ามีข้อความใหม่ */
 .chatbot-toggle.has-new-message::after {
     display: block;
+}
+
+/* แอนิเมชันสำหรับข้อความใหม่ */
+@keyframes desup-message-pulse {
+    0% {
+        transform: scale(0.8);
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+    }
+    100% {
+        transform: scale(1.2);
+        box-shadow: 0 0 25px rgba(255, 215, 0, 1);
+    }
+}
+
+/* แอนิเมชันสั่นแรง ๆ ทุก 30 วินาที */
+@keyframes intense-shake {
+    0%, 100% {
+        transform: translateX(0) translateY(0) rotate(0deg);
+    }
+    1% {
+        transform: translateX(-12px) translateY(-12px) rotate(-5deg);
+    }
+    2% {
+        transform: translateX(12px) translateY(12px) rotate(5deg);
+    }
+    3% {
+        transform: translateX(-10px) translateY(-10px) rotate(-4deg);
+    }
+    4% {
+        transform: translateX(10px) translateY(10px) rotate(4deg);
+    }
+    5% {
+        transform: translateX(-8px) translateY(-8px) rotate(-3deg);
+    }
+    6% {
+        transform: translateX(8px) translateY(8px) rotate(3deg);
+    }
+    7% {
+        transform: translateX(-6px) translateY(-6px) rotate(-2deg);
+    }
+    8% {
+        transform: translateX(6px) translateY(6px) rotate(2deg);
+    }
+    9% {
+        transform: translateX(-3px) translateY(-3px) rotate(-1deg);
+    }
+    10% {
+        transform: translateX(3px) translateY(3px) rotate(1deg);
+    }
+    11% {
+        transform: translateX(0) translateY(0) rotate(0deg);
+    }
+}
+
+/* แอนิเมชันกระพริบสีทองทุก 30 วินาที */
+@keyframes golden-flash {
+    0%, 95%, 100% {
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        border-color: #ffd700;
+        background: linear-gradient(135deg, #7b3b95 0%, #9b59b6 50%, #ffd700 100%);
+    }
+    96% {
+        box-shadow:
+            0 3px 10px rgba(0, 0, 0, 0.2),
+            0 0 20px rgba(255, 215, 0, 0.8),
+            0 0 40px rgba(255, 215, 0, 0.6),
+            0 0 60px rgba(255, 215, 0, 0.4);
+        border-color: #fff;
+        background: linear-gradient(135deg, #ffd700 0%, #fff 50%, #7b3b95 100%);
+    }
+    97% {
+        box-shadow:
+            0 3px 10px rgba(0, 0, 0, 0.2),
+            0 0 40px rgba(255, 215, 0, 1),
+            0 0 80px rgba(255, 215, 0, 0.8),
+            0 0 120px rgba(255, 215, 0, 0.6);
+        border-color: #ffd700;
+        background: linear-gradient(135deg, #fff 0%, #ffd700 50%, #7b3b95 100%);
+    }
+    98% {
+        box-shadow:
+            0 3px 10px rgba(0, 0, 0, 0.2),
+            0 0 60px rgba(255, 215, 0, 1),
+            0 0 120px rgba(255, 215, 0, 0.8),
+            0 0 180px rgba(255, 215, 0, 0.6);
+        border-color: #fff;
+        background: linear-gradient(135deg, #ffd700 0%, #7b3b95 50%, #9b59b6 100%);
+    }
+    99% {
+        box-shadow:
+            0 3px 10px rgba(0, 0, 0, 0.2),
+            0 0 30px rgba(255, 215, 0, 1),
+            0 0 60px rgba(255, 215, 0, 0.8),
+            0 0 90px rgba(255, 215, 0, 0.6);
+        border-color: #ffd700;
+        background: linear-gradient(135deg, #7b3b95 0%, #ffd700 50%, #fff 100%);
+    }
 }
 
 /* เพิ่มเอฟเฟกต์เมื่อมีข้อความใหม่ */
@@ -143,26 +376,70 @@
         shake 5s infinite ease-in-out;
 }
 
+/* เพิ่มเอฟเฟกต์เริ่มต้นเมื่อหน้าเว็บโหลด */
+.chatbot-toggle {
+    animation-delay: 0s, 0s, 0s, 0s, 0s, 0s, 30s, 30s;
+}
+
+/* เพิ่มเอฟเฟกต์พิเศษสำหรับการโหลดหน้าเว็บ */
+@keyframes page-load-celebration {
+    0% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* เพิ่มคลาสสำหรับเริ่มเอฟเฟกต์เมื่อหน้าเว็บพร้อม */
+.chatbot-toggle.page-loaded {
+    animation: page-load-celebration 1s ease-out;
+}
+
+/* เพิ่มเอฟเฟกต์สำหรับปุ่มเมื่อหน้าเว็บแสดงผล */
+.chatbot-toggle::after {
+    animation-delay: 0s, 30s;
+}
+
+/* เพิ่มเอฟเฟกต์สำหรับข้อความ DesUPGPT */
+.chatbot-toggle::before {
+    animation-delay: 0s, 30s;
+}
+
 /* ปรับแต่งเพิ่มเติมสำหรับหน้าจอมือถือ */
 @media (max-width: 767px) {
     .chatbot-toggle {
-        animation: 
-            bounce 3s infinite ease-in-out, 
+        animation:
+            bounce 3s infinite ease-in-out,
             colorPulse 5s infinite alternate,
-            wiggle 10s infinite ease-in-out;
+            wiggle 10s infinite ease-in-out,
+            golden-pulse 2s infinite,
+            gentle-shake 3s infinite,
+            desup-pulse 3s infinite,
+            intense-shake 30s infinite,
+            golden-flash 30s infinite;
+        animation-delay: 0s, 0s, 0s, 0s, 0s, 0s, 30s, 30s;
     }
-    
+
     /* ปรับขนาดจุดแจ้งเตือนให้เล็กลงบนมือถือ */
     .chatbot-toggle::after {
         width: 15px;
         height: 15px;
     }
-    
+
     /* เพิ่มเอฟเฟกต์เมื่อมีข้อความใหม่บนมือถือ */
     .chatbot-toggle.has-new-message {
-        animation: 
-            bounce 2s infinite ease-in-out, 
+        animation:
+            bounce 2s infinite ease-in-out,
             colorPulse 3s infinite alternate,
-            shake 4s infinite ease-in-out;
+            shake 4s infinite ease-in-out,
+            intense-shake 30s infinite,
+            golden-flash 30s infinite;
     }
 }

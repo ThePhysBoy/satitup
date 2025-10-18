@@ -1,699 +1,718 @@
 <!-- University Departments Section -->
-<section class="departments-section py-5">
-    <div class="container-fluid">
+<section class="university-departments py-5">
+    <div class="container">
         <div class="section-header text-center mb-5">
-            <h2 class="section-title">หน่วยงานในมหาวิทยาลัยพะเยา</h2>
-            <p class="section-subtitle">เชื่อมโยงไปยังหน่วยงานต่างๆ ภายในมหาวิทยาลัยพะเยาได้อย่างสะดวก</p>
+            <h2 class="section-title">หน่วยงานภายในมหาวิทยาลัยพะเยา</h2>
+
+
         </div>
-        
-        <div id="departmentsCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4000">
-            <div class="carousel-inner">
-                <!-- Slide 1 - คณะต่างๆ -->
-                <div class="carousel-item active">
-                    <div class="departments-slide">
-                        <h3 class="slide-title mb-4">คณะและวิทยาลัย</h3>
-                        <div class="row g-4 justify-content-center">
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.up.ac.th" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-university"></i>
-                                        </div>
-                                        <h6>มหาวิทยาลัยพะเยา</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                            
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.eng.up.ac.th" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-cogs"></i>
-                                        </div>
-                                        <h6>คณะวิศวกรรมศาสตร์</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                            
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.science.up.ac.th" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-flask"></i>
-                                        </div>
-                                        <h6>คณะวิทยาศาสตร์</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                            
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.med.up.ac.th" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-user-md"></i>
-                                        </div>
-                                        <h6>คณะแพทยศาสตร์</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                            
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.libarts.up.ac.th" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-book"></i>
-                                        </div>
-                                        <h6>คณะศิลปศาสตร์</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                            
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.agri.up.ac.th" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-seedling"></i>
-                                        </div>
-                                        <h6>คณะเกษตรศาสตร์</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                            
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.nurse.up.ac.th" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-heartbeat"></i>
-                                        </div>
-                                        <h6>คณะพยาบาลศาสตร์</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                            
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.dentistry.up.ac.th" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-tooth"></i>
-                                        </div>
-                                        <h6>คณะทันตแพทยศาสตร์</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                            
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.pharmacy.up.ac.th" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-pills"></i>
-                                        </div>
-                                        <h6>คณะเภสัชศาสตร์</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                            
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.ams.up.ac.th" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-microscope"></i>
-                                        </div>
-                                        <h6>คณะสหเวชศาสตร์</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                            
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.law.up.ac.th" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-gavel"></i>
-                                        </div>
-                                        <h6>คณะนิติศาสตร์</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                            
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.ms.up.ac.th" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-chart-line"></i>
-                                        </div>
-                                        <h6>คณะบริหารธุรกิจ</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
+
+        <!-- Faculty Carousel -->
+        <div class="faculty-carousel owl-carousel">
+            <!-- คณะเกษตรศาสตร์และทรัพยากรธรรมชาติ -->
+            <div class="faculty-item">
+                <a href="https://www.agri.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/faculty-agri.jpg" alt="คณะเกษตรศาสตร์และทรัพยากรธรรมชาติ">
                     </div>
-                </div>
-                
-                <!-- Slide 2 - หน่วยงานสนับสนุน -->
-                <div class="carousel-item">
-                    <div class="departments-slide">
-                        <h3 class="slide-title mb-4">หน่วยงานสนับสนุน</h3>
-                        <div class="row g-4 justify-content-center">
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.reg.up.ac.th" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-clipboard-list"></i>
-                                        </div>
-                                        <h6>สำนักทะเบียน</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                            
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.lib.up.ac.th" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-book-open"></i>
-                                        </div>
-                                        <h6>หอสมุด</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                            
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.dsa.up.ac.th" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-users"></i>
-                                        </div>
-                                        <h6>กิจการนิสิต</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                            
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.it.up.ac.th" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-laptop-code"></i>
-                                        </div>
-                                        <h6>สำนักเทคโนโลยี</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                            
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.research.up.ac.th" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-search"></i>
-                                        </div>
-                                        <h6>สำนักวิจัย</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                            
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.inter.up.ac.th" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-globe-americas"></i>
-                                        </div>
-                                        <h6>วิเทศสัมพันธ์</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                            
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.up.ac.th/hospital" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-hospital"></i>
-                                        </div>
-                                        <h6>โรงพยาบาลมหาวิทยาลัย</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                            
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.upds.up.ac.th" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-school"></i>
-                                        </div>
-                                        <h6>โรงเรียนสาธิต</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                            
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.up.ac.th/qa" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-check-circle"></i>
-                                        </div>
-                                        <h6>ประกันคุณภาพ</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                            
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.up.ac.th/plan" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-sitemap"></i>
-                                        </div>
-                                        <h6>แผนและยุทธศาสตร์</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                            
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.energy.up.ac.th" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-bolt"></i>
-                                        </div>
-                                        <h6>วิทยาลัยพลังงาน</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                            
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                <a href="https://www.cea.up.ac.th" target="_blank" class="department-card-new">
-                                    <div class="card-inner">
-                                        <div class="department-icon-new">
-                                            <i class="fas fa-graduation-cap"></i>
-                                        </div>
-                                        <h6>วิทยาลัยการศึกษา</h6>
-                                        <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    <h5>คณะเกษตรศาสตร์และทรัพยากรธรรมชาติ</h5>
+                </a>
             </div>
             
-            <!-- Carousel Indicators -->
-            <div class="carousel-indicators departments-indicators">
-                <button type="button" data-bs-target="#departmentsCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
-                <button type="button" data-bs-target="#departmentsCarousel" data-bs-slide-to="1"></button>
+            <!-- คณะทันตแพทยศาสตร์ -->
+            <div class="faculty-item">
+                <a href="https://dentistry.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/faculty-dent.jpg" alt="คณะทันตแพทยศาสตร์">
+                    </div>
+                    <h5>คณะทันตแพทยศาสตร์</h5>
+                </a>
             </div>
             
-            <!-- Navigation Arrows -->
-            <button class="carousel-control-prev departments-control-prev" type="button" data-bs-target="#departmentsCarousel" data-bs-slide="prev">
-                <span class="control-icon"><i class="fas fa-chevron-left"></i></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next departments-control-next" type="button" data-bs-target="#departmentsCarousel" data-bs-slide="next">
-                <span class="control-icon"><i class="fas fa-chevron-right"></i></span>
-                <span class="visually-hidden">Next</span>
-            </button>
+            <!-- คณะเทคโนโลยีสารสนเทศและการสื่อสาร -->
+            <div class="faculty-item">
+                <a href="https://ict.up.ac.th/home" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/faculty-ict.jpg" alt="คณะเทคโนโลยีสารสนเทศและการสื่อสาร">
+                    </div>
+                    <h5>คณะเทคโนโลยีสารสนเทศและการสื่อสาร</h5>
+                </a>
+            </div>
+            
+            <!-- คณะนิติศาสตร์ -->
+            <div class="faculty-item">
+                <a href="https://law.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/faculty-law.jpg" alt="คณะนิติศาสตร์">
+                    </div>
+                    <h5>คณะนิติศาสตร์</h5>
+                </a>
+            </div>
+            
+            <!-- คณะพยาบาลศาสตร์ -->
+            <div class="faculty-item">
+                <a href="https://www.nurse.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/faculty-nurse.jpg" alt="คณะพยาบาลศาสตร์">
+                    </div>
+                    <h5>คณะพยาบาลศาสตร์</h5>
+                </a>
+            </div>
+            
+            <!-- คณะแพทยศาสตร์ -->
+            <div class="faculty-item">
+                <a href="https://medicine.up.ac.th/th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/faculty-med.jpg" alt="คณะแพทยศาสตร์">
+                    </div>
+                    <h5>คณะแพทยศาสตร์</h5>
+                </a>
+            </div>
+            
+            <!-- คณะเภสัชศาสตร์ -->
+            <div class="faculty-item">
+                <a href="https://www.pharmacy.up.ac.th/th/main/default" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/faculty-pharm.jpg" alt="คณะเภสัชศาสตร์">
+                    </div>
+                    <h5>คณะเภสัชศาสตร์</h5>
+                </a>
+            </div>
+            
+            <!-- คณะรัฐศาสตร์และสังคมศาสตร์ -->
+            <div class="faculty-item">
+                <a href="https://www.spss.up.ac.th/default" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/faculty-polsci.jpg" alt="คณะรัฐศาสตร์และสังคมศาสตร์">
+                    </div>
+                    <h5>คณะรัฐศาสตร์และสังคมศาสตร์</h5>
+                </a>
+            </div>
+            
+            <!-- คณะวิทยาศาสตร์ -->
+            <div class="faculty-item">
+                <a href="http://www.science.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/faculty-science.jpg" alt="คณะวิทยาศาสตร์">
+                    </div>
+                    <h5>คณะวิทยาศาสตร์</h5>
+                </a>
+            </div>
+            
+            <!-- คณะวิทยาศาสตร์การแพทย์ -->
+            <div class="faculty-item">
+                <a href="https://www.medsci.up.ac.th/v4/index.php" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/faculty-medsci.jpg" alt="คณะวิทยาศาสตร์การแพทย์">
+                    </div>
+                    <h5>คณะวิทยาศาสตร์การแพทย์</h5>
+                </a>
+            </div>
+            
+            <!-- คณะวิศวกรรมศาสตร์ -->
+            <div class="faculty-item">
+                <a href="https://www.up.ac.th/th/faculty_eng" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/faculty-eng.jpg" alt="คณะวิศวกรรมศาสตร์">
+                    </div>
+                    <h5>คณะวิศวกรรมศาสตร์</h5>
+                </a>
+            </div>
+            
+            <!-- คณะศิลปศาสตร์ -->
+            <div class="faculty-item">
+                <a href="https://www.libarts.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/faculty-libarts.jpg" alt="คณะศิลปศาสตร์">
+                    </div>
+                    <h5>คณะศิลปศาสตร์</h5>
+                </a>
+            </div>
+            
+            <!-- คณะสถาปัตยกรรมศาสตร์และศิลปกรรมศาสตร์ -->
+            <div class="faculty-item">
+                <a href="https://safa.up.ac.th/main/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/faculty-arch.jpg" alt="คณะสถาปัตยกรรมศาสตร์และศิลปกรรมศาสตร์">
+                    </div>
+                    <h5>คณะสถาปัตยกรรมศาสตร์และศิลปกรรมศาสตร์</h5>
+                </a>
+            </div>
+            
+            <!-- คณะสหเวชศาสตร์ -->
+            <div class="faculty-item">
+                <a href="https://www.ahs.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/faculty-ams.jpg" alt="คณะสหเวชศาสตร์">
+                    </div>
+                    <h5>คณะสหเวชศาสตร์</h5>
+                </a>
+            </div>
+            
+            <!-- วิทยาลัยการศึกษา -->
+            <div class="faculty-item">
+                <a href="https://www.se.up.ac.th/se/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/School-of-Education.jpg" alt="วิทยาลัยการศึกษา">
+                    </div>
+                    <h5>วิทยาลัยการศึกษา</h5>
+                </a>
+            </div>
+            
+            <!-- วิทยาลัยการจัดการ -->
+            <div class="faculty-item">
+                <a href="http://www.upcm.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/faculty-scm.jpg" alt="วิทยาลัยการจัดการ">
+                    </div>
+                    <h5>วิทยาลัยการจัดการ</h5>
+                </a>
+            </div>
+            
+            <!-- คณะสาธารณสุขศาสตร์ -->
+            <div class="faculty-item">
+                <a href="https://www.ph.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/ph.jpg" alt="คณะสาธารณสุขศาสตร์">
+                    </div>
+                    <h5>คณะสาธารณสุขศาสตร์</h5>
+                </a>
+            </div>
+
+            <!-- กองการเจ้าหน้าที่ -->
+            <div class="faculty-item">
+                <a href="https://personnel.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/hru.jpg" alt="กองการเจ้าหน้าที่">
+                    </div>
+                    <h5>กองการเจ้าหน้าที่</h5>
+                </a>
+            </div>
+
+            <!-- กองคลัง -->
+            <div class="faculty-item">
+                <a href="https://doga.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/finance.jpg" alt="กองคลัง">
+                    </div>
+                    <h5>กองคลัง</h5>
+                </a>
+            </div>
+
+            <!-- สำนักงานอธิการบดี -->
+            <div class="faculty-item">
+                <a href="http://www.op.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/สำนักงานอธิการบดี-1-500x270.jpg" alt="กองพัสดุ">
+                    </div>
+                    <h5>สำนักงานอธิการบดี</h5>
+                </a>
+            </div>
+
+            <!-- กองกฏหมาย -->
+            <div class="faculty-item">
+                <a href="https://www.lp.up.ac.th/th/main/default" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/กองกฏหมาย-500x270.jpg" alt="กองอาคารสถานที่">
+                    </div>
+                    <h5>กองกฏหมาย</h5>
+                </a>
+            </div>
+
+            <!-- กองกิจการนิสิต -->
+            <div class="faculty-item">
+                <a href="https://dsa.up.ac.th/v4/main.php" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/dsa.jpg" alt="กองกิจการนิสิต">
+                    </div>
+                    <h5>กองกิจการนิสิต</h5>
+                </a>
+            </div>
+
+            <!-- กองกลาง -->
+            <div class="faculty-item">
+                <a href="https://doga.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/LINE_ALBUM_2024.4.3_240409_1-768.jpg" alt="กองกลาง">
+                    </div>
+                    <h5>กองกลาง</h5>
+                </a>
+            </div>
+
+            <!-- กองทรัพย์สิน -->
+            <div class="faculty-item">
+                <a href="https://pd.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/กองทรัพย์สิน-500x270.jpg" alt="กองทรัพย์สิน">
+                    </div>
+                    <h5>กองทรัพย์สิน</h5>
+                </a>
+            </div>
+
+            <!-- กองบริการการศึกษา -->
+            <div class="faculty-item">
+                <a href="https://itsc.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/does-1.jpg" alt="กองบริการการศึกษา">
+                    </div>
+                    <h5>กองบริการการศึกษา</h5>
+                </a>
+            </div>
+
+            <!-- กองบริหารงานวิจัย -->
+            <div class="faculty-item">
+                <a href="http://dra.up.ac.th/updra/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/dra.jpg" alt="กองบริหารงานวิจัย">
+                    </div>
+                    <h5>กองบริหารงานวิจัย</h5>
+                </a>
+            </div>
+
+            <!-- กองแผนงาน -->
+            <div class="faculty-item">
+                <a href="https://plan.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/LINE_ALBUM_2024.4.3_240409_11.jpg" alt="กองแผนงาน">
+                    </div>
+                    <h5>กองแผนงาน</h5>
+                </a>
+            </div>
+
+            <!-- กองพัฒนาคุณภาพนิสิตและนิสิตพิการ -->
+            <div class="faculty-item">
+                <a href="https://dsq.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/โลโก้-สีม่วง-ทอง-500x313.jpg" alt="กองพัฒนาคุณภาพนิสิตและนิสิตพิการ">
+                    </div>
+                    <h5>กองพัฒนาคุณภาพนิสิตและนิสิตพิการ</h5>
+                </a>
+            </div>
+
+            <!-- กองอาคารสถานที่ -->
+            <div class="faculty-item">
+                <a href="https://building.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/กองอาคาร-500x270.jpg" alt="กองอาคารสถานที่">
+                    </div>
+                    <h5>กองอาคารสถานที่</h5>
+                </a>
+            </div>
+
+            <!-- ศูนย์บริการเทคโนโลยีสารสนเทศและการสื่อสาร -->
+            <div class="faculty-item">
+                <a href="https://citcoms.up.ac.th/#gsc.tab=0" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/Citcom-500x270.jpg" alt="ศูนย์บริการเทคโนโลยีสารสนเทศและการสื่อสาร">
+                    </div>
+                    <h5>ศูนย์บริการเทคโนโลยีสารสนเทศและการสื่อสาร</h5>
+                </a>
+            </div>
+
+             <!-- ศูนย์สิ่งแวดล้อมและการจัดการที่ยั่งยืน -->
+             <div class="faculty-item">
+                <a href="https://cesm.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/ดกดก.jpg" alt="ศูนย์สิ่งแวดล้อมและการจัดการที่ยั่งยืน">
+                    </div>
+                    <h5>ศูนย์สิ่งแวดล้อมและการจัดการที่ยั่งยืน</h5>
+                </a>
+            </div>
+
+             <!-- หน่วยตรวจสอบภายใน -->
+             <div class="faculty-item">
+                <a href="https://audit.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/ตรวจสอบภายใน.jpg" alt="หน่วยตรวจสอบภายใน">
+                    </div>
+                    <h5>หน่วยตรวจสอบภายใน</h5>
+                </a>
+            </div>
+
+            <!-- สภาพนักงาน -->
+            <div class="faculty-item">
+                <a href="http://www.senate.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/image.jpg" alt="สภาพนักงาน">
+                    </div>
+                    <h5>สภาพนักงาน</h5>
+                </a>
+            </div>
+
+            <!-- สำนักงานสภามหาวิทยาลัย -->
+            <div class="faculty-item">
+                <a href="https://council-new.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/สำนักงานสภา-1.jpg" alt="สำนักงานสภามหาวิทยาลัย">
+                    </div>
+                    <h5>สำนักงานสภามหาวิทยาลัย</h5>
+                </a>
+            </div>
+
+            
+            <!-- วิทยาเขตเชียงราย -->
+            <div class="faculty-item">
+                <a href="https://www.crc.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/schoolchangrai-1-500x270.jpg" alt="วิทยาเขตเชียงราย">
+                    </div>
+                    <h5>วิทยาเขตเชียงราย</h5>
+                </a>
+            </div>
+
+            <!-- สถาบันนวัตกรรมและถ่ายทอดเทคโนโลยี -->
+             <div class="faculty-item">
+                <a href="https://iti.up.ac.th/th/main/default" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/iti.jpg" alt="สถาบันนวัตกรรมและถ่ายทอดเทคโนโลยี">
+                    </div>
+                    <h5>สถาบันนวัตกรรมและถ่ายทอดเทคโนโลยี</h5>
+                </a>
+            </div>
+
+            <!-- สถาบันนวัตกรรมการเรียนรู้ -->
+                        <div class="faculty-item">
+                <a href="https://upili.up.ac.th/" target="_blank">
+                    <div class="faculty-image">
+                        <img src="images/faculties/image2.jpg" alt="สถาบันนวัตกรรมการเรียนรู้">
+                    </div>
+                    <h5>สถาบันนวัตกรรมการเรียนรู้</h5>
+                </a>
+            </div>
+
+
+
+        </div>
+    </div>
+
+    <!-- Bottom Call-to-Action -->
+        <div class="container">
+            <div class="d-flex justify-content-center">
+                <a href="all_departments.php" class="btn btn-primary btn-lg px-5 py-3" style="border-radius: 30px; font-weight: 600; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(139,122,168,0.3);">
+                    <i class="fas fa-building me-2"></i>
+                    ดูหน่วยงานทั้งหมด
+                    <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- Enhanced CSS for Departments Section -->
 <style>
-/* Departments Section Styling */
-.departments-section {
-    background: linear-gradient(135deg, #f8f7fb 0%, #ffffff 100%);
-    padding: 80px 0;
+/* University Departments Section */
+.university-departments {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 60px 0;
     position: relative;
-    overflow: hidden;
 }
 
-.departments-section::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(139, 122, 168, 0.05) 0%, transparent 70%);
-    animation: float 20s ease-in-out infinite;
-}
-
-@keyframes float {
-    0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    50% { transform: translate(-30px, -30px) rotate(180deg); }
-}
-
-.departments-slide {
-    padding: 40px 20px;
-    min-height: 500px;
-}
-
-.slide-title {
-    color: var(--primary-color);
-    font-size: 1.8rem;
-    font-weight: 600;
-    text-align: center;
-    margin-bottom: 40px;
-    position: relative;
-    display: inline-block;
-    width: 100%;
-}
-
-.slide-title::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100px;
-    height: 3px;
-    background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
-    border-radius: 2px;
-}
-
-/* New Department Card Design */
-.department-card-new {
-    display: block;
-    text-decoration: none;
-    height: 100%;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.department-card-new .card-inner {
-    background: white;
-    border-radius: 20px;
-    padding: 30px 20px;
-    text-align: center;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-    border: 2px solid transparent;
-    position: relative;
-    overflow: hidden;
-    height: 180px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.4s ease;
-}
-
-.department-card-new::before {
+.university-departments::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color, #8B7AA8), var(--primary-light, #A698BC));
+}
+
+/* Faculty Carousel */
+.faculty-carousel {
+    padding: 0 30px;
+}
+
+.faculty-item {
+    margin: 8px;
+    transition: all 0.3s ease;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.faculty-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(139,122,168,0.15);
+}
+
+.faculty-image {
+    height: 140px;
     width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    border-radius: 20px;
-}
-
-.department-card-new:hover .card-inner {
-    transform: translateY(-10px) scale(1.05);
-    box-shadow: 0 15px 40px rgba(139, 122, 168, 0.3);
-    border-color: var(--primary-color);
-}
-
-.department-card-new:hover::before {
-    opacity: 0.1;
-}
-
-.department-icon-new {
-    width: 70px;
-    height: 70px;
-    margin: 0 auto 15px;
-    background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
-    border-radius: 50%;
+    overflow: hidden;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.4s ease;
     position: relative;
 }
 
-.department-icon-new i {
-    font-size: 30px;
-    color: white;
-    transition: all 0.4s ease;
+.faculty-image img {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    object-position: center;
+    transition: transform 0.3s ease;
+    background-color: rgba(255,255,255,0.8);
+    padding: 8px;
+    border-radius: 4px;
 }
 
-.department-card-new:hover .department-icon-new {
-    transform: rotate(360deg) scale(1.1);
-    box-shadow: 0 10px 30px rgba(139, 122, 168, 0.4);
-}
-
-.department-card-new h6 {
-    color: var(--text-primary);
-    font-size: 14px;
-    font-weight: 600;
-    margin: 0;
-    transition: all 0.3s ease;
-    position: relative;
-    z-index: 2;
-}
-
-.department-card-new:hover h6 {
-    color: var(--primary-dark);
+.faculty-item:hover .faculty-image img {
     transform: scale(1.05);
 }
 
-/* Arrow Animation */
-.card-arrow {
-    position: absolute;
-    bottom: 15px;
-    right: 15px;
-    width: 30px;
-    height: 30px;
-    background: var(--primary-color);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.faculty-item h5 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 0;
+    padding: 12px 8px;
+    line-height: 1.3;
+    text-align: center;
+    color: var(--text-dark, #333);
+    height: auto;
+    min-height: 45px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    position: relative;
+}
+
+.faculty-item a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%;
+}
+
+/* Loading Animation */
+.faculty-carousel.owl-carousel .owl-item {
     opacity: 0;
-    transform: translateX(-10px);
-    transition: all 0.4s ease;
+    transition: opacity 0.3s ease;
 }
 
-.card-arrow i {
-    color: white;
-    font-size: 12px;
-}
-
-.department-card-new:hover .card-arrow {
+.faculty-carousel.owl-carousel .owl-item.active {
     opacity: 1;
-    transform: translateX(0);
 }
 
-/* Carousel Controls */
-.departments-control-prev,
-.departments-control-next {
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
-    border-radius: 50%;
-    border: none;
-    box-shadow: 0 5px 20px rgba(139, 122, 168, 0.3);
-    opacity: 0.9;
-    transition: all 0.3s ease;
+/* Smooth transitions */
+.faculty-carousel .owl-stage-outer {
+    overflow: visible;
+}
+
+.faculty-carousel .owl-item {
+    transition: transform 0.3s ease;
+}
+
+/* Owl Carousel Custom Navigation */
+.university-departments .owl-nav button {
+    position: absolute;
     top: 50%;
     transform: translateY(-50%);
+    background: white !important;
+    width: 40px;
+    height: 40px;
+    border-radius: 50% !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    font-size: 1.5rem !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color, #8B7AA8) !important;
 }
 
-.departments-control-prev:hover,
-.departments-control-next:hover {
-    opacity: 1;
-    transform: translateY(-50%) scale(1.1);
-    box-shadow: 0 8px 30px rgba(139, 122, 168, 0.5);
+.university-departments .owl-nav button:hover {
+    background: var(--primary-color, #8B7AA8) !important;
+    color: white !important;
+    transform: scale(1.1);
 }
 
-.departments-control-prev {
-    left: 20px;
+.university-departments .owl-nav button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(139,122,168,0.3);
 }
 
-.departments-control-next {
-    right: 20px;
+.university-departments .owl-nav .owl-prev {
+    left: -5px;
 }
 
-.control-icon {
-    color: white;
-    font-size: 20px;
+.university-departments .owl-nav .owl-next {
+    right: -5px;
 }
 
-/* Carousel Indicators */
-.departments-indicators {
-    bottom: 20px;
+/* Section Header */
+.section-header {
+    position: relative;
+    margin-bottom: 40px;
 }
 
-.departments-indicators button {
+.section-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--text-dark, #333);
+    margin-bottom: 10px;
+    position: relative;
+    display: inline-block;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color, #8B7AA8), var(--primary-light, #A698BC));
+    border-radius: 2px;
+}
+
+.section-subtitle {
+    font-size: 1.1rem;
+    color: #666;
+    margin-top: 15px;
+    font-weight: 400;
+}
+
+/* Custom Dots */
+.university-departments .owl-dots {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.university-departments .owl-dots .owl-dot {
+    display: inline-block;
+    margin: 0 4px;
+}
+
+.university-departments .owl-dots .owl-dot span {
+    display: block;
     width: 12px;
     height: 12px;
+    background: rgba(139,122,168,0.3);
     border-radius: 50%;
-    background: rgba(139, 122, 168, 0.3);
-    border: 2px solid var(--primary-color);
-    margin: 0 5px;
     transition: all 0.3s ease;
 }
 
-.departments-indicators button.active {
-    width: 30px;
-    border-radius: 20px;
-    background: var(--primary-color);
-}
-
-/* Fade Animation */
-.carousel-fade .carousel-item {
-    opacity: 0;
-    transition: opacity 1s ease-in-out;
-}
-
-.carousel-fade .carousel-item.active {
-    opacity: 1;
-}
-
-/* Animation for cards on slide change */
-.carousel-item.active .department-card-new {
-    animation: slideInUp 0.6s ease forwards;
-    opacity: 0;
-}
-
-.carousel-item.active .department-card-new:nth-child(1) { animation-delay: 0.1s; }
-.carousel-item.active .department-card-new:nth-child(2) { animation-delay: 0.15s; }
-.carousel-item.active .department-card-new:nth-child(3) { animation-delay: 0.2s; }
-.carousel-item.active .department-card-new:nth-child(4) { animation-delay: 0.25s; }
-.carousel-item.active .department-card-new:nth-child(5) { animation-delay: 0.3s; }
-.carousel-item.active .department-card-new:nth-child(6) { animation-delay: 0.35s; }
-.carousel-item.active .department-card-new:nth-child(7) { animation-delay: 0.4s; }
-.carousel-item.active .department-card-new:nth-child(8) { animation-delay: 0.45s; }
-.carousel-item.active .department-card-new:nth-child(9) { animation-delay: 0.5s; }
-.carousel-item.active .department-card-new:nth-child(10) { animation-delay: 0.55s; }
-.carousel-item.active .department-card-new:nth-child(11) { animation-delay: 0.6s; }
-.carousel-item.active .department-card-new:nth-child(12) { animation-delay: 0.65s; }
-
-@keyframes slideInUp {
-    from {
-        transform: translateY(30px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+.university-departments .owl-dots .owl-dot.active span,
+.university-departments .owl-dots .owl-dot:hover span {
+    background: var(--primary-color, #8B7AA8);
+    transform: scale(1.2);
 }
 
 /* Responsive Design */
-@media (max-width: 1200px) {
-    .department-card-new .card-inner {
-        height: 160px;
-        padding: 25px 15px;
+@media (max-width: 768px) {
+    .faculty-carousel {
+        padding: 0 20px;
     }
-    
-    .department-icon-new {
-        width: 60px;
-        height: 60px;
+
+    .faculty-item {
+        margin: 5px;
     }
-    
-    .department-icon-new i {
-        font-size: 25px;
+
+    .faculty-image {
+        height: 120px;
+    }
+
+    .faculty-item h5 {
+        font-size: 0.8rem;
+        padding: 10px 6px;
+        min-height: 40px;
+    }
+
+    .university-departments {
+        padding: 40px 0;
     }
 }
 
-@media (max-width: 768px) {
-    .departments-slide {
-        padding: 20px 10px;
+@media (max-width: 480px) {
+    .faculty-carousel {
+        padding: 0 15px;
     }
-    
-    .slide-title {
-        font-size: 1.5rem;
+
+    .faculty-item {
+        margin: 3px;
     }
-    
-    .department-card-new .card-inner {
-        height: 140px;
-        padding: 20px 10px;
+
+    .faculty-image {
+        height: 100px;
     }
-    
-    .department-icon-new {
-        width: 50px;
-        height: 50px;
-        margin-bottom: 10px;
+
+    .faculty-item h5 {
+        font-size: 0.75rem;
+        padding: 8px 4px;
+        min-height: 35px;
     }
-    
-    .department-icon-new i {
-        font-size: 20px;
-    }
-    
-    .department-card-new h6 {
-        font-size: 12px;
-    }
-    
-    .departments-control-prev,
-    .departments-control-next {
-        width: 40px;
-        height: 40px;
-    }
-    
-    .control-icon {
-        font-size: 16px;
-    }
+}
+
+/* Quick Access Section */
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(139,122,168,0.15);
+}
+
+/* Bottom Call-to-Action */
+.d-flex.gap-3 {
+    margin-bottom: 1rem;
 }
 
 @media (max-width: 576px) {
-    .department-card-new .card-inner {
-        height: 120px;
+    .d-flex.gap-3 {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .d-flex.gap-3 .btn {
+        width: 100%;
+        max-width: 300px;
     }
 }
 </style>
 
-<!-- Enhanced JavaScript for Auto-slide -->
+<!-- JavaScript for Faculty Carousel -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize carousel with enhanced options
-    var departmentsCarousel = document.getElementById('departmentsCarousel');
-    if (departmentsCarousel) {
-        var carousel = new bootstrap.Carousel(departmentsCarousel, {
-            interval: 4000,
-            ride: 'carousel',
-            pause: 'hover',
-            wrap: true,
-            keyboard: true,
-            touch: true
-        });
-        
-        // Add smooth transition effect
-        departmentsCarousel.addEventListener('slide.bs.carousel', function (e) {
-            // Add animation class to incoming slide
-            var nextSlide = e.relatedTarget;
-            nextSlide.classList.add('animated');
-            
-            // Remove animation class after transition
-            setTimeout(function() {
-                nextSlide.classList.remove('animated');
-            }, 1000);
-        });
-        
-        // Pause on hover for better UX
-        departmentsCarousel.addEventListener('mouseenter', function() {
-            carousel.pause();
-        });
-        
-        departmentsCarousel.addEventListener('mouseleave', function() {
-            carousel.cycle();
-        });
-    }
+$(document).ready(function() {
+    // Initialize the faculty carousel
+    $('.faculty-carousel').owlCarousel({
+        loop: true,               // Loop through items
+        margin: 20,               // Space between items
+        nav: true,                // Show navigation buttons
+        dots: true,               // Show pagination dots
+        autoplay: true,           // Autoplay carousel
+        autoplayTimeout: 2000,    // Change slide every 3 seconds
+        autoplayHoverPause: true, // Pause on hover
+        navText: [
+            '<i class="fas fa-chevron-left"></i>',
+            '<i class="fas fa-chevron-right"></i>'
+        ],
+        responsive: {
+            0: {
+                items: 1,        // 1 item on mobile
+                margin: 10
+            },
+            480: {
+                items: 2,        // 2 items on small screens
+                margin: 15
+            },
+            768: {
+                items: 3,        // 3 items on medium screens
+                margin: 20
+            },
+            992: {
+                items: 4,        // 4 items on large screens
+                margin: 20
+            }
+        }
+    });
 });
 </script>

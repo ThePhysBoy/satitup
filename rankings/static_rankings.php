@@ -133,5 +133,5 @@
     </div>
 </section>
 
-<?php include_once 'styles.php'; ?>
-<?php include_once 'scripts.php'; ?>
+<?php include_once __DIR__ . '/styles.php'; ?>
+<?php include_once __DIR__ . '/scripts.php'; ?>

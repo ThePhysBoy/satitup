@@ -49,97 +49,139 @@ $cats = $conn->query("SELECT * FROM news_categories ORDER BY name")->fetch_all(M
 			background-color: #f8f9fa;
 		}
 		.page-header {
-			background-color: #7b3b95;
+			background-color: #0066cc;
 			color: white;
-			padding: 30px 0;
-			margin-bottom: 30px;
+			padding: 40px 0;
+			margin-bottom: 40px;
 			box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 		}
 		.news-card {
-			border: none;
+			border: 1px solid #e0e0e0;
 			border-radius: 12px;
 			overflow: hidden;
-			box-shadow: 0 5px 15px rgba(0,0,0,.08);
+			box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 			transition: all 0.3s ease;
+			background: #fff;
+			cursor: pointer;
 		}
 		.news-card:hover {
-			transform: translateY(-5px);
-			box-shadow: 0 10px 20px rgba(0,0,0,.12);
+			transform: translateY(-8px);
+			box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+			border-color: #0066cc;
 		}
 		.news-img {
-			height: 200px;
+			height: 280px;
 			object-fit: cover;
+			object-position: center;
 			width: 100%;
-			background-color: #f0f0f0;
+			background-color: #f5f5f5;
+			display: block;
+			transition: transform 0.4s ease;
+		}
+		
+		.news-card:hover .news-img {
+			transform: scale(1.08);
 		}
 		.card-body {
 			padding: 20px;
+			min-height: 150px;
 		}
 		.card-title {
-			font-weight: 600;
-			margin-bottom: 10px;
+			font-size: 17px;
+			font-weight: 500;
+			margin-bottom: 15px;
 			color: #333;
 			display: -webkit-box;
-			-webkit-line-clamp: 2;
+			-webkit-line-clamp: 3;
+			line-clamp: 3;
 			-webkit-box-orient: vertical;
 			overflow: hidden;
-			height: 48px;
+			min-height: 76px;
+			line-height: 1.5;
+		}
+		
+		.card-title::before {
+			content: "📢 ";
+			margin-right: 5px;
+			font-size: 16px;
 		}
 		.card-text {
-			display: -webkit-box;
-			-webkit-line-clamp: 3;
-			-webkit-box-orient: vertical;
-			overflow: hidden;
-			height: 72px;
+			display: none;
 		}
 		.search-box {
 			background-color: white;
-			padding: 20px;
+			padding: 24px;
 			border-radius: 12px;
 			box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-			margin-bottom: 30px;
+			margin-bottom: 40px;
+			border: 1px solid #e0e0e0;
 		}
 		.search-btn {
-			border-radius: 50px;
-			padding: 8px 20px;
+			border-radius: 4px;
+			padding: 10px 24px;
 			font-weight: 500;
+			background-color: #0066cc;
+			border-color: #0066cc;
+			transition: all 0.2s ease;
+		}
+		.search-btn:hover {
+			background-color: #0052a3;
+			border-color: #0052a3;
+			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
 		}
 		.home-btn {
-			border-radius: 50px;
-			padding: 8px 20px;
+			border-radius: 6px;
+			padding: 10px 24px;
 			font-weight: 500;
 			background-color: white;
-			color: #7b3b95;
-			border: 2px solid #7b3b95;
+			color: #0066cc;
+			border: 1px solid #0066cc;
+			transition: all 0.2s ease;
 		}
 		.home-btn:hover {
-			background-color: #7b3b95;
+			background-color: #0066cc;
 			color: white;
+			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
 		}
 		.pagination .page-link {
-			color: #7b3b95;
-			border-radius: 50%;
+			color: #0066cc;
+			border-radius: 4px;
 			margin: 0 3px;
-			width: 40px;
+			min-width: 40px;
 			height: 40px;
 			text-align: center;
 			line-height: 24px;
 		}
 		.pagination .page-item.active .page-link {
-			background-color: #7b3b95;
-			border-color: #7b3b95;
+			background-color: #0066cc;
+			border-color: #0066cc;
 		}
 		.category-badge {
-			background-color: #e9ecef;
-			color: #495057;
-			font-size: 0.75rem;
-			padding: 4px 10px;
-			border-radius: 50px;
+			display: inline-block;
+			background: #f0f0f0;
+			color: #666;
+			font-size: 12px;
+			font-weight: 500;
+			padding: 5px 12px;
+			border-radius: 4px;
+			margin-bottom: 12px;
 			margin-right: 5px;
 		}
 		.date-badge {
-			color: #6c757d;
-			font-size: 0.75rem;
+			position: absolute;
+			top: 15px;
+			right: 15px;
+			background: rgba(255, 255, 255, 0.95);
+			color: #333;
+			padding: 8px 14px;
+			border-radius: 6px;
+			font-size: 13px;
+			font-weight: 500;
+			backdrop-filter: blur(5px);
+			box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+			z-index: 2;
 		}
 	</style>
 </head>
@@ -147,7 +189,10 @@ $cats = $conn->query("SELECT * FROM news_categories ORDER BY name")->fetch_all(M
 	<div class="page-header">
 		<div class="container">
 			<div class="d-flex justify-content-between align-items-center">
-				<h1 class="h2 mb-0">ข่าวและกิจกรรม</h1>
+				<div>
+					<h1 class="h2 mb-0">กิจกรรมประชาสัมพันธ์ / ข่าวสาร</h1>
+					<p class="text-white-50 mb-0">Activities / News</p>
+				</div>
 				<a href="../index.php" class="btn home-btn">
 					<i class="fas fa-home me-2"></i>กลับหน้าหลัก
 				</a>
@@ -190,26 +235,17 @@ $cats = $conn->query("SELECT * FROM news_categories ORDER BY name")->fetch_all(M
 						<?php else: ?>
 							<img class="news-img" src="../images/comingsoon.png" alt="ไม่มีรูปภาพ">
 						<?php endif; ?>
+						<span class="date-badge">
+							<?php echo $n['published_at'] ? date('d/m/Y', strtotime($n['published_at'])) : 'ไม่ระบุ'; ?>
+						</span>
 					</div>
 					<div class="card-body">
-						<div class="d-flex align-items-center mb-2">
-							<span class="category-badge"><?php echo htmlspecialchars($n['category_name'] ?? 'ทั่วไป'); ?></span>
-							<span class="date-badge">
-								<i class="far fa-calendar-alt me-1"></i>
-								<?php echo $n['published_at'] ? date('d/m/Y', strtotime($n['published_at'])) : 'ไม่ระบุ'; ?>
-							</span>
+						<?php if (!empty($n['category_name'])): ?>
+						<div class="category-badge">
+							<?php echo htmlspecialchars($n['category_name'] ?? 'ทั่วไป'); ?>
 						</div>
+						<?php endif; ?>
 						<h5 class="card-title"><?php echo htmlspecialchars($n['title']); ?></h5>
-						<p class="card-text text-muted"><?php echo htmlspecialchars($n['excerpt'] ?? substr(strip_tags($n['content']), 0, 150) . '...'); ?></p>
-						<div class="d-flex justify-content-between align-items-center">
-							<small class="text-muted">
-								<i class="fas fa-user me-1"></i>
-								<?php echo htmlspecialchars($n['full_name'] ?? 'ระบบ'); ?>
-							</small>
-							<a class="btn btn-sm btn-outline-primary" href="detail.php?slug=<?php echo urlencode($n['slug']); ?>">
-								อ่านเพิ่มเติม <i class="fas fa-arrow-right ms-1"></i>
-							</a>
-						</div>
 						<a class="stretched-link" href="detail.php?slug=<?php echo urlencode($n['slug']); ?>"></a>
 					</div>
 				</div>

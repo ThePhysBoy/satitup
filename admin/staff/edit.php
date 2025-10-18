@@ -33,11 +33,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = trim($_POST['title'] ?? '');
     $first_name = trim($_POST['first_name'] ?? '');
     $last_name = trim($_POST['last_name'] ?? '');
+    $position = trim($_POST['position'] ?? '');
     $department_id = (int)($_POST['department_id'] ?? 0);
     $email = trim($_POST['email'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
-    $education = trim($_POST['education'] ?? '');
+    $expertise = trim($_POST['expertise'] ?? '');
+    $work_status = $_POST['work_status'] ?? 'working';
     $bio = trim($_POST['bio'] ?? '');
+    $google_scholar_url = trim($_POST['google_scholar_url'] ?? '');
     $is_head = isset($_POST['is_head']) ? 1 : 0;
     $order_number = (int)($_POST['order_number'] ?? 0);
     $status = $_POST['status'] ?? 'active';
@@ -95,15 +98,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     
+    // Process CV upload
+    $cv_file_path = $staff['cv_file_path'] ?? ''; // Keep existing CV by default
+    if (isset($_FILES['cv_file']) && $_FILES['cv_file']['error'] === UPLOAD_ERR_OK) {
+        $cv_upload_dir = '../../uploads/cv';
+        if (!file_exists($cv_upload_dir)) {
+            mkdir($cv_upload_dir, 0777, true);
+        }
+        
+        $allowed_types = ['application/pdf'];
+        $max_size = 10 * 1024 * 1024; // 10MB
+        
+        if (!in_array($_FILES['cv_file']['type'], $allowed_types)) {
+            $errors[] = 'ไฟล์ CV ต้องเป็น PDF เท่านั้น';
+        } else if ($_FILES['cv_file']['size'] > $max_size) {
+            $errors[] = 'ไฟล์ CV มีขนาดใหญ่เกินไป (ไม่เกิน 10MB)';
+        } else {
+            $filename = 'cv_' . $staff_id . '_' . time() . '.pdf';
+            $upload_path = $cv_upload_dir . '/' . $filename;
+            
+            if (move_uploaded_file($_FILES['cv_file']['tmp_name'], $upload_path)) {
+                // Delete old CV if exists
+                if (!empty($cv_file_path) && file_exists('../../' . $cv_file_path)) {
+                    unlink('../../' . $cv_file_path);
+                }
+                $cv_file_path = 'uploads/cv/' . $filename;
+            } else {
+                $errors[] = 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์ CV';
+            }
+        }
+    }
+    
     // If no errors, update data in database
     if (empty($errors)) {
         // Start transaction
         $conn->begin_transaction();
         
         try {
-            // Update staff data
-            $stmt = $conn->prepare("UPDATE staff SET title = ?, first_name = ?, last_name = ?, department_id = ?, image_path = ?, email = ?, phone = ?, education = ?, bio = ?, is_head = ?, order_number = ?, status = ? WHERE id = ?");
-            $stmt->bind_param("sssisssssiisi", $title, $first_name, $last_name, $department_id, $image_path, $email, $phone, $education, $bio, $is_head, $order_number, $status, $staff_id);
+            // Update staff data - ตรวจสอบว่ามี column ใหม่หรือไม่
+            $check_col = $conn->query("SHOW COLUMNS FROM staff LIKE 'position'");
+            if ($check_col->num_rows > 0) {
+                // มี column ใหม่
+                $stmt = $conn->prepare("UPDATE staff SET title = ?, first_name = ?, last_name = ?, position = ?, department_id = ?, image_path = ?, email = ?, phone = ?, expertise = ?, bio = ?, cv_file_path = ?, google_scholar_url = ?, work_status = ?, is_head = ?, order_number = ?, status = ? WHERE id = ?");
+                $stmt->bind_param("ssssissssssssissi", $title, $first_name, $last_name, $position, $department_id, $image_path, $email, $phone, $expertise, $bio, $cv_file_path, $google_scholar_url, $work_status, $is_head, $order_number, $status, $staff_id);
+            } else {
+                // ยังไม่มี column ใหม่ ใช้แบบเดิม
+                $stmt = $conn->prepare("UPDATE staff SET title = ?, first_name = ?, last_name = ?, department_id = ?, image_path = ?, email = ?, phone = ?, bio = ?, cv_file_path = ?, google_scholar_url = ?, is_head = ?, order_number = ?, status = ? WHERE id = ?");
+                $stmt->bind_param("sssississssiissi", $title, $first_name, $last_name, $department_id, $image_path, $email, $phone, $bio, $cv_file_path, $google_scholar_url, $is_head, $order_number, $status, $staff_id);
+            }
             $stmt->execute();
             
             // Delete existing positions
@@ -324,6 +366,14 @@ ob_start();
                                     </div>
                                 </div>
                                 <div class="row mb-3">
+                                    <label for="position" class="col-sm-3 col-form-label">ตำแหน่ง</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="position" name="position" 
+                                               value="<?php echo htmlspecialchars($staff['position'] ?? ''); ?>"
+                                               placeholder="เช่น ครู, ครูผู้ช่วย, ครูชำนาญการ">
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
                                     <label for="email" class="col-sm-3 col-form-label">อีเมล</label>
                                     <div class="col-sm-9">
                                         <input type="email" class="form-control" id="email" name="email" 
@@ -345,6 +395,23 @@ ob_start();
                                         <div id="image-preview" class="mt-2 <?php echo empty($staff['image_path']) ? 'd-none' : ''; ?>">
                                             <img src="<?php echo !empty($staff['image_path']) ? '../../' . htmlspecialchars($staff['image_path']) : ''; ?>" class="img-thumbnail" style="max-height: 200px;">
                                         </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <label for="cv_file" class="col-sm-3 col-form-label">อัปโหลด CV</label>
+                                    <div class="col-sm-9">
+                                        <input type="file" class="form-control" id="cv_file" name="cv_file" accept="application/pdf">
+                                        <small class="form-text text-muted">รองรับไฟล์ PDF ขนาดไม่เกิน 10MB</small>
+                                        <?php if (!empty($staff['cv_file_path']) && file_exists('../../' . $staff['cv_file_path'])): ?>
+                                        <div class="mt-2">
+                                            <a href="../../<?php echo htmlspecialchars($staff['cv_file_path']); ?>" 
+                                               class="btn btn-sm btn-danger" target="_blank">
+                                                <i class="fas fa-file-pdf"></i> ดู CV ปัจจุบัน
+                                            </a>
+                                            <small class="text-muted ms-2">มี CV อยู่แล้ว (อัปโหลดใหม่เพื่อแทนที่)</small>
+                                        </div>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -448,7 +515,18 @@ ob_start();
                                     </div>
                                 </div>
                                 <div class="row mb-3">
-                                    <label for="status" class="col-sm-3 col-form-label">สถานะ</label>
+                                    <label for="work_status" class="col-sm-3 col-form-label">สถานะการทำงาน</label>
+                                    <div class="col-sm-9">
+                                        <select class="form-select" id="work_status" name="work_status">
+                                            <option value="working" <?php echo ($staff['work_status'] ?? 'working') === 'working' ? 'selected' : ''; ?>>ปฏิบัติงาน</option>
+                                            <option value="retired" <?php echo ($staff['work_status'] ?? '') === 'retired' ? 'selected' : ''; ?>>เกษียณอายุ</option>
+                                            <option value="leave" <?php echo ($staff['work_status'] ?? '') === 'leave' ? 'selected' : ''; ?>>ลาศึกษาต่อ</option>
+                                            <option value="resigned" <?php echo ($staff['work_status'] ?? '') === 'resigned' ? 'selected' : ''; ?>>ลาออก</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <label for="status" class="col-sm-3 col-form-label">สถานะในระบบ</label>
                                     <div class="col-sm-9">
                                         <select class="form-select" id="status" name="status">
                                             <option value="active" <?php echo $staff['status'] === 'active' ? 'selected' : ''; ?>>เปิดใช้งาน</option>
@@ -468,9 +546,19 @@ ob_start();
                             </div>
                             <div class="card-body">
                                 <div class="row mb-3">
-                                    <label for="education" class="col-sm-2 col-form-label">ประวัติการศึกษา</label>
+                                    <label for="expertise" class="col-sm-2 col-form-label">ความเชี่ยวชาญ</label>
                                     <div class="col-sm-10">
-                                        <textarea class="form-control" id="education" name="education" rows="3"><?php echo htmlspecialchars($staff['education'] ?? ''); ?></textarea>
+                                        <textarea class="form-control" id="expertise" name="expertise" rows="3"
+                                                  placeholder="เช่น Microfluidics / MeV Ion Beam / Image processing"><?php echo htmlspecialchars($staff['expertise'] ?? ''); ?></textarea>
+                                        <small class="form-text text-muted">ระบุความเชี่ยวชาญหรือสาขาที่สนใจ</small>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <label for="google_scholar_url" class="col-sm-2 col-form-label">Google Scholar</label>
+                                    <div class="col-sm-10">
+                                        <input type="url" class="form-control" id="google_scholar_url" name="google_scholar_url"
+                                               value="<?php echo htmlspecialchars($staff['google_scholar_url'] ?? ''); ?>"
+                                               placeholder="https://scholar.google.com/citations?user=...">
                                     </div>
                                 </div>
                                 <div class="row mb-3">

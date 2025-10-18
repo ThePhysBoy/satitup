@@ -164,35 +164,77 @@ ob_start();
                     <label for="type" class="form-label">ประเภทบุคลากร</label>
                     <select class="form-select" id="type" name="type">
                         <option value="">ทั้งหมด</option>
-                        <option value="academic" <?php echo $filter_type === 'academic' ? 'selected' : ''; ?>>สายวิชาการ</option>
-                        <option value="primary" <?php echo $filter_type === 'primary' ? 'selected' : ''; ?>>ประถมศึกษา</option>
-                        <option value="support" <?php echo $filter_type === 'support' ? 'selected' : ''; ?>>สายสนับสนุน</option>
-                        <option value="service" <?php echo $filter_type === 'service' ? 'selected' : ''; ?>>สายบริการ (เก่า)</option>
+                        <?php
+                        // Group departments by type for filter options
+                        $type_counts = [];
+                        foreach ($departments as $dept) {
+                            if (!isset($type_counts[$dept['type']])) {
+                                $type_counts[$dept['type']] = 0;
+                            }
+                            $type_counts[$dept['type']]++;
+                        }
+
+                        $type_labels = [
+                            'academic' => 'สายวิชาการ',
+                            'support' => 'สายสนับสนุน',
+                            'primary' => 'ประถมศึกษา'
+                        ];
+
+                        foreach ($type_counts as $type => $count) {
+                            if ($count > 0) {
+                                $label = $type_labels[$type] ?? ucfirst($type);
+                                echo "<option value=\"$type\" " . ($filter_type === $type ? 'selected' : '') . ">$label ($count)</option>";
+                            }
+                        }
+                        ?>
                     </select>
                 </div>
                 <div class="col-md-3">
                     <label for="department" class="form-label">หน่วยงาน/กลุ่มสาระ</label>
-                    <select class="form-select" id="department" name="department">
-                        <option value="0">ทั้งหมด</option>
-                        <optgroup label="สายวิชาการ">
-                            <?php foreach ($departments as $dept): ?>
-                                <?php if ($dept['type'] === 'academic'): ?>
-                                    <option value="<?php echo $dept['id']; ?>" <?php echo $filter_department == $dept['id'] ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($dept['name']); ?>
-                                    </option>
-                                <?php endif; ?>
-                            <?php endforeach; ?>
-                        </optgroup>
-                        <optgroup label="สายบริการ">
-                            <?php foreach ($departments as $dept): ?>
-                                <?php if ($dept['type'] === 'service'): ?>
-                                    <option value="<?php echo $dept['id']; ?>" <?php echo $filter_department == $dept['id'] ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($dept['name']); ?>
-                                    </option>
-                                <?php endif; ?>
-                            <?php endforeach; ?>
-                        </optgroup>
-                    </select>
+                    <?php if (empty($departments)): ?>
+                        <div class="alert alert-warning p-2">
+                            <small><i class="fas fa-exclamation-triangle me-1"></i>ไม่มีหน่วยงาน</small>
+                        </div>
+                        <select class="form-select" id="department" name="department" disabled>
+                            <option value="0">ไม่มีหน่วยงานให้เลือก</option>
+                        </select>
+                    <?php else: ?>
+                        <select class="form-select" id="department" name="department">
+                            <option value="0">ทั้งหมด</option>
+                            <?php
+                            // Group departments by type for display
+                            $grouped_departments = [
+                                'academic' => [],
+                                'support' => [],
+                                'primary' => []
+                            ];
+
+                            foreach ($departments as $dept) {
+                                if (isset($grouped_departments[$dept['type']])) {
+                                    $grouped_departments[$dept['type']][] = $dept;
+                                }
+                            }
+
+                            $type_labels = [
+                                'academic' => 'สายวิชาการ',
+                                'support' => 'สายสนับสนุน',
+                                'primary' => 'ประถมศึกษา'
+                            ];
+
+                            foreach ($grouped_departments as $type => $depts) {
+                                if (!empty($depts)) {
+                                    $label = $type_labels[$type] ?? ucfirst($type);
+                                    echo "<optgroup label=\"$label\">";
+                                    foreach ($depts as $dept) {
+                                        $selected = $filter_department == $dept['id'] ? 'selected' : '';
+                                        echo "<option value=\"{$dept['id']}\" $selected>" . htmlspecialchars($dept['name']) . "</option>";
+                                    }
+                                    echo "</optgroup>";
+                                }
+                            }
+                            ?>
+                        </select>
+                    <?php endif; ?>
                 </div>
                 <div class="col-md-3">
                     <button type="submit" class="btn btn-primary w-100">
@@ -218,7 +260,7 @@ ob_start();
                                 <th>ชื่อ-นามสกุล</th>
                                 <th>ตำแหน่ง</th>
                                 <th>หน่วยงาน/กลุ่มสาระ</th>
-                                <th>ประเภท</th>
+                                <th>CV/ลิงก์</th>
                                 <th>สถานะ</th>
                                 <th width="150">จัดการ</th>
                             </tr>
@@ -252,22 +294,65 @@ ob_start();
                                             <span class="badge bg-primary ms-2">หัวหน้า</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td><?php echo htmlspecialchars($primary_position); ?></td>
-                                    <td><?php echo htmlspecialchars($staff['department_name'] ?? 'ไม่ระบุ'); ?></td>
                                     <td>
-                                        <?php if ($staff['department_type'] === 'academic'): ?>
-                                            <span class="badge bg-info">สายวิชาการ</span>
-                                        <?php elseif ($staff['department_type'] === 'service'): ?>
-                                            <span class="badge bg-success">สายบริการ</span>
-                                        <?php else: ?>
-                                            <span class="badge bg-secondary">ไม่ระบุ</span>
-                                        <?php endif; ?>
+                                        <?php
+                                        // แสดงตำแหน่งจากฟิลด์ใหม่ก่อน ถ้าไม่มีค่อยใช้จาก staff_positions
+                                        if (!empty($staff['position'])) {
+                                            echo htmlspecialchars($staff['position']);
+                                        } elseif (!empty($primary_position) && $primary_position !== 'ไม่ระบุ') {
+                                            echo htmlspecialchars($primary_position);
+                                        } else {
+                                            echo '<span class="text-muted">ไม่ระบุ</span>';
+                                        }
+                                        ?>
+                                    </td>
+                                    <td>
+                                        <?php
+                                        if (!empty($staff['department_name'])) {
+                                            echo htmlspecialchars($staff['department_name']);
+                                        } else {
+                                            echo '<span class="text-muted">ไม่ระบุหน่วยงาน</span>';
+                                        }
+                                        ?>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-1 flex-wrap">
+                                            <?php if (!empty($staff['cv_file_path'])): ?>
+                                                <a href="../../<?php echo htmlspecialchars($staff['cv_file_path']); ?>" 
+                                                   class="badge bg-danger" target="_blank" title="ดู CV">
+                                                    <i class="fas fa-file-pdf"></i> CV
+                                                </a>
+                                            <?php endif; ?>
+                                            <?php if (!empty($staff['google_scholar_url'])): ?>
+                                                <a href="<?php echo htmlspecialchars($staff['google_scholar_url']); ?>" 
+                                                   class="badge bg-primary" target="_blank" title="Google Scholar">
+                                                    <i class="fab fa-google"></i>
+                                                </a>
+                                            <?php endif; ?>
+                                            <?php if (empty($staff['cv_file_path']) && empty($staff['google_scholar_url'])): ?>
+                                                <span class="text-muted">-</span>
+                                            <?php endif; ?>
+                                        </div>
                                     </td>
                                     <td>
                                         <?php if ($staff['status'] === 'active'): ?>
                                             <span class="badge bg-success">เปิดใช้งาน</span>
                                         <?php else: ?>
                                             <span class="badge bg-danger">ปิดใช้งาน</span>
+                                        <?php endif; ?>
+
+                                        <?php if (!empty($staff['work_status'])): ?>
+                                            <br><small class="text-muted">
+                                                <?php
+                                                switch($staff['work_status']) {
+                                                    case 'working': echo 'ปฏิบัติงาน'; break;
+                                                    case 'retired': echo 'เกษียณอายุ'; break;
+                                                    case 'leave': echo 'ลาศึกษาต่อ'; break;
+                                                    case 'resigned': echo 'ลาออก'; break;
+                                                    default: echo $staff['work_status'];
+                                                }
+                                                ?>
+                                            </small>
                                         <?php endif; ?>
                                     </td>
                                     <td>
@@ -361,7 +446,29 @@ ob_start();
                 
             <?php else: ?>
                 <div class="text-center p-4">
-                    <p class="text-muted">ไม่พบข้อมูลบุคลากร</p>
+                    <?php if (empty($departments)): ?>
+                        <div class="alert alert-warning">
+                            <h5><i class="fas fa-exclamation-triangle me-2"></i>ไม่มีข้อมูลหน่วยงาน</h5>
+                            <p>กรุณาเพิ่มข้อมูลหน่วยงานก่อนเพิ่มบุคลากร</p>
+                            <a href="department_manager.php" class="btn btn-primary me-2">
+                                <i class="fas fa-plus me-2"></i>จัดการหน่วยงาน
+                            </a>
+                            <a href="add_default_departments.php" class="btn btn-outline-primary">
+                                <i class="fas fa-download me-2"></i>เพิ่มข้อมูลเริ่มต้น
+                            </a>
+                        </div>
+                    <?php else: ?>
+                        <div class="alert alert-info">
+                            <h5><i class="fas fa-info-circle me-2"></i>ไม่พบข้อมูลบุคลากร</h5>
+                            <p>ยังไม่มีข้อมูลบุคลากรในระบบ หรือไม่ตรงกับเงื่อนไขการค้นหา</p>
+                            <?php if (!empty($search) || $filter_type !== '' || $filter_department > 0): ?>
+                                <p class="mb-3">ลองปรับเปลี่ยนเงื่อนไขการค้นหา หรือ</p>
+                            <?php endif; ?>
+                            <a href="create.php" class="btn btn-success">
+                                <i class="fas fa-plus me-2"></i>เพิ่มบุคลากรใหม่
+                            </a>
+                        </div>
+                    <?php endif; ?>
                 </div>
             <?php endif; ?>
         </div>

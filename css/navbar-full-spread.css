@@ -1,0 +1,393 @@
+/**
+ * Navbar Full Spread CSS
+ * ทำให้เมนู navbar กระจายเต็มความกว้างอย่างสมบูรณ์
+ */
+
+/* Main Navbar - แถบบน - กระจายเต็ม 100% */
+.main-navbar {
+    width: 100vw !important; /* ใช้เต็ม viewport width */
+    position: relative;
+    left: 50% !important;
+    right: 50% !important;
+    margin-left: -50vw !important;
+    margin-right: -50vw !important;
+}
+
+.main-navbar .container-fluid {
+    max-width: 100% !important;
+    padding: 0 30px !important;
+    width: 100% !important;
+}
+
+.main-navbar .navbar-collapse {
+    flex-grow: 1 !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.main-navbar .navbar-nav {
+    display: flex !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    align-items: center;
+    flex: 1 !important;
+    margin: 0 !important;
+    padding-left: 0 !important;
+}
+
+/* Override Bootstrap's ms-auto */
+.main-navbar .navbar-nav.ms-auto {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.main-navbar .navbar-nav .nav-item {
+    flex: 1 1 0px !important;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+    position: relative;
+    max-width: none !important;
+}
+
+.main-navbar .navbar-nav .nav-item:not(:nth-last-child(-n+2)) {
+    flex: 1 1 0px !important;
+    min-width: 120px;
+    max-width: none !important;
+}
+
+.main-navbar .navbar-nav .nav-link {
+    padding: 10px 8px;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    position: relative;
+    flex: 1;
+}
+
+/* ปุ่ม Search และ Login ชิดขวา */
+.main-navbar .navbar-nav .nav-item:nth-last-child(2),
+.main-navbar .navbar-nav .nav-item:last-child {
+    flex: 0 0 auto !important;
+    margin-left: auto !important;
+    max-width: none !important;
+}
+
+/* Secondary Navbar - แถบล่าง - กระจายเต็ม 100% */
+.secondary-navbar {
+    width: 100vw !important; /* ใช้เต็ม viewport width */
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    background: linear-gradient(135deg, var(--primary-color, #8B7AA8) 0%, var(--primary-light, #A698BC) 100%);
+}
+
+.secondary-navbar .container-fluid {
+    max-width: 100% !important;
+    padding: 0 30px !important;
+    width: 100% !important;
+}
+
+.secondary-navbar #secondaryNavbar {
+    width: 100%;
+}
+
+.secondary-navbar .navbar-nav {
+    display: flex !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    align-items: center;
+    flex: 1;
+    margin: 0 !important;
+}
+
+.secondary-navbar .navbar-nav .nav-item {
+    flex: 1 1 0px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+    position: relative;
+}
+
+.secondary-navbar .navbar-nav .nav-item:not(.ms-lg-3) {
+    flex: 1 1 0px;
+    min-width: 100px;
+}
+
+.secondary-navbar .navbar-nav .nav-link {
+    color: #fff;
+    padding: 10px 15px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    border-radius: 25px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    position: relative;
+}
+
+.secondary-navbar .navbar-nav .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+/* ส่วนของครู (ไอเท็มสุดท้าย) ชิดขวา */
+.secondary-navbar .navbar-nav .nav-item.ms-lg-3 {
+    flex: 0 0 auto;
+    margin-left: auto !important;
+}
+
+/* Responsive Design */
+@media (max-width: 1199px) {
+    .main-navbar .container-fluid,
+    .secondary-navbar .container-fluid {
+        padding: 0 20px !important;
+    }
+
+    .main-navbar .navbar-nav .nav-link,
+    .secondary-navbar .navbar-nav .nav-link {
+        font-size: 0.9rem;
+        padding: 8px 6px;
+    }
+}
+
+@media (max-width: 991px) {
+    .main-navbar,
+    .secondary-navbar {
+        width: 100% !important;
+        position: static !important;
+        left: auto !important;
+        right: auto !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    .main-navbar .navbar-nav,
+    .secondary-navbar .navbar-nav {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .main-navbar .navbar-nav .nav-item,
+    .secondary-navbar .navbar-nav .nav-item {
+        width: 100%;
+        text-align: left;
+        justify-content: flex-start;
+    }
+
+    .main-navbar .navbar-nav .nav-link,
+    .secondary-navbar .navbar-nav .nav-link {
+        justify-content: flex-start;
+        padding: 12px 15px;
+    }
+
+    .secondary-navbar {
+        display: none;
+    }
+}
+
+/* Make sure flex items are distributed evenly */
+.main-navbar .navbar-nav .nav-item:nth-child(n+2):not(:nth-last-child(-n+2)) {
+    flex: 1 1 0px;
+    max-width: none;
+}
+
+.secondary-navbar .navbar-nav .nav-item:nth-child(n+2):not(.ms-lg-3) {
+    flex: 1 1 0px;
+    max-width: none;
+}
+
+/* Ensure no overflow */
+.main-navbar .navbar-nav .nav-item {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.secondary-navbar .navbar-nav .nav-item {
+    min-width: 0;
+    overflow: hidden;
+}
+
+/* Override Bootstrap's ms-auto that prevents full spread */
+.main-navbar .navbar-nav[class*="ms-"] {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    justify-content: space-between !important;
+}
+
+/* Force navbar to spread across full width */
+.main-navbar .navbar-nav {
+    width: 100% !important;
+    flex: 1 !important;
+    display: flex !important;
+    justify-content: space-between !important;
+}
+
+.secondary-navbar .navbar-nav {
+    width: 100% !important;
+    flex: 1 !important;
+    display: flex !important;
+    justify-content: space-between !important;
+}
+
+/* Make each nav item take equal space */
+.main-navbar .navbar-nav .nav-item:nth-child(n+2):not(:nth-last-child(-n+2)) {
+    flex: 1 1 0px !important;
+    max-width: none !important;
+    min-width: 120px;
+}
+
+.secondary-navbar .navbar-nav .nav-item:nth-child(n+2):not(.ms-lg-3) {
+    flex: 1 1 0px !important;
+    max-width: none !important;
+    min-width: 100px;
+}
+
+/* Ensure navbar-collapse takes full width */
+.main-navbar .navbar-collapse {
+    width: 100% !important;
+    flex-basis: 100% !important;
+    flex-grow: 1 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.secondary-navbar .navbar-collapse {
+    width: 100% !important;
+    flex-basis: 100% !important;
+    flex-grow: 1 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* Additional override to ensure full spread */
+.main-navbar .navbar-nav,
+.secondary-navbar .navbar-nav {
+    position: relative !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* Force flexbox behavior */
+.main-navbar .navbar-nav > .nav-item,
+.secondary-navbar .navbar-nav > .nav-item {
+    flex: 1 1 0px !important;
+    min-width: 0 !important;
+}
+
+/* Make sure the flex items distribute evenly */
+.main-navbar .navbar-nav > .nav-item:nth-child(n+2):not(:nth-last-child(-n+2)),
+.secondary-navbar .navbar-nav > .nav-item:nth-child(n+2):not(.ms-lg-3) {
+    flex: 1 1 0px !important;
+    max-width: none !important;
+    min-width: 120px !important;
+}
+
+/* Override any Bootstrap margin utilities */
+.main-navbar .navbar-nav[class*="m"],
+.secondary-navbar .navbar-nav[class*="m"] {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* New Section Navbar - กระจายเต็มความกว้าง */
+.new-section-navbar {
+    width: 100vw !important;
+    position: relative;
+    left: 50% !important;
+    right: 50% !important;
+    margin-left: -50vw !important;
+    margin-right: -50vw !important;
+}
+
+.new-section-navbar .container-fluid {
+    max-width: 100% !important;
+    padding: 0 30px !important;
+    width: 100% !important;
+}
+
+.new-section-navbar .navbar-collapse {
+    width: 100% !important;
+    flex-basis: 100% !important;
+    flex-grow: 1 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.new-section-navbar .navbar-nav {
+    display: flex !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    align-items: center;
+    flex: 1 !important;
+    margin: 0 !important;
+    padding-left: 0 !important;
+}
+
+.new-section-navbar .navbar-nav .nav-item {
+    flex: 1 1 0px !important;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+    position: relative;
+    max-width: none !important;
+}
+
+.new-section-navbar .navbar-nav .nav-link {
+    color: #fff;
+    padding: 10px 15px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    border-radius: 25px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    position: relative;
+    flex: 1;
+}
+
+.new-section-navbar .navbar-nav .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.new-section-navbar .navbar-nav .nav-link i {
+    margin-right: 8px;
+}
+
+/* Dropdown adjustments for new section navbar */
+.new-section-navbar .dropdown-menu {
+    background-color: #fff;
+    border: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    border-radius: 8px;
+}
+
+.new-section-navbar .dropdown-item {
+    color: #333;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+}
+
+.new-section-navbar .dropdown-item:hover {
+    background-color: rgba(139, 122, 168, 0.1);
+    color: var(--primary-color, #8B7AA8);
+}

@@ -10,6 +10,12 @@ require_once 'includes/auth_functions.php';
 // Require user to be logged in
 requireLogin();
 
+// Check if there's a login success message
+if (isset($_SESSION['login_success']) && $_SESSION['login_success'] === true) {
+    $_SESSION['success_message'] = "เข้าสู่ระบบสำเร็จ ยินดีต้อนรับกลับ " . ($_SESSION['full_name'] ?? $_SESSION['username']);
+    unset($_SESSION['login_success']);
+}
+
 // Get slideshow count
 $stmt = $conn->prepare("SELECT COUNT(*) as count FROM slideshow");
 $stmt->execute();
@@ -21,6 +27,24 @@ $stmt = $conn->prepare("SELECT COUNT(*) as count FROM university_rankings");
 $stmt->execute();
 $result = $stmt->get_result();
 $rankings_count = $result->fetch_assoc()['count'];
+
+// Get management count
+$management_count = 0;
+if (isAdmin() || isPrOfficer()) {
+    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM management");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $management_count = $result->fetch_assoc()['count'];
+}
+
+// Get steering committee count
+$steering_count = 0;
+if (isAdmin() || isPrOfficer()) {
+    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM steering_committee WHERE status='active'");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $steering_count = $result->fetch_assoc()['count'];
+}
 
 // Get news count (for PR/Admin)
 $news_count = 0;
@@ -38,6 +62,33 @@ if (isAdmin()) {
     $stmt->execute();
     $result = $stmt->get_result();
     $users_count = $result->fetch_assoc()['count'];
+}
+
+// Get official documents count (for PR/Admin)
+$official_docs_count = 0;
+if (isAdmin() || isPrOfficer()) {
+    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM official_documents WHERE status='active'");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $official_docs_count = $result->fetch_assoc()['count'];
+}
+
+// Get hall of fame count (for PR/Admin)
+$hall_of_fame_count = 0;
+if (isAdmin() || isPrOfficer()) {
+    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM hall_of_fame WHERE status='active'");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $hall_of_fame_count = $result->fetch_assoc()['count'];
+}
+
+// Get partners count (for PR/Admin)
+$partners_count = 0;
+if (isAdmin() || isPrOfficer()) {
+    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM partners WHERE status='active'");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $partners_count = $result->fetch_assoc()['count'];
 }
 
 // Get user information
@@ -266,12 +317,67 @@ $position = $_SESSION['position'] ?? '';
                             </a>
                         </li>
                         <?php endif; ?>
+
+                        <?php if (isPrOfficer() || isAdmin()): ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="management/index.php">
+                                <i class="fas fa-fw fa-user-tie"></i>
+                                <span>คณะกรรมการบริหาร</span>
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="steering/index.php">
+                                <i class="fas fa-fw fa-university"></i>
+                                <span>คณะกรรมการอำนวยการ</span>
+                            </a>
+                        </li>
+                        <?php endif; ?>
                         
                         <?php if (isPrOfficer() || isAdmin()): ?>
                         <li class="nav-item">
                             <a class="nav-link" href="news/index.php">
                                 <i class="fas fa-fw fa-newspaper"></i>
                                 <span>ข่าวและกิจกรรม</span>
+                            </a>
+                        </li>
+                        <?php endif; ?>
+                        
+                        <?php if (isPrOfficer() || isAdmin()): ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="video_system/simple_video_manager.php">
+                                <i class="fas fa-fw fa-video"></i>
+                                <span>วิดีโอ</span>
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="official_documents/index.php">
+                                <i class="fas fa-fw fa-file-alt"></i>
+                                <span>เอกสารราชการ</span>
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="hall_of_fame/index.php">
+                                <i class="fas fa-fw fa-trophy"></i>
+                                <span>หอเกียรติยศ</span>
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="partners/index.php">
+                                <i class="fas fa-fw fa-handshake"></i>
+                                <span>เครือข่ายความร่วมมือ</span>
+                            </a>
+                        </li>
+                        <?php endif; ?>
+                        
+                        <?php if (canManageStaff()): ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="staff/index.php">
+                                <i class="fas fa-fw fa-chalkboard-teacher"></i>
+                                <span>บุคลากร</span>
                             </a>
                         </li>
                         <?php endif; ?>
@@ -382,6 +488,46 @@ $position = $_SESSION['position'] ?? '';
                     <?php endif; ?>
 
                     <?php if (isPrOfficer() || isAdmin()): ?>
+                    <!-- Management Card -->
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-dark shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
+                                            คณะกรรมการบริหาร
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $management_count; ?> รายการ</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-user-tie fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Steering Committee Card -->
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-purple shadow h-100 py-2" style="border-left: 0.25rem solid #8B7AA8!important;">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-purple text-uppercase mb-1" style="color: #8B7AA8;">
+                                            คณะกรรมการอำนวยการ
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $steering_count; ?> รายการ</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-university fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
+                    <?php if (isPrOfficer() || isAdmin()): ?>
                     <!-- News Card -->
                     <div class="col-xl-3 col-md-6 mb-4">
                         <div class="card border-left-warning shadow h-100 py-2">
@@ -395,6 +541,113 @@ $position = $_SESSION['position'] ?? '';
                                     </div>
                                     <div class="col-auto">
                                         <i class="fas fa-newspaper fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
+                    <?php if (isPrOfficer() || isAdmin()): ?>
+                    <!-- Videos Card -->
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-danger shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                            วิดีโอ
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            <?php
+                                            // นับจำนวนวิดีโอ
+                                            $video_count = 0;
+                                            try {
+                                                // ตรวจสอบว่ามีการเชื่อมต่อฐานข้อมูลแล้วหรือยัง
+                                                if (!isset($video_conn)) {
+                                                    if (file_exists('../video_system/includes/db_config.php')) {
+                                                        // ใช้ include_once แทน require_once เพื่อป้องกันการโหลดซ้ำ
+                                                        include_once '../video_system/includes/db_config.php';
+                                                    }
+                                                }
+                                                
+                                                // ตรวจสอบว่าตารางมีอยู่หรือไม่
+                                                if (isset($video_conn)) {
+                                                    $check_table = $video_conn->query("SHOW TABLES LIKE 'videos'");
+                                                    if ($check_table && $check_table->num_rows > 0) {
+                                                        $result = $video_conn->query("SELECT COUNT(*) as count FROM videos");
+                                                        if ($result) {
+                                                            $row = $result->fetch_assoc();
+                                                            $video_count = $row['count'];
+                                                        }
+                                                    }
+                                                }
+                                            } catch (Exception $e) {
+                                                // ถ้ามีข้อผิดพลาด ให้แสดง 0
+                                                $video_count = 0;
+                                            }
+                                            echo $video_count;
+                                            ?> รายการ
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-video fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Official Documents Card -->
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            เอกสารราชการ
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $official_docs_count; ?> รายการ</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-file-alt fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-warning shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                            หอเกียรติยศ
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $hall_of_fame_count; ?> รายการ</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-trophy fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Partners Card -->
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            เครือข่ายความร่วมมือ
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $partners_count; ?> รายการ</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-handshake fa-2x text-gray-300"></i>
                                     </div>
                                 </div>
                             </div>
@@ -469,6 +722,100 @@ $position = $_SESSION['position'] ?? '';
                                             <i class="fas fa-plus me-2"></i> เพิ่มข่าวใหม่
                                         </a>
                                     </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="news/dashboard.php" class="btn btn-info btn-block d-flex align-items-center justify-content-center p-3">
+                                            <i class="fas fa-tachometer-alt me-2"></i> แดชบอร์ดข่าว
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="management/index.php" class="btn btn-primary btn-block d-flex align-items-center justify-content-center p-3">
+                                            <i class="fas fa-user-tie me-2"></i> จัดการกรรมการบริหาร
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="management/create.php" class="btn btn-success btn-block d-flex align-items-center justify-content-center p-3">
+                                            <i class="fas fa-user-plus me-2"></i> เพิ่มกรรมการบริหาร
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="steering/index.php" class="btn btn-block d-flex align-items-center justify-content-center p-3" style="background-color: #8B7AA8; color: white;">
+                                            <i class="fas fa-university me-2"></i> จัดการกรรมการอำนวยการ
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="steering/create.php" class="btn btn-success btn-block d-flex align-items-center justify-content-center p-3">
+                                            <i class="fas fa-user-plus me-2"></i> เพิ่มกรรมการอำนวยการ
+                                        </a>
+                                    </div>
+                                    <?php endif; ?>
+
+                                    <?php if (isPrOfficer() || isAdmin()): ?>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="video_system/simple_video_manager.php" class="btn btn-danger btn-block d-flex align-items-center justify-content-center p-3">
+                                            <i class="fas fa-video me-2"></i> จัดการวิดีโอ (ง่าย)
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="video_system/simple_video_manager.php" class="btn btn-success btn-block d-flex align-items-center justify-content-center p-3">
+                                            <i class="fas fa-plus me-2"></i> เพิ่ม/แก้ไขวิดีโอ
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="video_system/setup_database.php" class="btn btn-secondary btn-block d-flex align-items-center justify-content-center p-3">
+                                            <i class="fas fa-database me-2"></i> ตั้งค่าฐานข้อมูลวิดีโอ
+                                        </a>
+                                    </div>
+                                    
+                                    <!-- เอกสารราชการ -->
+                                    <div class="col-md-3 mb-3">
+                                        <a href="official_documents/index.php" class="btn btn-primary btn-block d-flex align-items-center justify-content-center p-3">
+                                            <i class="fas fa-file-alt me-2"></i> จัดการเอกสารราชการ
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="official_documents/add.php" class="btn btn-success btn-block d-flex align-items-center justify-content-center p-3">
+                                            <i class="fas fa-plus me-2"></i> เพิ่มเอกสารใหม่
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="official_documents/dashboard.php" class="btn btn-info btn-block d-flex align-items-center justify-content-center p-3">
+                                            <i class="fas fa-chart-pie me-2"></i> แดชบอร์ดเอกสาร
+                                        </a>
+                                    </div>
+                                    
+                                    <!-- หอเกียรติยศ -->
+                                    <div class="col-md-3 mb-3">
+                                        <a href="hall_of_fame/index.php" class="btn btn-warning btn-block d-flex align-items-center justify-content-center p-3">
+                                            <i class="fas fa-trophy me-2"></i> จัดการหอเกียรติยศ
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="hall_of_fame/add.php" class="btn btn-success btn-block d-flex align-items-center justify-content-center p-3">
+                                            <i class="fas fa-plus me-2"></i> เพิ่มรางวัลใหม่
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="../hall_of_fame/index.php" target="_blank" class="btn btn-info btn-block d-flex align-items-center justify-content-center p-3">
+                                            <i class="fas fa-eye me-2"></i> ดูหอเกียรติยศ
+                                        </a>
+                                    </div>
+                                    
+                                    <!-- เครือข่ายความร่วมมือ -->
+                                    <div class="col-md-3 mb-3">
+                                        <a href="partners/index.php" class="btn btn-success btn-block d-flex align-items-center justify-content-center p-3">
+                                            <i class="fas fa-handshake me-2"></i> จัดการพันธมิตร
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="partners/create.php" class="btn btn-primary btn-block d-flex align-items-center justify-content-center p-3">
+                                            <i class="fas fa-plus me-2"></i> เพิ่มพันธมิตรใหม่
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="../index.php#partners" target="_blank" class="btn btn-info btn-block d-flex align-items-center justify-content-center p-3">
+                                            <i class="fas fa-eye me-2"></i> ดูส่วนพันธมิตร
+                                        </a>
+                                    </div>
                                     <?php endif; ?>
                                     
                                     <?php if (canManageStaff()): ?>
@@ -536,5 +883,6 @@ $position = $_SESSION['position'] ?? '';
     
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
 </body>
 </html>

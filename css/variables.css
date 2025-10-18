@@ -1,0 +1,84 @@
+/**
+ * CSS Variables for Satit UP Website
+ * These variables define the color scheme and other reusable values across the site
+ */
+
+:root {
+  /* Primary Colors */
+  --primary-color: #8B7AA8; /* สีม่วงอ่อน - สีหลักของโรงเรียน */
+  --primary-light: #A698BC; /* สีม่วงอ่อนมาก - สำหรับพื้นหลัง */
+  --primary-dark: #6A5C82;  /* สีม่วงเข้ม - สำหรับตัวอักษรและเน้นความสำคัญ */
+  
+  /* Secondary Colors */
+  --secondary-color: #4E598C; /* สีน้ำเงินอมม่วง - สีรอง */
+  --secondary-light: #7986B5; /* สีน้ำเงินอมม่วงอ่อน */
+  --secondary-dark: #3A4367; /* สีน้ำเงินอมม่วงเข้ม */
+  
+  /* Accent Colors */
+  --accent-color: #F9A826; /* สีส้มเหลือง - สำหรับปุ่มและองค์ประกอบที่ต้องการความโดดเด่น */
+  --accent-light: #FFBE59; /* สีส้มเหลืองอ่อน */
+  --accent-dark: #D68C14; /* สีส้มเหลืองเข้ม */
+  
+  /* Text Colors */
+  --text-dark: #333333; /* สีเทาเข้มเกือบดำ - สำหรับข้อความหลัก */
+  --text-medium: #666666; /* สีเทากลาง - สำหรับข้อความรอง */
+  --text-light: #999999; /* สีเทาอ่อน - สำหรับข้อความที่มีความสำคัญน้อย */
+  
+  /* Background Colors */
+  --bg-light: #F8F9FA; /* สีพื้นหลังอ่อน */
+  --bg-medium: #E9ECEF; /* สีพื้นหลังกลาง */
+  --bg-dark: #DEE2E6; /* สีพื้นหลังเข้ม */
+  
+  /* Status Colors */
+  --success: #28A745; /* สีเขียว - สำหรับการแจ้งเตือนสำเร็จ */
+  --warning: #FFC107; /* สีเหลือง - สำหรับการแจ้งเตือนคำเตือน */
+  --danger: #DC3545; /* สีแดง - สำหรับการแจ้งเตือนข้อผิดพลาด */
+  --info: #17A2B8; /* สีฟ้า - สำหรับการแจ้งเตือนข้อมูล */
+  
+  /* Border Radius */
+  --border-radius-sm: 0.25rem; /* รัศมีขอบเล็ก */
+  --border-radius-md: 0.5rem; /* รัศมีขอบกลาง */
+  --border-radius-lg: 1rem; /* รัศมีขอบใหญ่ */
+  
+  /* Shadows */
+  --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* เงาเล็ก */
+  --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); /* เงากลาง */
+  --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175); /* เงาใหญ่ */
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem; /* ระยะห่างเล็กมาก */
+  --spacing-sm: 0.5rem; /* ระยะห่างเล็ก */
+  --spacing-md: 1rem; /* ระยะห่างกลาง */
+  --spacing-lg: 1.5rem; /* ระยะห่างใหญ่ */
+  --spacing-xl: 3rem; /* ระยะห่างใหญ่มาก */
+  
+  /* Font Sizes */
+  --font-size-xs: 0.75rem; /* ขนาดตัวอักษรเล็กมาก */
+  --font-size-sm: 0.875rem; /* ขนาดตัวอักษรเล็ก */
+  --font-size-md: 1rem; /* ขนาดตัวอักษรกลาง */
+  --font-size-lg: 1.25rem; /* ขนาดตัวอักษรใหญ่ */
+  --font-size-xl: 1.5rem; /* ขนาดตัวอักษรใหญ่มาก */
+  --font-size-2xl: 2rem; /* ขนาดตัวอักษรใหญ่มากพิเศษ */
+  --font-size-3xl: 2.5rem; /* ขนาดตัวอักษรใหญ่มากที่สุด */
+  
+  /* Font Weights */
+  --font-weight-light: 300; /* น้ำหนักตัวอักษรบาง */
+  --font-weight-normal: 400; /* น้ำหนักตัวอักษรปกติ */
+  --font-weight-medium: 500; /* น้ำหนักตัวอักษรกลาง */
+  --font-weight-semibold: 600; /* น้ำหนักตัวอักษรกึ่งหนา */
+  --font-weight-bold: 700; /* น้ำหนักตัวอักษรหนา */
+  
+  /* Transitions */
+  --transition-fast: 0.2s ease; /* การเปลี่ยนแปลงเร็ว */
+  --transition-normal: 0.3s ease; /* การเปลี่ยนแปลงปกติ */
+  --transition-slow: 0.5s ease; /* การเปลี่ยนแปลงช้า */
+  
+  /* Z-index levels */
+  --z-index-dropdown: 1000;
+  --z-index-sticky: 1020;
+  --z-index-fixed: 1030;
+  --z-index-modal-backdrop: 1040;
+  --z-index-modal: 1050;
+  --z-index-popover: 1060;
+  --z-index-tooltip: 1070;
+}

@@ -1,0 +1,401 @@
+/* ===== News and Announcements Section Styles ===== */
+
+/* การตั้งค่าพื้นฐาน */
+.news-announcements-section {
+    background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+    font-family: 'Sarabun', sans-serif;
+}
+
+/* ส่วนหัว */
+.section-badge {
+    display: inline-flex;
+    align-items: center;
+    background: linear-gradient(135deg, var(--primary-color, #8B7AA8) 0%, var(--primary-light, #A698BC) 100%);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    box-shadow: 0 4px 15px rgba(139, 122, 168, 0.3);
+}
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-dark, #2c3e50);
+    position: relative;
+    display: inline-block;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(135deg, var(--primary-color, #8B7AA8) 0%, var(--primary-light, #A698BC) 100%);
+    border-radius: 2px;
+}
+
+.section-subtitle {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto;
+    color: var(--text-medium, #666);
+}
+
+/* แท็บเมนู */
+.news-tabs {
+    border: none;
+    background: white;
+    border-radius: 15px;
+    padding: 8px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.news-tabs .nav-link {
+    border: none;
+    color: var(--text-medium, #6c757d);
+    font-weight: 500;
+    padding: 12px 20px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    background: transparent;
+    margin: 0 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.news-tabs .nav-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, var(--primary-color, #8B7AA8) 0%, var(--primary-light, #A698BC) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 12px;
+}
+
+.news-tabs .nav-link span,
+.news-tabs .nav-link i {
+    position: relative;
+    z-index: 1;
+}
+
+.news-tabs .nav-link:hover:not(.active) {
+    color: var(--primary-color, #8B7AA8);
+    background-color: rgba(139, 122, 168, 0.1);
+    transform: translateY(-2px);
+}
+
+.news-tabs .nav-link.active {
+    color: white;
+    background: transparent;
+}
+
+.news-tabs .nav-link.active::before {
+    opacity: 1;
+}
+
+.news-tabs .nav-link i {
+    margin-right: 8px;
+    font-size: 1rem;
+}
+
+/* การ์ดข่าว */
+.news-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    height: 100%;
+}
+
+.news-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(139, 122, 168, 0.15);
+}
+
+.news-image {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+}
+
+.news-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.news-card:hover .news-image img {
+    transform: scale(1.1);
+}
+
+.news-date {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: var(--primary-color, #8B7AA8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+
+.news-date .day {
+    font-size: 1.4rem;
+    font-weight: 700;
+    display: block;
+    line-height: 1;
+}
+
+.news-date .month {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+.news-category {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--primary-color, #8B7AA8);
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.news-content {
+    padding: 25px;
+}
+
+.news-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.news-title a {
+    color: var(--text-dark, #333);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.news-title a:hover {
+    color: var(--primary-color, #8B7AA8);
+}
+
+.news-excerpt {
+    color: var(--text-medium, #666);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.news-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--text-light, #999);
+}
+
+.news-meta span {
+    display: flex;
+    align-items: center;
+}
+
+.news-meta i {
+    margin-right: 5px;
+}
+
+/* รายการประกาศ */
+.announcement-list .card {
+    border: none;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.announcement-list .card-header {
+    background: linear-gradient(135deg, var(--primary-color, #8B7AA8) 0%, var(--primary-light, #A698BC) 100%);
+    color: white;
+    border: none;
+    padding: 20px 25px;
+}
+
+.announcement-list .list-group-item {
+    padding: 20px 25px;
+    border: none;
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.3s ease;
+}
+
+.announcement-list .list-group-item:hover {
+    background-color: rgba(139, 122, 168, 0.05);
+}
+
+.announcement-list .list-group-item.high-priority {
+    border-left: 4px solid #dc3545;
+    background-color: rgba(220, 53, 69, 0.05);
+}
+
+.announcement-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.announcement-title a {
+    color: var(--text-dark, #333);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.announcement-title a:hover {
+    color: var(--primary-color, #8B7AA8);
+}
+
+.announcement-meta {
+    display: flex;
+    gap: 20px;
+    font-size: 0.9rem;
+    color: var(--text-medium, #666);
+}
+
+.announcement-meta span {
+    display: flex;
+    align-items: center;
+}
+
+.announcement-meta i {
+    margin-right: 5px;
+}
+
+/* ปุ่มดูทั้งหมด */
+.btn-view-all {
+    background: linear-gradient(135deg, var(--primary-color, #8B7AA8) 0%, var(--primary-light, #A698BC) 100%);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(139, 122, 168, 0.3);
+}
+
+.btn-view-all:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 122, 168, 0.4);
+    color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .section-title {
+        font-size: 2rem;
+    }
+    
+    .news-tabs .nav-link {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+    
+    .news-tabs .nav-link span {
+        display: none;
+    }
+    
+    .news-content {
+        padding: 20px;
+    }
+    
+    .announcement-meta {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 576px) {
+    .news-image {
+        height: 180px;
+    }
+    
+    .news-content {
+        padding: 15px;
+    }
+    
+    .announcement-list .list-group-item {
+        padding: 15px 20px;
+    }
+}
+
+/* เอฟเฟกต์การโหลด */
+.news-card {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.news-card:nth-child(1) { animation-delay: 0.1s; }
+.news-card:nth-child(2) { animation-delay: 0.2s; }
+.news-card:nth-child(3) { animation-delay: 0.3s; }
+.news-card:nth-child(4) { animation-delay: 0.4s; }
+.news-card:nth-child(5) { animation-delay: 0.5s; }
+.news-card:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* สำหรับ placeholder images */
+.news-image img[src*="placeholder"] {
+    background: linear-gradient(135deg, var(--primary-color, #8B7AA8) 0%, var(--primary-light, #A698BC) 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* Hover effects สำหรับลิงก์ */
+.announcement-title a,
+.news-title a {
+    position: relative;
+}
+
+.announcement-title a::after,
+.news-title a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -2px;
+    left: 0;
+    background: var(--primary-color, #8B7AA8);
+    transition: width 0.3s ease;
+}
+
+.announcement-title a:hover::after,
+.news-title a:hover::after {
+    width: 100%;
+}

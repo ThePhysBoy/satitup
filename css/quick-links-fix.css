@@ -1,0 +1,138 @@
+/* ปรับปรุงการแสดงผลของ Quick Links */
+
+/* ปรับการ์ดให้แสดงผลเป็น flex เพื่อจัดวางองค์ประกอบให้สวยงาม */
+.quick-link-card {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 30px 15px !important;
+    min-height: 180px !important;
+}
+
+/* เพิ่มขนาดไอคอนให้ใหญ่และเท่ากัน */
+.quick-link-icon {
+    width: 85px !important;
+    height: 85px !important;
+    margin: 0 auto 15px !important;
+    border-radius: 18px !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* สำหรับไอคอนที่เป็นรูปภาพ */
+.quick-link-icon-image {
+    width: 85px !important;
+    height: 85px !important;
+    margin: 0 auto 15px !important;
+    border-radius: 18px !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15) !important;
+    overflow: hidden !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: transparent !important;
+    padding: 0 !important;
+}
+
+.quick-link-icon-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    display: block !important;
+    border-radius: 18px !important;
+}
+
+/* ปรับเนื้อหาให้อยู่ตรงกลางและมีความสูงเท่ากัน */
+.quick-link-content {
+    flex-grow: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    width: 100% !important;
+}
+
+/* กำหนดความสูงของหัวข้อให้เท่ากัน */
+.quick-link-content h5 {
+    min-height: 27px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* กำหนดความสูงของคำอธิบายให้เท่ากัน */
+.quick-link-content .quick-link-subtitle {
+    min-height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* ปรับปรุงลิงก์คู่มือการใช้งาน */
+.manual-text {
+    margin-top: 12px;
+    text-align: center;
+    width: 100%;
+}
+
+.manual-text-link {
+    display: inline-block;
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    text-decoration: none;
+    border-radius: 8px;
+    background: rgba(102, 126, 234, 0.08);
+    border: 1px solid rgba(102, 126, 234, 0.25);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+/* เพิ่มเอฟเฟกต์ shine เมื่อ hover */
+.manual-text-link:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: all 0.6s ease;
+    z-index: -1;
+}
+
+.manual-text-link:hover {
+    background: rgba(102, 126, 234, 0.16);
+    border-color: var(--primary-color);
+    color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
+}
+
+.manual-text-link:hover:before {
+    left: 100%;
+}
+
+.manual-text-link:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+}
+
+/* สำหรับ hover effect บนรูปภาพ icon */
+.quick-link-card:hover .quick-link-icon-image {
+    transform: translateY(-5px) scale(1.05) !important;
+    transition: all 0.3s ease !important;
+}
+
+.quick-link-card:hover .quick-link-icon-image img {
+    transform: scale(1.1) !important;
+    transition: all 0.3s ease !important;
+}
+
+/* ปรับขนาดไอคอน Font Awesome (สำหรับ backup) */
+.quick-link-icon i {
+    font-size: 2.5rem !important;
+}

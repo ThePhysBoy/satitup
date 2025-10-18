@@ -1,3 +1,199 @@
+    <!-- Footer CSS -->
+    <style>
+    /* Footer Styles */
+    .main-footer {
+        background-color: #2c3e50;
+        color: #ecf0f1;
+        padding-top: 60px;
+        margin-top: 80px;
+    }
+    
+    .footer-top {
+        padding-bottom: 40px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .footer-widget {
+        margin-bottom: 30px;
+    }
+    
+    .footer-logo {
+        max-height: 80px;
+        width: auto;
+    }
+    
+    .widget-title {
+        color: #fff;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        position: relative;
+        padding-bottom: 10px;
+    }
+    
+    .widget-title:after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 50px;
+        height: 2px;
+        background-color: var(--primary-color, #8B7AA8);
+    }
+    
+    .footer-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .footer-links li {
+        margin-bottom: 10px;
+    }
+    
+    .footer-links a {
+        color: #bdc3c7;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+    
+    .footer-links a:hover {
+        color: #fff;
+        padding-left: 5px;
+    }
+    
+    .social-links {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    .social-links a {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        transition: all 0.3s ease;
+    }
+    
+    .social-links a:hover {
+        background-color: var(--primary-color, #8B7AA8);
+        transform: translateY(-3px);
+    }
+    
+    .newsletter-form {
+        margin-top: 20px;
+    }
+    
+    .newsletter-form .form-control {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+    }
+    
+    .newsletter-form .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .newsletter-form .btn-primary {
+        background-color: var(--primary-color, #8B7AA8);
+        border-color: var(--primary-color, #8B7AA8);
+    }
+    
+    .visitor-counter {
+        background-color: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+    }
+    
+    .counter-display {
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+    
+    .footer-bottom {
+        background-color: #1a252f;
+        padding: 20px 0;
+    }
+    
+    .copyright {
+        color: #95a5a6;
+        font-size: 0.9rem;
+    }
+    
+    .footer-bottom-links a {
+        color: #95a5a6;
+        text-decoration: none;
+        font-size: 0.9rem;
+        margin: 0 10px;
+    }
+    
+    .footer-bottom-links a:hover {
+        color: #fff;
+    }
+    
+    .separator {
+        color: #7f8c8d;
+        margin: 0 5px;
+    }
+    
+    /* Back to Top Button */
+    #backToTop {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 50px;
+        height: 50px;
+        background-color: var(--primary-color, #8B7AA8);
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        z-index: 999;
+    }
+    
+    #backToTop:hover {
+        background-color: var(--primary-dark, #7A6897);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .footer-widget {
+            text-align: center;
+        }
+        
+        .widget-title:after {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .social-links {
+            justify-content: center;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+        }
+        
+        .footer-bottom-links {
+            margin-top: 10px;
+        }
+    }
+    </style>
+    
     <!-- Footer Section -->
     <footer class="main-footer">
         <div class="footer-top">
@@ -17,7 +213,7 @@
                                 <span class="ms-4">จังหวัดพะเยา 56000</span>
                             </p>
                             <p>
-                                <i class="fas fa-phone me-2"></i> 054-466666 ต่อ 1234
+                                <i class="fas fa-phone me-2"></i> 054-466666 
                             </p>
                             <p>
                                 <i class="fas fa-envelope me-2"></i> satit@up.ac.th
@@ -129,56 +325,56 @@
         <i class="fas fa-chevron-up"></i>
     </button>
     
-    <!-- JavaScript Libraries -->
+    <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/owl.carousel.min.js"></script>
-    <script src="js/main.js"></script>
     
-    <!-- Hover Dropdown JavaScript -->
-    <script src="js/hover-dropdown.js"></script>
+    <!-- Navbar Bootstrap Fix JS (แก้ไขปัญหา dropdown) -->
+    <script src="js/navbar-bootstrap-fix.js"></script>
     
-    <!-- Chatbot Enhancement JavaScript -->
-    <script src="js/chatbot-enhance.js"></script>
+    <!-- Owl Carousel JS (ถ้ามี) -->
+    <script src="js/owl.carousel.min.js" onerror="console.log('Owl Carousel not found')"></script>
     
-    <!-- Custom School JavaScript -->
+    <!-- Custom JavaScript -->
     <script>
-        // Back to Top Button
-        $(window).scroll(function() {
-            if ($(this).scrollTop() > 100) {
-                $('#backToTop').fadeIn();
-            } else {
-                $('#backToTop').fadeOut();
-            }
-        });
-        
-        $('#backToTop').click(function() {
-            $('html, body').animate({scrollTop: 0}, 800);
-            return false;
-        });
-        
-        // Initialize tooltips
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        });
-
-        // Nested Dropdowns for Bootstrap 5
         $(document).ready(function() {
-            $('.dropdown-submenu a.dropdown-toggle').on("click", function(e){
-                if (!$(this).next().hasClass('show')) {
-                    $(this).parents('.dropdown-menu').first().find('.show').removeClass("show");
+            // Back to Top Button
+            $(window).scroll(function() {
+                if ($(this).scrollTop() > 100) {
+                    $('#backToTop').css('display', 'flex').hide().fadeIn();
+                } else {
+                    $('#backToTop').fadeOut();
                 }
-                var $subMenu = $(this).next('.dropdown-menu');
-                $subMenu.toggleClass('show');
-
-                $(this).parents('li.nav-item.dropdown.show').on('hidden.bs.dropdown', function(e) {
-                    $('.dropdown-submenu .show').removeClass("show");
-                });
-
+            });
+            
+            $('#backToTop').click(function() {
+                $('html, body').animate({scrollTop: 0}, 800);
                 return false;
             });
+            
+            // Initialize Bootstrap tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            // Dropdown submenu จะถูกจัดการใน navbar-bootstrap-fix.js แล้ว
         });
+        
+        // MathJax Configuration
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$','$'], ['\\(','\\)']],
+                displayMath: [['$$','$$'], ['\\[','\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
     </script>
+    
+    <!-- MathJax -->
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <?php
     // เพิ่มแชทบอท (ถ้ามีไฟล์ตั้งค่าแชทบอท)
@@ -187,5 +383,6 @@
         display_chatbot();
     }
     ?>
+    
 </body>
 </html>

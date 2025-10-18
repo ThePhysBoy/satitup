@@ -24,7 +24,7 @@ $images = getNewsImages($news['id'], $conn);
 		<div class="card">
 			<div class="card-body">
 				<h3><?php echo htmlspecialchars($news['title']); ?></h3>
-				<p class="text-muted mb-2">หมวดหมู่: <?php echo htmlspecialchars($news['category_name']); ?> | โดย <?php echo htmlspecialchars($news['full_name']??$news['username']); ?></p>
+				<p class="text-muted mb-2">โดย <?php echo htmlspecialchars($news['full_name']??$news['username']); ?></p>
 				<?php if ($news['featured_image']): ?><img class="img-fluid rounded mb-3" src="../../<?php echo htmlspecialchars($news['featured_image']); ?>"><?php endif; ?>
 				<div><?php echo $news['content']; ?></div>
 				<?php if (count($images)>0): ?>

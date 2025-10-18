@@ -1,196 +1,312 @@
 <!-- Quick Links Section -->
+<link href="css/quick-links-fix.css" rel="stylesheet">
+<style>
+/* Override สำหรับแสดงรูป icons */
+.quick-link-icon-image {
+    width: 200px !important;
+    height: 200px !important;
+    margin: 0 auto 15px !important;
+    border-radius: 18px !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15) !important;
+    overflow: visible !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: transparent !important;
+    padding: 0 !important;
+}
+
+
+
+/* ซ่อน Font Awesome icons ถ้ามี */
+.quick-link-icon {
+    display: none !important;
+}
+
+/* ซ่อนข้อความใต้ไอคอน เพื่อให้เห็นไอคอนใหญ่ชัดเจน */
+.quick-link-content {
+    display: none !important;
+}
+
+/* ซ่อนลูกศรใต้ไอคอน */
+.quick-link-hover {
+    display: none !important;
+}
+</style>
 <section class="quick-links-section py-5">
     <div class="container">
         <div class="section-header text-center mb-5">
             <h2 class="section-title">บริการออนไลน์</h2>
-            <p class="section-subtitle">เข้าถึงบริการต่างๆ ของโรงเรียนสาธิตมหาวิทยาลัยพะเยาได้อย่างสะดวกรวดเร็ว</p>
         </div>
         
-        <div class="row g-4">
-            <!-- Row 1 -->
-            <div class="col-lg-2 col-md-4 col-sm-6">
-                <a href="#room-booking" class="quick-link-card">
-                    <div class="quick-link-icon">
-                        <i class="fas fa-calendar-check"></i>
+        <!-- Centered Grid Container for better alignment -->
+        <div class="row g-3 justify-content-center quick-links-grid">
+            <!-- Link 1: จองห้องประชุมออนไลน์ -->
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 quick-link-item">
+                <div class="quick-link-wrapper">
+                    <a href="https://sites.google.com/up.ac.th/desupbooking" class="quick-link-card" target="_blank" rel="noopener noreferrer">
+                        <div class="quick-link-icon-image">
+                            <img src="icon/1.jpg" alt="จองห้องประชุมออนไลน์">
+                        </div>
+                        <div class="quick-link-content">
+                            <h5>จองห้องประชุมออนไลน์</h5>
+                        </div>
+                        <div class="quick-link-hover">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                    <div class="manual-text">
+                        <a href="#" class="manual-text-link" data-manual="booking-room" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
                     </div>
-                    <div class="quick-link-content">
-                        <h5>จองห้อง</h5>
-                        <span class="quick-link-subtitle">ระบบจองห้องประชุม</span>
-                    </div>
-                    <div class="quick-link-hover">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                </a>
+                </div>
             </div>
             
-            <div class="col-lg-2 col-md-4 col-sm-6">
-                <a href="#up-dms" class="quick-link-card">
-                    <div class="quick-link-icon">
-                        <i class="fas fa-file-alt"></i>
+            <!-- Link 2: จองห้องประชุม -->
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 quick-link-item">
+                <div class="quick-link-wrapper">
+                    <a href="https://sites.google.com/up.ac.th/meeting-calendar" class="quick-link-card" target="_blank" rel="noopener noreferrer">
+                        <div class="quick-link-icon-image">
+                            <img src="icon/2.jpg" alt="จองห้องประชุม">
+                        </div>
+                        <div class="quick-link-content">
+                            <h5>จองห้องประชุม</h5>
+                        </div>
+                        <div class="quick-link-hover">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                    <div class="manual-text">
+                        <a href="#" class="manual-text-link" data-manual="meeting-calendar" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
                     </div>
-                    <div class="quick-link-content">
-                        <h5>UP-DMS</h5>
-                        <span class="quick-link-subtitle">ระบบจัดการเอกสาร</span>
-                    </div>
-                    <div class="quick-link-hover">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                </a>
+                </div>
             </div>
             
-            <div class="col-lg-2 col-md-4 col-sm-6">
-                <a href="#mou-form" class="quick-link-card">
-                    <div class="quick-link-icon">
-                        <i class="fas fa-handshake"></i>
+            <!-- Link 3: UP DMS -->
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 quick-link-item">
+                <div class="quick-link-wrapper">
+                    <a href="https://dms.up.ac.th/dms_main/data/login.aspx" class="quick-link-card" target="_blank" rel="noopener noreferrer">
+                        <div class="quick-link-icon-image">
+                            <img src="icon/3.png" alt="UP DMS">
+                        </div>
+                        <div class="quick-link-content">
+                            <h5>UP DMS</h5>
+                        </div>
+                        <div class="quick-link-hover">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                    <div class="manual-text">
+                        <a href="#" class="manual-text-link" data-manual="up-dms" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
                     </div>
-                    <div class="quick-link-content">
-                        <h5>แบบฟอร์ม</h5>
-                        <span class="quick-link-subtitle">MOU และเอกสาร</span>
+                </div>
+            </div>
+
+            <!-- Link 4: Smart HR -->
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 quick-link-item">
+                <div class="quick-link-wrapper">
+                    <a href="https://smarthr.up.ac.th/smart/main/Defaultpage/default.aspx" class="quick-link-card" target="_blank" rel="noopener noreferrer">
+                        <div class="quick-link-icon-image">
+                            <img src="icon/4.png" alt="Smart HR">
+                        </div>
+                        <div class="quick-link-content">
+                            <h5>Smart HR</h5>
+                        </div>
+                        <div class="quick-link-hover">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                    <div class="manual-text">
+                        <a href="#" class="manual-text-link" data-manual="smart-hr" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
                     </div>
-                    <div class="quick-link-hover">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                </a>
+                </div>
             </div>
             
-            <div class="col-lg-2 col-md-4 col-sm-6">
-                <a href="#participation" class="quick-link-card">
-                    <div class="quick-link-icon">
-                        <i class="fas fa-users"></i>
+            <!-- Link 5: ติดตามเอกสารการเงิน -->
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 quick-link-item">
+                <div class="quick-link-wrapper">
+                    <a href="https://dev.citcoms.up.ac.th/track" class="quick-link-card" target="_blank" rel="noopener noreferrer">
+                        <div class="quick-link-icon-image">
+                            <img src="icon/5.png" alt="ติดตามเอกสารการเงิน">
+                        </div>
+                        <div class="quick-link-content">
+                            <h5>ติดตามเอกสารการเงิน</h5>
+                        </div>
+                        <div class="quick-link-hover">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                    <div class="manual-text">
+                        <a href="#" class="manual-text-link" data-manual="finance-track" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
                     </div>
-                    <div class="quick-link-content">
-                        <h5>มีส่วนร่วม</h5>
-                        <span class="quick-link-subtitle">การบริหารแบบมีส่วนร่วม</span>
+                </div>
+            </div>
+
+            <!-- Link 6: วัสดุคงคลัง (IMS) -->
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 quick-link-item">
+                <div class="quick-link-wrapper">
+                    <a href="https://finance.up.ac.th/ims/Main/DefaultPage/" class="quick-link-card" target="_blank" rel="noopener noreferrer">
+                        <div class="quick-link-icon-image">
+                            <img src="icon/6.png" alt="วัสดุคงคลัง (IMS)">
+                        </div>
+                        <div class="quick-link-content">
+                            <h5>วัสดุคงคลัง (IMS)</h5>
+                        </div>
+                        <div class="quick-link-hover">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                    <div class="manual-text">
+                        <a href="#" class="manual-text-link" data-manual="ims" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
                     </div>
-                    <div class="quick-link-hover">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                </a>
+                </div>
             </div>
             
-            <div class="col-lg-2 col-md-4 col-sm-6">
-                <a href="#feedback" class="quick-link-card">
-                    <div class="quick-link-icon">
-                        <i class="fas fa-comment-dots"></i>
+            <!-- Link 7: UP Mail -->
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 quick-link-item">
+                <div class="quick-link-wrapper">
+                    <a href="https://mail.google.com" class="quick-link-card" target="_blank" rel="noopener noreferrer">
+                        <div class="quick-link-icon-image">
+                            <img src="icon/7.png" alt="UP Mail">
+                        </div>
+                        <div class="quick-link-content">
+                            <h5>UP Mail</h5>
+                        </div>
+                        <div class="quick-link-hover">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                    <div class="manual-text">
+                        <a href="#" class="manual-text-link" data-manual="upmail" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
                     </div>
-                    <div class="quick-link-content">
-                        <h5>ข้อติชม</h5>
-                        <span class="quick-link-subtitle">เสนอแนะและติชม</span>
-                    </div>
-                    <div class="quick-link-hover">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                </a>
+                </div>
             </div>
             
-            <div class="col-lg-2 col-md-4 col-sm-6">
-                <a href="#calendar" class="quick-link-card">
-                    <div class="quick-link-icon">
-                        <i class="fas fa-calendar-alt"></i>
+            <!-- Link 8: eBudget -->
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 quick-link-item">
+                <div class="quick-link-wrapper">
+                    <a href="https://finance.up.ac.th/upreceipt/Main/DefaultPage/login.aspx" class="quick-link-card" target="_blank" rel="noopener noreferrer">
+                        <div class="quick-link-icon-image">
+                            <img src="icon/8.png" alt="eBudget">
+                        </div>
+                        <div class="quick-link-content">
+                            <h5>eBudget</h5>
+                        </div>
+                        <div class="quick-link-hover">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                    <div class="manual-text">
+                        <a href="#" class="manual-text-link" data-manual="ebudget" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
                     </div>
-                    <div class="quick-link-content">
-                        <h5>ปฏิทิน</h5>
-                        <span class="quick-link-subtitle">ปฏิทินกิจกรรม</span>
+                </div>
+            </div>
+
+            <!-- Link 9: ค่าบำรุงการศึกษา/ค่าธรรมเนียม -->
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 quick-link-item">
+                <div class="quick-link-wrapper">
+                    <a href="https://academic.satit.up.ac.th/" class="quick-link-card" target="_blank" rel="noopener noreferrer">
+                        <div class="quick-link-icon-image">
+                            <img src="icon/9.png" alt="ค่าบำรุงการศึกษา/ค่าธรรมเนียม">
+                        </div>
+                        <div class="quick-link-content">
+                            <h5>ค่าบำรุงการศึกษา/ค่าธรรมเนียม</h5>
+                        </div>
+                        <div class="quick-link-hover">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                    <div class="manual-text">
+                        <a href="#" class="manual-text-link" data-manual="payment" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
                     </div>
-                    <div class="quick-link-hover">
-                        <i class="fas fa-arrow-right"></i>
+                </div>
+            </div>
+
+            <!-- Link 10: ระบบนักเรียนออนไลน์ -->
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 quick-link-item">
+                <div class="quick-link-wrapper">
+                    <a href="https://academic.satit.up.ac.th/" class="quick-link-card" target="_blank" rel="noopener noreferrer">
+                        <div class="quick-link-icon-image">
+                            <img src="icon/10.png" alt="ระบบนักเรียนออนไลน์">
+                        </div>
+                        <div class="quick-link-content">
+                            <h5>ระบบนักเรียนออนไลน์</h5>
+                        </div>
+                        <div class="quick-link-hover">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                    <div class="manual-text">
+                        <a href="#" class="manual-text-link" data-manual="student-online" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
                     </div>
-                </a>
+                </div>
+            </div>
+
+            <!-- Link 11: ห้องปฏิบัติการทางวิทยาศาสตร์ -->
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 quick-link-item">
+                <div class="quick-link-wrapper">
+                    <a href="#" class="quick-link-card" target="_blank" rel="noopener noreferrer">
+                        <div class="quick-link-icon-image">
+                            <img src="icon/11.png" alt="ห้องปฏิบัติการทางวิทยาศาสตร์">
+                        </div>
+                        <div class="quick-link-content">
+                            <h5>ห้องปฏิบัติการทางวิทยาศาสตร์</h5>
+                        </div>
+                        <div class="quick-link-hover">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                    <div class="manual-text">
+                        <a href="#" class="manual-text-link" data-manual="science-lab" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Link 12: ระบบบริหารงานวิชาการ -->
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 quick-link-item">
+                <div class="quick-link-wrapper">
+                    <a href="#" class="quick-link-card" target="_blank" rel="noopener noreferrer">
+                        <div class="quick-link-icon-image">
+                            <img src="icon/12.png" alt="ระบบบริหารงานวิชาการ">
+                        </div>
+                        <div class="quick-link-content">
+                            <h5>ระบบบริหารงานวิชาการ</h5>
+                        </div>
+                        <div class="quick-link-hover">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                    <div class="manual-text">
+                        <a href="#" class="manual-text-link" data-manual="academic-system" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
+                    </div>
+                </div>
             </div>
             
-            <!-- Row 2 -->
-            <div class="col-lg-2 col-md-4 col-sm-6">
-                <a href="#admin-data" class="quick-link-card">
-                    <div class="quick-link-icon">
-                        <i class="fas fa-database"></i>
-                    </div>
-                    <div class="quick-link-content">
-                        <h5>ข้อมูลบริหาร</h5>
-                        <span class="quick-link-subtitle">ข้อมูลการบริหาร</span>
-                    </div>
-                    <div class="quick-link-hover">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                </a>
-            </div>
-            
-            <div class="col-lg-2 col-md-4 col-sm-6">
-                <a href="#e-service" class="quick-link-card">
-                    <div class="quick-link-icon">
-                        <i class="fas fa-laptop"></i>
-                    </div>
-                    <div class="quick-link-content">
-                        <h5>E-SERVICE</h5>
-                        <span class="quick-link-subtitle">บริการออนไลน์</span>
-                    </div>
-                    <div class="quick-link-hover">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                </a>
-            </div>
-            
-            <div class="col-lg-2 col-md-4 col-sm-6">
-                <a href="#procurement" class="quick-link-card">
-                    <div class="quick-link-icon">
-                        <i class="fas fa-shopping-cart"></i>
-                    </div>
-                    <div class="quick-link-content">
-                        <h5>จัดซื้อ/จ้าง</h5>
-                        <span class="quick-link-subtitle">รายงานการจัดซื้อ</span>
-                    </div>
-                    <div class="quick-link-hover">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                </a>
-            </div>
-            
-            <div class="col-lg-2 col-md-4 col-sm-6">
-                <a href="#satisfaction" class="quick-link-card">
-                    <div class="quick-link-icon">
-                        <i class="fas fa-smile"></i>
-                    </div>
-                    <div class="quick-link-content">
-                        <h5>ความพึงพอใจ</h5>
-                        <span class="quick-link-subtitle">ประเมินความพึงพอใจ</span>
-                    </div>
-                    <div class="quick-link-hover">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                </a>
-            </div>
-            
-            <div class="col-lg-2 col-md-4 col-sm-6">
-                <a href="#regulations" class="quick-link-card">
-                    <div class="quick-link-icon">
-                        <i class="fas fa-gavel"></i>
-                    </div>
-                    <div class="quick-link-content">
-                        <h5>กฎระเบียบ</h5>
-                        <span class="quick-link-subtitle">ข้อบังคับและระเบียบ</span>
-                    </div>
-                    <div class="quick-link-hover">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                </a>
-            </div>
-            
-            <div class="col-lg-2 col-md-4 col-sm-6">
-                <a href="#strategic-plan" class="quick-link-card">
-                    <div class="quick-link-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <div class="quick-link-content">
-                        <h5>แผนยุทธศาสตร์</h5>
-                        <span class="quick-link-subtitle">แผนและความเสี่ยง</span>
-                    </div>
-                    <div class="quick-link-hover">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                </a>
-            </div>
+
         </div>
     </div>
 </section>
+
+<!-- Manual Modal -->
+<div class="modal fade" id="manualModal" tabindex="-1" aria-labelledby="manualModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="manualModalLabel">คู่มือการใช้งาน</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center py-5">
+                    <i class="fas fa-book-open fa-4x text-muted mb-3"></i>
+                    <p class="text-muted">คู่มือการใช้งานสำหรับระบบนี้กำลังจัดทำ...</p>
+                    <p class="text-muted">กรุณาติดต่อเจ้าหน้าที่หากต้องการความช่วยเหลือ</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Initialize Quick Links Animation -->
 <script>
@@ -222,6 +338,76 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
                 ripple.remove();
             }, 600);
+        });
+    });
+    
+    // Handle manual links (text links under cards)
+    const manualLinks = document.querySelectorAll('.manual-text-link');
+    const manualAliasMap = {
+        'upmail': 'email-up',
+        'ebudget': 'e-receipt',
+        'science-lab': 'lab',
+        'academic-system': 'academic',
+        'student-online': 'academic'
+    };
+    manualLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const manualTypeOriginal = this.getAttribute('data-manual');
+            const manualType = manualAliasMap[manualTypeOriginal] || manualTypeOriginal;
+            
+            // Load manual data
+            fetch('/satitup/manuals/manual_links.json')
+                .then(response => response.json())
+                .then(data => {
+                    const manualData = data[manualType];
+                    const modalTitle = document.getElementById('manualModalLabel');
+                    const modalBody = document.querySelector('#manualModal .modal-body');
+                    
+                    // ถ้ามีลิงก์คู่มือ ให้พาไปที่ลิงก์โดยตรง (PDF > Video > Online)
+                    if (manualData) {
+                        if (manualData.pdf_url) {
+                            window.open(manualData.pdf_url, '_blank');
+                            return;
+                        } else if (manualData.video_url) {
+                            window.open(manualData.video_url, '_blank');
+                            return;
+                        } else if (manualData.online_doc) {
+                            window.open(manualData.online_doc, '_blank');
+                            return;
+                        }
+                    }
+
+                    // ถ้าไม่มีข้อมูลให้แสดงข้อความแจ้งเตือนในโมดัล
+                    {
+                        modalBody.innerHTML = `
+                            <div class="text-center py-5">
+                                <i class="fas fa-book-open fa-4x text-muted mb-3"></i>
+                                <p class="text-muted">คู่มือการใช้งานสำหรับระบบนี้กำลังจัดทำ...</p>
+                                <p class="text-muted">กรุณาติดต่อเจ้าหน้าที่หากต้องการความช่วยเหลือ</p>
+                            </div>`;
+                    }
+                    
+                    // Show the modal
+                    const modal = new bootstrap.Modal(document.getElementById('manualModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Error loading manual data:', error);
+                    const modalTitle = document.getElementById('manualModalLabel');
+                    const modalBody = document.querySelector('#manualModal .modal-body');
+                    
+                    modalTitle.textContent = 'คู่มือการใช้งาน';
+                    modalBody.innerHTML = `
+                        <div class="text-center py-5">
+                            <i class="fas fa-book-open fa-4x text-muted mb-3"></i>
+                            <p class="text-muted">คู่มือการใช้งานสำหรับระบบนี้กำลังจัดทำ...</p>
+                            <p class="text-muted">กรุณาติดต่อเจ้าหน้าที่หากต้องการความช่วยเหลือ</p>
+                        </div>`;
+                    
+                    const modal = new bootstrap.Modal(document.getElementById('manualModal'));
+                    modal.show();
+                });
         });
     });
 });

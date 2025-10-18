@@ -6,7 +6,7 @@
 
 /**
  * Upload a staff photo
- * 
+ *
  * @param array $file The uploaded file array ($_FILES['field'])
  * @return array Result array with success status, path and error message
  */
@@ -14,38 +14,86 @@ function uploadStaffPhoto($file) {
     // Define allowed file types and max file size
     $allowed_types = ['image/jpeg', 'image/png', 'image/webp'];
     $max_size = 5 * 1024 * 1024; // 5MB
-    
+
     // Check if file is valid
     if (!isset($file['tmp_name']) || empty($file['tmp_name'])) {
         return ['success' => false, 'error' => 'ไม่พบไฟล์ที่อัพโหลด'];
     }
-    
+
     // Check file type
     if (!in_array($file['type'], $allowed_types)) {
         return ['success' => false, 'error' => 'ประเภทไฟล์ไม่ถูกต้อง กรุณาอัพโหลดไฟล์รูปภาพเท่านั้น (JPEG, PNG, WEBP)'];
     }
-    
+
     // Check file size
     if ($file['size'] > $max_size) {
         return ['success' => false, 'error' => 'ไฟล์มีขนาดใหญ่เกินไป กรุณาอัพโหลดไฟล์ขนาดไม่เกิน 5MB'];
     }
-    
+
     // Create upload directory if it doesn't exist
     $upload_dir = '../../uploads/staff';
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0777, true);
     }
-    
+
     // Generate unique filename
     $filename = uniqid('staff_') . '_' . basename($file['name']);
     $filename = preg_replace('/[^a-zA-Z0-9\-\_\.]/', '', $filename); // Remove special characters
     $upload_path = $upload_dir . '/' . $filename;
-    
+
     // Move uploaded file
     if (move_uploaded_file($file['tmp_name'], $upload_path)) {
         return [
             'success' => true,
             'path' => 'uploads/staff/' . $filename
+        ];
+    } else {
+        return ['success' => false, 'error' => 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์'];
+    }
+}
+
+/**
+ * Upload a staff CV file
+ *
+ * @param array $file The uploaded file array ($_FILES['field'])
+ * @return array Result array with success status, path and error message
+ */
+function uploadStaffCV($file) {
+    // Define allowed file types and max file size
+    $allowed_types = ['application/pdf'];
+    $max_size = 10 * 1024 * 1024; // 10MB
+
+    // Check if file is valid
+    if (!isset($file['tmp_name']) || empty($file['tmp_name'])) {
+        return ['success' => false, 'error' => 'ไม่พบไฟล์ที่อัพโหลด'];
+    }
+
+    // Check file type
+    if (!in_array($file['type'], $allowed_types)) {
+        return ['success' => false, 'error' => 'ประเภทไฟล์ไม่ถูกต้อง กรุณาอัพโหลดไฟล์ PDF เท่านั้น'];
+    }
+
+    // Check file size
+    if ($file['size'] > $max_size) {
+        return ['success' => false, 'error' => 'ไฟล์มีขนาดใหญ่เกินไป กรุณาอัพโหลดไฟล์ขนาดไม่เกิน 10MB'];
+    }
+
+    // Create upload directory if it doesn't exist
+    $upload_dir = '../../uploads/cv';
+    if (!file_exists($upload_dir)) {
+        mkdir($upload_dir, 0777, true);
+    }
+
+    // Generate unique filename
+    $filename = uniqid('cv_') . '_' . basename($file['name']);
+    $filename = preg_replace('/[^a-zA-Z0-9\-\_\.]/', '', $filename); // Remove special characters
+    $upload_path = $upload_dir . '/' . $filename;
+
+    // Move uploaded file
+    if (move_uploaded_file($file['tmp_name'], $upload_path)) {
+        return [
+            'success' => true,
+            'path' => 'uploads/cv/' . $filename
         ];
     } else {
         return ['success' => false, 'error' => 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์'];
@@ -206,17 +254,67 @@ function getStaffByType($type, $conn) {
 }
 
 /**
+ * Get staff by support type
+ *
+ * @param string $support_type The support type (administration, academic_support, student_affairs, planning)
+ * @param mysqli $conn Database connection
+ * @return array The staff list
+ */
+function getStaffBySupportType($support_type, $conn) {
+    // ตรวจสอบว่าคอลัมน์ support_type มีอยู่หรือไม่
+    $res = $conn->query("SHOW COLUMNS FROM departments LIKE 'support_type'");
+    if ($res && $res->num_rows > 0) {
+        $stmt = $conn->prepare("SELECT s.*, d.name as department_name, d.type as department_type
+                               FROM staff s
+                               LEFT JOIN departments d ON s.department_id = d.id
+                               WHERE d.support_type = ? AND s.status = 'active' AND d.type = 'support'
+                               ORDER BY s.is_head DESC, s.order_number, s.first_name");
+        $stmt->bind_param('s', $support_type);
+    } else {
+        // ถ้าไม่มีคอลัมน์ support_type ให้ดึงข้อมูลตาม department_id แทน
+        switch ($support_type) {
+            case 'administration':
+                $department_id = 9; // งานบริหารทั่วไป
+                break;
+            case 'academic_support':
+                $department_id = 10; // งานวิชาการ
+                break;
+            case 'student_affairs':
+                $department_id = 11; // งานกิจการนักเรียน
+                break;
+            case 'planning':
+                $department_id = 12; // งานแผนงาน
+                break;
+            default:
+                $department_id = 0;
+        }
+        
+        $stmt = $conn->prepare("SELECT s.*, d.name as department_name, d.type as department_type
+                               FROM staff s
+                               LEFT JOIN departments d ON s.department_id = d.id
+                               WHERE s.department_id = ? AND s.status = 'active'
+                               ORDER BY s.is_head DESC, s.order_number, s.first_name");
+        $stmt->bind_param('i', $department_id);
+    }
+    
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
+
+/**
  * Delete a staff image
- * 
+ *
  * @param string $image_path The image path to delete
  * @return bool True if successful, false otherwise
  */
 function deleteStaffImage($image_path) {
     $full_path = '../../' . $image_path;
-    
+
     if (file_exists($full_path)) {
         return unlink($full_path);
     }
-    
+
     return false;
 }

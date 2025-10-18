@@ -418,18 +418,17 @@ $rankings = $result->fetch_all(MYSQLI_ASSOC);
                                 <thead>
                                     <tr>
                                         <th width="5%">ลำดับ</th>
-                                        <th width="15%">รูปภาพ</th>
-                                        <th width="25%">หัวข้อ</th>
-                                        <th width="20%">คำอธิบาย</th>
-                                        <th width="10%">ประเภท</th>
-                                        <th width="5%">สถานะ</th>
-                                        <th width="20%">จัดการ</th>
+                                        <th width="20%">รูปภาพ</th>
+                                        <th width="30%">หัวข้อ</th>
+                                        <th width="25%">คำอธิบาย</th>
+                                        <th width="10%">สถานะ</th>
+                                        <th width="10%">จัดการ</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php if (empty($rankings)): ?>
                                         <tr>
-                                            <td colspan="7" class="text-center">ไม่พบข้อมูลการจัดอันดับ</td>
+                                            <td colspan="6" class="text-center">ไม่พบข้อมูลการจัดอันดับ</td>
                                         </tr>
                                     <?php else: ?>
                                         <?php foreach ($rankings as $index => $ranking): ?>
@@ -453,9 +452,6 @@ $rankings = $result->fetch_all(MYSQLI_ASSOC);
                                                 </td>
                                                 <td><?php echo htmlspecialchars($ranking['title']); ?></td>
                                                 <td><?php echo htmlspecialchars(substr($ranking['description'], 0, 100)) . (strlen($ranking['description']) > 100 ? '...' : ''); ?></td>
-                                                <td>
-                                                    <span class="badge bg-primary"><?php echo htmlspecialchars($ranking['ranking_type']); ?></span>
-                                                </td>
                                                 <td>
                                                     <?php if ($ranking['active']): ?>
                                                         <span class="badge bg-success">แสดง</span>

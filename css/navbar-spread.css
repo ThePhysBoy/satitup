@@ -1,0 +1,270 @@
+/**
+ * Navbar Spread CSS
+ * ทำให้เมนู navbar กระจายเต็มความกว้าง
+ */
+
+/* Main Navbar - แถบบน */
+.main-navbar {
+    width: 100%;
+}
+
+.main-navbar .container-fluid {
+    max-width: 100%;
+    padding: 0 15px;
+}
+
+.main-navbar .navbar-collapse {
+    flex-grow: 1;
+}
+
+.main-navbar .navbar-nav {
+    display: flex !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    align-items: center;
+    flex: 1;
+}
+
+.main-navbar .navbar-nav .nav-item {
+    flex: 1 1 auto;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    min-width: 0; /* ช่วยให้ flex ทำงานได้ดี */
+}
+
+.main-navbar .navbar-nav .nav-link {
+    padding: 10px 15px;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ปุ่ม Search และ Login ให้ชิดขวา */
+.main-navbar .navbar-nav .nav-item:nth-last-child(2),
+.main-navbar .navbar-nav .nav-item:last-child {
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
+/* Secondary Navbar - แถบล่าง */
+.secondary-navbar {
+    width: 100%;
+    background: linear-gradient(135deg, var(--primary-color, #8B7AA8) 0%, var(--primary-light, #A698BC) 100%);
+}
+
+.secondary-navbar .container-fluid {
+    max-width: 100%;
+    padding: 0 15px;
+}
+
+.secondary-navbar #secondaryNavbar {
+    width: 100%;
+}
+
+.secondary-navbar .navbar-nav {
+    display: flex !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    align-items: center;
+    flex: 1;
+}
+
+.secondary-navbar .navbar-nav .nav-item {
+    flex: 1 1 auto;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+}
+
+.secondary-navbar .navbar-nav .nav-link {
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    border-radius: 25px;
+}
+
+.secondary-navbar .navbar-nav .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+/* ส่วนของครู (ไอเท็มสุดท้าย) ให้ชิดขวา */
+.secondary-navbar .navbar-nav .nav-item.ms-lg-3 {
+    flex: 0 0 auto;
+    margin-left: auto !important;
+}
+
+/* Dropdown adjustments */
+.secondary-navbar .dropdown-menu {
+    background-color: #fff;
+    border: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+.secondary-navbar .dropdown-item {
+    color: #333;
+    padding: 10px 20px;
+}
+
+.secondary-navbar .dropdown-item:hover {
+    background-color: rgba(139, 122, 168, 0.1);
+    color: var(--primary-color, #8B7AA8);
+}
+
+/* Teacher placeholder special styling */
+.teacher-placeholder {
+    opacity: 0.7;
+    position: relative;
+}
+
+.teacher-placeholder .cross-out {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: rgba(255, 255, 255, 0.6);
+    transform: rotate(-5deg);
+}
+
+/* Responsive adjustments */
+@media (min-width: 1400px) {
+    .main-navbar .container-fluid,
+    .secondary-navbar .container-fluid {
+        padding: 0 30px;
+    }
+}
+
+@media (max-width: 1199px) {
+    .main-navbar .navbar-nav .nav-link,
+    .secondary-navbar .navbar-nav .nav-link {
+        font-size: 0.9rem;
+        padding: 8px 12px;
+    }
+}
+
+@media (max-width: 991px) {
+    /* Mobile menu */
+    .main-navbar .navbar-nav,
+    .secondary-navbar .navbar-nav {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .main-navbar .navbar-nav .nav-item,
+    .secondary-navbar .navbar-nav .nav-item {
+        width: 100%;
+        text-align: left;
+        justify-content: flex-start;
+    }
+    
+    .main-navbar .navbar-nav .nav-link,
+    .secondary-navbar .navbar-nav .nav-link {
+        justify-content: flex-start;
+        padding: 12px 15px;
+    }
+    
+    .secondary-navbar {
+        display: none;
+    }
+}
+
+/* Ensure dropdowns work properly */
+.dropdown-toggle::after {
+    margin-left: 5px;
+}
+
+.dropdown-menu {
+    margin-top: 0;
+    border-radius: 8px;
+}
+
+/* Nested dropdown (submenu) positioning */
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu > .dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-top: -6px;
+    margin-left: 0;
+}
+
+.dropend .dropdown-toggle::after {
+    vertical-align: 0;
+    margin-left: 0.255em;
+    content: "";
+    border-top: 0.3em solid transparent;
+    border-right: 0;
+    border-bottom: 0.3em solid transparent;
+    border-left: 0.3em solid;
+}
+
+/* Animation for dropdown appearance */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-menu.show {
+    animation: slideDown 0.3s ease-out;
+}
+
+/* Make sure the navbar stays on top */
+.sticky-top {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+}
+
+/* Top bar above main navbar */
+.top-bar + .main-navbar {
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+/* Ensure full width spreading */
+.main-navbar .navbar-nav .nav-item:not(:nth-last-child(-n+2)) {
+    flex: 1;
+    min-width: 120px;
+}
+
+.secondary-navbar .navbar-nav .nav-item:not(.ms-lg-3) {
+    flex: 1;
+    min-width: 100px;
+}
+
+/* Make sure nav items have equal width */
+.main-navbar .navbar-nav .nav-item:nth-child(n+2):not(:nth-last-child(-n+2)) {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.secondary-navbar .navbar-nav .nav-item:nth-child(n+2):not(.ms-lg-3) {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+/* Override Bootstrap's default navbar behavior */
+.main-navbar .navbar-nav {
+    flex-direction: row !important;
+    width: 100% !important;
+}
+
+.secondary-navbar .navbar-nav {
+    flex-direction: row !important;
+    width: 100% !important;
+}

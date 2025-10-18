@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['image_id'])) {
 		$del = $conn->prepare("DELETE FROM news_images WHERE id=?");
 		$del->bind_param('i', $image_id);
 		$del->execute();
-		header('Location: edit.php?id='.(int)$row['news_id'].'&success=1'); exit;
+		header('Location: edit_new.php?id='.(int)$row['news_id'].'&success=1'); exit;
 	}
 }
 header('Location: index.php');

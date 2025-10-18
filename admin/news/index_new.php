@@ -59,9 +59,8 @@ $total_rows = $result->fetch_assoc()['total'];
 $total_pages = ceil($total_rows / $per_page);
 
 // Get news list
-$sql = "SELECT n.*, c.name as category_name, u.username, u.full_name
+$sql = "SELECT n.*, u.username, u.full_name
         FROM news n
-        LEFT JOIN news_categories c ON n.category_id = c.id
         LEFT JOIN users u ON n.author_id = u.id
         $where_clause
         ORDER BY n.created_at DESC
@@ -192,7 +191,6 @@ ob_start();
                         <tr>
                             <th width="80">รูปภาพ</th>
                             <th>หัวข้อ</th>
-                            <th>หมวดหมู่</th>
                             <th>สถานะ</th>
                             <th>ผู้เขียน</th>
                             <th>วันที่</th>
@@ -216,9 +214,6 @@ ob_start();
                                     <?php if (!empty($news['excerpt'])): ?>
                                         <br><small class="text-muted"><?php echo htmlspecialchars(substr($news['excerpt'], 0, 100)) . '...'; ?></small>
                                     <?php endif; ?>
-                                </td>
-                                <td>
-                                    <span class="badge bg-info"><?php echo htmlspecialchars($news['category_name'] ?? 'ทั่วไป'); ?></span>
                                 </td>
                                 <td>
                                     <?php if ($news['status'] === 'published'): ?>

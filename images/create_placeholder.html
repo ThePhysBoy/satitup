@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Placeholder Image</title>
+</head>
+<body style="font-family: Arial; padding: 20px; background: #f5f5f5;">
+    <h2>สร้าง Placeholder Image</h2>
+    <p>ใช้ HTML5 Canvas เพื่อสร้างรูป placeholder</p>
+    
+    <canvas id="canvas" width="200" height="250" style="border: 1px solid #ddd; background: white;"></canvas>
+    
+    <br><br>
+    <button onclick="downloadImage()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+        💾 Download as user-placeholder.png
+    </button>
+    
+    <br><br>
+    <div style="background: #fff3cd; padding: 15px; border-radius: 5px; border-left: 4px solid #ffc107;">
+        <h3>📌 วิธีใช้:</h3>
+        <ol>
+            <li>คลิกปุ่ม "Download" ด้านบน</li>
+            <li>บันทึกไฟล์ชื่อ <strong>user-placeholder.png</strong></li>
+            <li>วางไฟล์ในโฟลเดอร์ <strong>c:\xampp\htdocs\satitup\images\</strong></li>
+        </ol>
+    </div>
+    
+    <script>
+        // Get canvas and context
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Set background
+        ctx.fillStyle = '#f0f0f0';
+        ctx.fillRect(0, 0, 200, 250);
+        
+        // Draw user icon
+        const centerX = 100;
+        const centerY = 105;
+        
+        // Head
+        ctx.fillStyle = '#c8c8c8';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 30, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Body (shoulders)
+        ctx.beginPath();
+        ctx.arc(centerX, centerY + 70, 60, 0, Math.PI, true);
+        ctx.fill();
+        
+        // Add text
+        ctx.fillStyle = '#969696';
+        ctx.font = '14px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('NO IMAGE', centerX, 230);
+        
+        // Download function
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.download = 'user-placeholder.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    </script>
+    
+    <hr style="margin: 30px 0;">
+    
+    <h3>หรือใช้ Placeholder จาก Internet:</h3>
+    <p>คุณสามารถใช้รูปจาก URL นี้แทน:</p>
+    <ul>
+        <li><code>https://via.placeholder.com/200x250/f0f0f0/969696?text=NO+IMAGE</code></li>
+        <li><code>https://ui-avatars.com/api/?name=User&size=200&background=f0f0f0&color=969696</code></li>
+    </ul>
+    
+    <br>
+    <a href="../staff/academic_science.php" style="padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; display: inline-block;">
+        👥 ดูหน้า Staff
+    </a>
+</body>
+</html>

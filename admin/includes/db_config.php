@@ -8,14 +8,40 @@
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');     // Default XAMPP username
 define('DB_PASS', '');         // Default XAMPP password (empty)
+//define('DB_NAME', 'school_satitup');
 define('DB_NAME', 'satitup');  // Database name
+define('DB_PORT', 3306);       // XAMPP MySQL port (default)
 
 // Create connection
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS);
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
 
 // Check connection
 if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    // Check if it's a database not found error
+    if (strpos($conn->connect_error, "Unknown database") !== false) {
+        // Try to reconnect without database to create it
+        $conn_tmp = new mysqli(DB_HOST, DB_USER, DB_PASS);
+        if (!$conn_tmp->connect_error) {
+            // Create database
+            if ($conn_tmp->query("CREATE DATABASE IF NOT EXISTS " . DB_NAME)) {
+                // Reconnect with database
+                $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
+                if (!$conn->connect_error) {
+                    // Connection successful after creating database
+                    return $conn;
+                }
+            }
+            $conn_tmp->close();
+        }
+    }
+    
+    // If we're still having issues, redirect to reset_password.php
+    if (strpos($_SERVER['PHP_SELF'], 'reset_password.php') === false) {
+        header("Location: " . dirname($_SERVER['PHP_SELF']) . "/../reset_password.php");
+        exit;
+    } else {
+        die("Connection failed: " . $conn->connect_error);
+    }
 }
 
 // Create database if not exists
@@ -26,6 +52,12 @@ if ($conn->query($sql) !== TRUE) {
 
 // Select the database
 $conn->select_db(DB_NAME);
+
+// Ensure connection uses UTF-8 for Thai text (double ensure for PHP/MySQL)
+$conn->set_charset('utf8mb4');
+$conn->query("SET NAMES 'utf8mb4'");
+$conn->query("SET CHARACTER SET 'utf8mb4'");
+$conn->query("SET collation_connection = 'utf8mb4_unicode_ci'");
 
 // Create users table if not exists
 $sql = "CREATE TABLE IF NOT EXISTS users (
@@ -85,6 +117,7 @@ $sql = "CREATE TABLE IF NOT EXISTS departments (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     type ENUM('academic', 'support', 'primary') NOT NULL,
+    support_type ENUM('administration', 'academic_support', 'student_affairs', 'planning') DEFAULT NULL,
     order_number INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -104,8 +137,14 @@ $sql = "CREATE TABLE IF NOT EXISTS staff (
     image_path VARCHAR(255),
     email VARCHAR(255),
     phone VARCHAR(50),
+    office VARCHAR(255),
     education TEXT,
     bio TEXT,
+    cv_file_path VARCHAR(255),
+    google_scholar_url VARCHAR(500),
+    researchgate_url VARCHAR(500),
+    orcid_url VARCHAR(500),
+    is_primary_teacher TINYINT(1) DEFAULT 0,
     is_head TINYINT(1) DEFAULT 0,
     order_number INT DEFAULT 0,
     status ENUM('active', 'inactive') DEFAULT 'active',
@@ -116,6 +155,28 @@ $sql = "CREATE TABLE IF NOT EXISTS staff (
 
 if ($conn->query($sql) !== TRUE) {
     die("Error creating staff table: " . $conn->error);
+}
+
+// Ensure compatibility columns on existing staff table
+$staff_columns_to_add = [
+    'office' => "ALTER TABLE staff ADD COLUMN office VARCHAR(255) AFTER phone",
+    'cv_file_path' => "ALTER TABLE staff ADD COLUMN cv_file_path VARCHAR(255) AFTER bio",
+    'google_scholar_url' => "ALTER TABLE staff ADD COLUMN google_scholar_url VARCHAR(500) AFTER cv_file_path",
+    'researchgate_url' => "ALTER TABLE staff ADD COLUMN researchgate_url VARCHAR(500) AFTER google_scholar_url",
+    'orcid_url' => "ALTER TABLE staff ADD COLUMN orcid_url VARCHAR(500) AFTER researchgate_url"
+];
+
+foreach ($staff_columns_to_add as $col => $sql) {
+    $res = $conn->query("SHOW COLUMNS FROM staff LIKE '" . $conn->real_escape_string($col) . "'");
+    if ($res && $res->num_rows === 0) {
+        $conn->query($sql);
+    }
+}
+
+// Legacy column check
+$res = $conn->query("SHOW COLUMNS FROM staff LIKE 'is_primary_teacher'");
+if ($res && $res->num_rows === 0) {
+    $conn->query("ALTER TABLE staff ADD COLUMN is_primary_teacher TINYINT(1) DEFAULT 0 AFTER bio");
 }
 
 // Create staff_positions table if not exists
@@ -133,41 +194,116 @@ if ($conn->query($sql) !== TRUE) {
     die("Error creating staff_positions table: " . $conn->error);
 }
 
-// Insert initial departments if they don't exist
+// Create management (executive board) table if not exists
+$sql = "CREATE TABLE IF NOT EXISTS management (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(50) NOT NULL,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    management_position VARCHAR(255) NOT NULL,
+    image_path VARCHAR(255),
+    email VARCHAR(255),
+    phone VARCHAR(50),
+    bio TEXT,
+    order_number INT DEFAULT 0,
+    status ENUM('active','inactive') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+
+if ($conn->query($sql) !== TRUE) {
+    die("Error creating management table: " . $conn->error);
+}
+
+// Create announcements table for admin PDF announcements if not exists
+$sql = "CREATE TABLE IF NOT EXISTS announcements (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT,
+    category ENUM('announcement','procurement','recruitment') NOT NULL DEFAULT 'announcement',
+    status ENUM('open','result','closed') NOT NULL DEFAULT 'open',
+    budget DECIMAL(12,2) DEFAULT NULL,
+    announce_date DATE DEFAULT NULL,
+    file_path VARCHAR(255),
+    file_name VARCHAR(255),
+    created_by INT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+
+if ($conn->query($sql) !== TRUE) {
+    die("Error creating announcements table: " . $conn->error);
+}
+
+// Ensure additional columns exist for announcements (safe migrations)
+// Add columns individually if missing (avoid AFTER dependency errors)
+$columns_to_add = [
+    // Some older DBs may miss 'category' as well
+    'category' => "ALTER TABLE announcements ADD COLUMN category ENUM('announcement','procurement','recruitment') NOT NULL DEFAULT 'announcement'",
+    'status' => "ALTER TABLE announcements ADD COLUMN status ENUM('open','result','closed') NOT NULL DEFAULT 'open'",
+    'budget' => "ALTER TABLE announcements ADD COLUMN budget DECIMAL(12,2) DEFAULT NULL",
+    'announce_date' => "ALTER TABLE announcements ADD COLUMN announce_date DATE DEFAULT NULL",
+    'department' => "ALTER TABLE announcements ADD COLUMN department VARCHAR(100) NULL",
+    'doc_type' => "ALTER TABLE announcements ADD COLUMN doc_type ENUM('announcement','order','regulation','rule','act') NULL",
+    'job_type' => "ALTER TABLE announcements ADD COLUMN job_type VARCHAR(50) NULL",
+    'salary' => "ALTER TABLE announcements ADD COLUMN salary VARCHAR(100) NULL",
+    'file_path' => "ALTER TABLE announcements ADD COLUMN file_path VARCHAR(255)",
+    'file_name' => "ALTER TABLE announcements ADD COLUMN file_name VARCHAR(255)",
+    'created_by' => "ALTER TABLE announcements ADD COLUMN created_by INT NULL"
+];
+
+foreach ($columns_to_add as $col => $sqlAdd) {
+    $res = $conn->query("SHOW COLUMNS FROM announcements LIKE '" . $conn->real_escape_string($col) . "'");
+    if ($res && $res->num_rows === 0) {
+        $conn->query($sqlAdd);
+    }
+}
+
+// Insert initial departments if they don't exist - ปิดการเพิ่มอัตโนมัติเพื่อป้องกันการเพิ่มข้อมูลที่ถูกลบแล้ว
+/*
 $departments = [
     // Academic departments (มัธยม)
-    [1, 'วิทยาศาสตร์และเทคโนโลยี', 'กลุ่มสาระการเรียนรู้วิทยาศาสตร์และเทคโนโลยี', 'academic', 1],
-    [2, 'สังคมศึกษา', 'กลุ่มสาระการเรียนรู้สังคมศึกษา', 'academic', 2],
-    [3, 'ภาษาต่างประเทศ', 'กลุ่มสาระการเรียนรู้ภาษาต่างประเทศ', 'academic', 3],
-    [4, 'คณิตศาสตร์', 'กลุ่มสาระการเรียนรู้คณิตศาสตร์', 'academic', 4],
-    [5, 'สุขศึกษาและพลศึกษา', 'กลุ่มสาระการเรียนรู้สุขศึกษาและพลศึกษา', 'academic', 5],
-    [6, 'ภาษาไทย', 'กลุ่มสาระการเรียนรู้ภาษาไทย', 'academic', 6],
-    [7, 'ศิลปะ', 'กลุ่มสาระการเรียนรู้ศิลปะ', 'academic', 7],
-    [8, 'การงานอาชีพ', 'กลุ่มสาระการเรียนรู้การงานอาชีพ', 'academic', 8],
-    
+    [1, 'วิทยาศาสตร์และเทคโนโลยี', 'กลุ่มสาระการเรียนรู้วิทยาศาสตร์และเทคโนโลยี', 'academic', NULL, 1],
+    [2, 'สังคมศึกษา', 'กลุ่มสาระการเรียนรู้สังคมศึกษา', 'academic', NULL, 2],
+    [3, 'ภาษาต่างประเทศ', 'กลุ่มสาระการเรียนรู้ภาษาต่างประเทศ', 'academic', NULL, 3],
+    [4, 'คณิตศาสตร์', 'กลุ่มสาระการเรียนรู้คณิตศาสตร์', 'academic', NULL, 4],
+    [5, 'สุขศึกษาและพลศึกษา', 'กลุ่มสาระการเรียนรู้สุขศึกษาและพลศึกษา', 'academic', NULL, 5],
+    [6, 'ภาษาไทย', 'กลุ่มสาระการเรียนรู้ภาษาไทย', 'academic', NULL, 6],
+    [7, 'ศิลปะ', 'กลุ่มสาระการเรียนรู้ศิลปะ', 'academic', NULL, 7],
+    [8, 'การงานอาชีพ', 'กลุ่มสาระการเรียนรู้การงานอาชีพ', 'academic', NULL, 8],
+
     // Support departments (สายสนับสนุน)
-    [9, 'งานบริหาร', 'บุคลากรสายสนับสนุนงานบริหาร', 'support', 1],
-    [10, 'งานวิชาการ', 'บุคลากรสายสนับสนุนงานวิชาการ', 'support', 2],
-    [11, 'งานกิจการนักเรียน', 'บุคลากรสายสนับสนุนงานกิจการนักเรียน', 'support', 3],
-    [12, 'งานนโยบายและแผน', 'บุคลากรสายสนับสนุนงานนโยบายและแผน', 'support', 4],
-    [13, 'ห้องปฏิบัติการทางวิทยาศาสตร์', 'บุคลากรสายสนับสนุนห้องปฏิบัติการทางวิทยาศาสตร์', 'support', 5],
-    [14, 'ห้องสมุด', 'บุคลากรสายสนับสนุนห้องสมุด', 'support', 6],
-    
+    [9, 'งานบริหารทั่วไป', 'บุคลากรสายสนับสนุนงานบริหารทั่วไป', 'support', 'administration', 1],
+    [10, 'งานวิชาการ', 'บุคลากรสายสนับสนุนงานวิชาการ', 'support', 'academic_support', 2],
+    [11, 'งานกิจการนักเรียน', 'บุคลากรสายสนับสนุนงานกิจการนักเรียน', 'support', 'student_affairs', 3],
+    [12, 'งานแผนงาน', 'บุคลากรสายสนับสนุนงานแผนงาน', 'support', 'planning', 4],
+    [13, 'ห้องปฏิบัติการทางวิทยาศาสตร์', 'บุคลากรสายสนับสนุนห้องปฏิบัติการทางวิทยาศาสตร์', 'support', NULL, 5],
+    [14, 'ห้องสมุด', 'บุคลากรสายสนับสนุนห้องสมุด', 'support', NULL, 6],
+
     // Primary education departments (ประถมศึกษา)
-    [15, 'ประถมศึกษาปีที่ 1', 'ครูประจำชั้นประถมศึกษาปีที่ 1', 'primary', 1],
-    [16, 'ประถมศึกษาปีที่ 2', 'ครูประจำชั้นประถมศึกษาปีที่ 2', 'primary', 2],
-    [17, 'ประถมศึกษาปีที่ 3', 'ครูประจำชั้นประถมศึกษาปีที่ 3', 'primary', 3],
-    [18, 'ประถมศึกษาปีที่ 4', 'ครูประจำชั้นประถมศึกษาปีที่ 4', 'primary', 4],
-    [19, 'ประถมศึกษาปีที่ 5', 'ครูประจำชั้นประถมศึกษาปีที่ 5', 'primary', 5],
-    [20, 'ประถมศึกษาปีที่ 6', 'ครูประจำชั้นประถมศึกษาปีที่ 6', 'primary', 6],
-    [21, 'ครูพิเศษประถมศึกษา', 'ครูผู้สอนวิชาพิเศษระดับประถมศึกษา', 'primary', 7]
+    [15, 'ประถมศึกษาปีที่ 1', 'ครูประจำชั้นประถมศึกษาปีที่ 1', 'primary', NULL, 1],
+    [16, 'ประถมศึกษาปีที่ 2', 'ครูประจำชั้นประถมศึกษาปีที่ 2', 'primary', NULL, 2],
+    [17, 'ประถมศึกษาปีที่ 3', 'ครูประจำชั้นประถมศึกษาปีที่ 3', 'primary', NULL, 3],
+    [18, 'ประถมศึกษาปีที่ 4', 'ครูประจำชั้นประถมศึกษาปีที่ 4', 'primary', NULL, 4],
+    [19, 'ประถมศึกษาปีที่ 5', 'ครูประจำชั้นประถมศึกษาปีที่ 5', 'primary', NULL, 5],
+    [20, 'ประถมศึกษาปีที่ 6', 'ครูประจำชั้นประถมศึกษาปีที่ 6', 'primary', NULL, 6],
+    [21, 'ครูพิเศษประถมศึกษา', 'ครูผู้สอนวิชาพิเศษระดับประถมศึกษา', 'primary', NULL, 7]
 ];
 
 foreach ($departments as $dept) {
-    $stmt = $conn->prepare("INSERT IGNORE INTO departments (id, name, description, type, order_number) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("isssi", $dept[0], $dept[1], $dept[2], $dept[3], $dept[4]);
+    // ตรวจสอบว่าคอลัมน์ support_type มีอยู่หรือไม่
+    $res = $conn->query("SHOW COLUMNS FROM departments LIKE 'support_type'");
+    if ($res && $res->num_rows > 0) {
+        $stmt = $conn->prepare("INSERT IGNORE INTO departments (id, name, description, type, support_type, order_number) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("issssi", $dept[0], $dept[1], $dept[2], $dept[3], $dept[4], $dept[5]);
+    } else {
+        $stmt = $conn->prepare("INSERT IGNORE INTO departments (id, name, description, type, order_number) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("isssi", $dept[0], $dept[1], $dept[2], $dept[3], $dept[5]);
+    }
     $stmt->execute();
 }
+*/
 
 // Check if admin user exists, if not create default admin
 $stmt = $conn->prepare("SELECT id FROM users WHERE username = 'admin01'");

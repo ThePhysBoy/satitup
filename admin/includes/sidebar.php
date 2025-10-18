@@ -98,6 +98,42 @@ function isParentActive($dir_name) {
     <?php endif; ?>
 
     <?php if (isAdmin() || isPrOfficer()): ?>
+    <!-- Nav Item - Management -->
+    <li class="nav-item <?php echo isParentActive('management'); ?>">
+        <a class="nav-link <?php echo isParentActive('management') ? '' : 'collapsed'; ?>" href="#" data-toggle="collapse" data-target="#collapseManagement"
+            aria-expanded="<?php echo isParentActive('management') ? 'true' : 'false'; ?>" aria-controls="collapseManagement">
+            <i class="fas fa-fw fa-user-tie"></i>
+            <span>ผู้บริหาร</span>
+        </a>
+        <div id="collapseManagement" class="collapse <?php echo isExpanded('management'); ?>" aria-labelledby="headingManagement" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">จัดการผู้บริหาร:</h6>
+                <a class="collapse-item <?php echo isActive('index.php', 'management'); ?>" href="<?php echo $current_dir !== 'management' ? '../management/index.php' : 'index.php'; ?>">รายการทั้งหมด</a>
+                <a class="collapse-item <?php echo isActive('create.php', 'management'); ?>" href="<?php echo $current_dir !== 'management' ? '../management/create.php' : 'create.php'; ?>">เพิ่มผู้บริหาร</a>
+            </div>
+        </div>
+    </li>
+    <?php endif; ?>
+    
+    <?php if (isAdmin() || isPrOfficer()): ?>
+    <!-- Nav Item - Steering Committee -->
+    <li class="nav-item <?php echo isParentActive('steering'); ?>">
+        <a class="nav-link <?php echo isParentActive('steering') ? '' : 'collapsed'; ?>" href="#" data-toggle="collapse" data-target="#collapseSteering"
+            aria-expanded="<?php echo isParentActive('steering') ? 'true' : 'false'; ?>" aria-controls="collapseSteering">
+            <i class="fas fa-fw fa-university"></i>
+            <span>คณะกรรมการอำนวยการ</span>
+        </a>
+        <div id="collapseSteering" class="collapse <?php echo isExpanded('steering'); ?>" aria-labelledby="headingSteering" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">จัดการกรรมการ:</h6>
+                <a class="collapse-item <?php echo isActive('index.php', 'steering'); ?>" href="<?php echo $current_dir !== 'steering' ? '../steering/index.php' : 'index.php'; ?>">รายการทั้งหมด</a>
+                <a class="collapse-item <?php echo isActive('create.php', 'steering'); ?>" href="<?php echo $current_dir !== 'steering' ? '../steering/create.php' : 'create.php'; ?>">เพิ่มกรรมการ</a>
+            </div>
+        </div>
+    </li>
+    <?php endif; ?>
+    
+    <?php if (isAdmin() || isPrOfficer()): ?>
     <!-- Nav Item - News -->
     <li class="nav-item <?php echo isParentActive('news'); ?>">
         <a class="nav-link <?php echo isParentActive('news') ? '' : 'collapsed'; ?>" href="#" data-toggle="collapse" data-target="#collapseNews"
@@ -129,6 +165,26 @@ function isParentActive($dir_name) {
                 <a class="collapse-item <?php echo isActive('index.php', 'staff'); ?>" href="<?php echo $current_dir !== 'staff' ? '../staff/index.php' : 'index.php'; ?>">รายการบุคลากรทั้งหมด</a>
                 <a class="collapse-item <?php echo isActive('create.php', 'staff'); ?>" href="<?php echo $current_dir !== 'staff' ? '../staff/create.php' : 'create.php'; ?>">เพิ่มบุคลากรใหม่</a>
                 <a class="collapse-item <?php echo isActive('setup_database.php', 'staff'); ?>" href="<?php echo $current_dir !== 'staff' ? '../staff/setup_database.php' : 'setup_database.php'; ?>">ตั้งค่าฐานข้อมูล</a>
+            </div>
+        </div>
+    </li>
+    <?php endif; ?>
+
+    <?php if (isAdmin() || isPrOfficer()): ?>
+    <!-- Nav Item - Videos -->
+    <li class="nav-item <?php echo isParentActive('video_system'); ?>">
+        <a class="nav-link <?php echo isParentActive('video_system') ? '' : 'collapsed'; ?>" href="#" data-toggle="collapse" data-target="#collapseVideos"
+            aria-expanded="<?php echo isParentActive('video_system') ? 'true' : 'false'; ?>" aria-controls="collapseVideos">
+            <i class="fas fa-fw fa-video"></i>
+            <span>วิดีโอ</span>
+        </a>
+        <div id="collapseVideos" class="collapse <?php echo isExpanded('video_system'); ?>" aria-labelledby="headingVideos" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">จัดการวิดีโอ:</h6>
+                <a class="collapse-item <?php echo isActive('simple_video_manager.php', 'video_system'); ?>" href="<?php echo $current_dir !== 'video_system' ? '../video_system/simple_video_manager.php' : 'simple_video_manager.php'; ?>">จัดการวิดีโอ (ง่าย)</a>
+                <a class="collapse-item <?php echo isActive('index.php', 'video_system'); ?>" href="<?php echo $current_dir !== 'video_system' ? '../video_system/index.php' : 'index.php'; ?>">รายการวิดีโอทั้งหมด</a>
+                <a class="collapse-item <?php echo isActive('add_video.php', 'video_system'); ?>" href="<?php echo $current_dir !== 'video_system' ? '../video_system/add_video.php' : 'add_video.php'; ?>">เพิ่มวิดีโอใหม่</a>
+                <a class="collapse-item <?php echo isActive('setup_database.php', 'video_system'); ?>" href="<?php echo $current_dir !== 'video_system' ? '../video_system/setup_database.php' : 'setup_database.php'; ?>">ตั้งค่าฐานข้อมูล</a>
             </div>
         </div>
     </li>

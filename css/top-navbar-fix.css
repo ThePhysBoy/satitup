@@ -1,0 +1,129 @@
+/**
+ * Top Navbar Fix CSS
+ * แก้ไขการแสดงผลของ Navbar ด้านบนสุด
+ */
+
+/* Top Navigation Bar - แถบสีม่วงด้านบนสุด */
+.top-nav {
+    background-color: var(--primary-color, #8B7AA8);
+    width: 100%;
+}
+
+.top-nav .container-fluid {
+    padding: 0;
+    max-width: 100%;
+}
+
+.top-nav .navbar-nav {
+    display: flex !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    margin: 0;
+    padding: 0;
+}
+
+.top-nav .navbar-nav .nav-item {
+    flex: 1;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+}
+
+.top-nav .nav-link {
+    color: #fff !important;
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.top-nav .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.top-nav .nav-link i {
+    margin-right: 5px;
+}
+
+/* Dropdown adjustments */
+.top-nav .dropdown-menu {
+    margin-top: 0;
+    border: none;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+.top-nav .dropdown-item {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+}
+
+.top-nav .dropdown-item:hover {
+    background-color: rgba(139, 122, 168, 0.1);
+    color: var(--primary-color, #8B7AA8);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+    .top-nav .nav-link {
+        font-size: 0.85rem;
+        padding: 10px 10px;
+    }
+}
+
+@media (max-width: 992px) {
+    .top-nav .navbar-nav {
+        flex-wrap: wrap;
+    }
+    
+    .top-nav .nav-item {
+        flex: 0 0 auto;
+        width: 33.333%;
+    }
+}
+
+@media (max-width: 768px) {
+    .top-nav .nav-item {
+        width: 50%;
+    }
+}
+
+@media (max-width: 576px) {
+    .top-nav .nav-item {
+        width: 100%;
+    }
+    
+    .top-nav .navbar-nav {
+        flex-direction: column;
+    }
+}
+
+/* Animation for hover effect */
+.top-nav .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: #fff;
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.top-nav .nav-link:hover::after {
+    width: 70%;
+}
+
+/* Active state */
+.top-nav .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    font-weight: 600;
+}
+
+.top-nav .nav-link.active::after {
+    width: 70%;
+}

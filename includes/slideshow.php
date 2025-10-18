@@ -10,9 +10,11 @@ if (!function_exists('mysqli_connect') || !isset($conn)) {
     $db_host = 'localhost';
     $db_user = 'root';
     $db_pass = '';
+    //$db_name = 'school_satitup';
     $db_name = 'satitup';
+    $db_port = 3306; // Default MySQL port
     
-    $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
+    $conn = new mysqli($db_host, $db_user, $db_pass, $db_name, $db_port);
     
     if ($conn->connect_error) {
         // If database connection fails, include the static slideshow

@@ -103,8 +103,22 @@ function authenticateUser($username, $password, $conn) {
  * Log out user
  */
 function logoutUser() {
+    // Start session if not already started
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
     // Unset all session variables
     $_SESSION = array();
+    
+    // If it's desired to kill the session, also delete the session cookie.
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000,
+            $params["path"], $params["domain"],
+            $params["secure"], $params["httponly"]
+        );
+    }
     
     // Destroy the session
     session_destroy();
@@ -129,6 +143,7 @@ function requireAdmin() {
     requireLogin();
     
     if (!isAdmin()) {
+        $_SESSION['error_message'] = "คุณไม่มีสิทธิ์เข้าถึงส่วนนี้ เฉพาะผู้ดูแลระบบเท่านั้น";
         header("Location: " . getBaseUrl() . "admin/index.php");
         exit;
     }
@@ -142,6 +157,7 @@ function requireSlideshowAccess() {
     requireLogin();
     
     if (!canManageSlideshow()) {
+        $_SESSION['error_message'] = "คุณไม่มีสิทธิ์เข้าถึงส่วนการจัดการสไลด์โชว์";
         header("Location: " . getBaseUrl() . "admin/index.php");
         exit;
     }
@@ -155,6 +171,7 @@ function requireRankingsAccess() {
     requireLogin();
     
     if (!canManageRankings()) {
+        $_SESSION['error_message'] = "คุณไม่มีสิทธิ์เข้าถึงส่วนการจัดการอันดับมหาวิทยาลัย";
         header("Location: " . getBaseUrl() . "admin/index.php");
         exit;
     }
@@ -168,6 +185,7 @@ function requireNewsAccess() {
     requireLogin();
     
     if (!canManageNews()) {
+        $_SESSION['error_message'] = "คุณไม่มีสิทธิ์เข้าถึงส่วนนี้";
         header("Location: " . getBaseUrl() . "admin/index.php");
         exit;
     }
@@ -181,6 +199,7 @@ function requireStaffAccess() {
     requireLogin();
     
     if (!canManageStaff()) {
+        $_SESSION['error_message'] = "คุณไม่มีสิทธิ์เข้าถึงส่วนการจัดการบุคลากร";
         header("Location: " . getBaseUrl() . "admin/index.php");
         exit;
     }

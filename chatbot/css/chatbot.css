@@ -3,26 +3,31 @@
  * ใช้สำหรับกำหนดรูปแบบการแสดงผลของแชทบอท
  */
 
-/* คอนเทนเนอร์หลักของแชทบอท */
+/* คอนเทนเนอร์หลักของแชทบอท - DesUPGPT Premium Edition */
 .chatbot-container {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    width: 350px;
+    width: 380px;
     max-width: 90vw;
-    height: 500px;
+    height: 520px;
     max-height: 70vh;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 20px;
+    border: 3px solid #ffd700;
+    box-shadow:
+        0 10px 40px rgba(0, 0, 0, 0.15),
+        0 0 30px rgba(255, 215, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
     display: flex;
     flex-direction: column;
     overflow: hidden;
     z-index: 9999;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px) scale(0.9);
     pointer-events: none;
+    backdrop-filter: blur(10px);
 }
 
 /* เมื่อแชทบอทถูกเปิด */
@@ -32,22 +37,61 @@
     pointer-events: all;
 }
 
-/* ส่วนหัวของแชทบอท */
+/* ส่วนหัวของแชทบอท - DesUPGPT Premium Header */
 .chatbot-header {
-    background: linear-gradient(135deg, #7b3b95 0%, #9b59b6 100%);
+    background: linear-gradient(135deg, #7b3b95 0%, #9b59b6 50%, #ffd700 100%);
     color: #fff;
-    padding: 15px;
+    padding: 18px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
+    border-top-left-radius: 17px;
+    border-top-right-radius: 17px;
+    position: relative;
+    overflow: hidden;
+}
+
+.chatbot-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.3), transparent);
+    animation: header-shine 3s infinite;
+}
+
+@keyframes header-shine {
+    0% { left: -100%; }
+    50% { left: 100%; }
+    100% { left: -100%; }
 }
 
 .chatbot-header h3 {
     margin: 0;
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 2;
+}
+
+.chatbot-header h3 i {
+    margin-right: 8px;
+    color: #ffd700;
+    animation: robot-glow 2s infinite alternate;
+}
+
+@keyframes robot-glow {
+    0% {
+        color: #ffd700;
+        text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+    }
+    100% {
+        color: #fff;
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+    }
 }
 
 .chatbot-header .chatbot-controls {
@@ -56,8 +100,8 @@
 }
 
 .chatbot-header button {
-    background: transparent;
-    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 215, 0, 0.3);
     color: #fff;
     cursor: pointer;
     font-size: 16px;
@@ -65,14 +109,20 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    transition: background-color 0.2s;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 2;
+    backdrop-filter: blur(5px);
 }
 
 .chatbot-header button:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 215, 0, 0.2);
+    border-color: #ffd700;
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
 /* ส่วนแสดงข้อความแชท */
@@ -96,20 +146,61 @@
     word-wrap: break-word;
 }
 
-/* ข้อความจากผู้ใช้ */
+/* ข้อความจากผู้ใช้ - Premium Style */
 .user-message {
     align-self: flex-end;
-    background-color: #7b3b95;
+    background: linear-gradient(135deg, #7b3b95 0%, #9b59b6 100%);
     color: #fff;
-    border-bottom-right-radius: 5px;
+    border-bottom-right-radius: 8px;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    box-shadow: 0 3px 10px rgba(123, 59, 149, 0.2);
+    position: relative;
+    animation: user-message-appear 0.3s ease-out;
 }
 
-/* ข้อความจากบอท */
+@keyframes user-message-appear {
+    0% {
+        opacity: 0;
+        transform: translateX(20px) scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+/* ข้อความจากบอท DesUPGPT - Premium Style */
 .bot-message {
     align-self: flex-start;
-    background-color: #e9e9eb;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
     color: #333;
-    border-bottom-left-radius: 5px;
+    border-bottom-left-radius: 8px;
+    border: 2px solid #ffd700;
+    box-shadow:
+        0 3px 10px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 215, 0, 0.1);
+    position: relative;
+    animation: bot-message-appear 0.3s ease-out;
+}
+
+@keyframes bot-message-appear {
+    0% {
+        opacity: 0;
+        transform: translateX(-20px) scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+.bot-message::before {
+    content: '🤖';
+    position: absolute;
+    top: -8px;
+    left: 10px;
+    font-size: 12px;
+    opacity: 0.7;
 }
 
 /* ข้อความจากบอทที่กำลัง streaming */
@@ -130,6 +221,47 @@
     50% { opacity: 0; }
 }
 
+/* เอฟเฟกต์กระพริบสีทอง */
+@keyframes golden-pulse {
+    0% {
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    }
+    25% {
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2), 0 0 15px rgba(255, 215, 0, 0.3);
+    }
+    50% {
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2), 0 0 25px rgba(255, 215, 0, 0.5);
+    }
+    75% {
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2), 0 0 15px rgba(255, 215, 0, 0.3);
+    }
+    100% {
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    }
+}
+
+/* เอฟเฟกต์สั่นเบาๆ */
+@keyframes gentle-shake {
+    0%, 100% {
+        transform: translateX(0) translateY(0);
+    }
+    10% {
+        transform: translateX(-1px) translateY(-1px);
+    }
+    20% {
+        transform: translateX(1px) translateY(0);
+    }
+    30% {
+        transform: translateX(-1px) translateY(1px);
+    }
+    40% {
+        transform: translateX(1px) translateY(-1px);
+    }
+    50% {
+        transform: translateX(0) translateY(0);
+    }
+}
+
 /* ส่วนพิมพ์ข้อความ */
 .chatbot-input {
     display: flex;
@@ -140,39 +272,90 @@
 
 .chatbot-input input {
     flex: 1;
-    padding: 10px 15px;
-    border: 1px solid #ddd;
-    border-radius: 20px;
+    padding: 12px 18px;
+    border: 2px solid #e0e0e0;
+    border-radius: 25px;
     outline: none;
     font-size: 14px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    transition: all 0.3s ease;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .chatbot-input input:focus {
-    border-color: #7b3b95;
+    border-color: #ffd700;
+    box-shadow:
+        0 0 0 3px rgba(255, 215, 0, 0.2),
+        inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    background: #ffffff;
+}
+
+.chatbot-input input::placeholder {
+    color: #7b3b95;
+    font-style: italic;
+    opacity: 0.8;
 }
 
 .chatbot-input button {
-    background-color: #7b3b95;
+    background: linear-gradient(135deg, #7b3b95 0%, #9b59b6 100%);
     color: #fff;
-    border: none;
-    width: 40px;
-    height: 40px;
+    border: 2px solid #ffd700;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
     margin-left: 10px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.2s;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(123, 59, 149, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.chatbot-input button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 215, 0, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s ease;
+    z-index: 0;
+}
+
+.chatbot-input button:hover::before {
+    width: 100%;
+    height: 100%;
 }
 
 .chatbot-input button:hover {
-    background-color: #9b59b6;
+    background: linear-gradient(135deg, #ffd700 0%, #7b3b95 100%);
+    border-color: #fff;
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+    transform: scale(1.05);
 }
 
 .chatbot-input button:disabled {
-    background-color: #ccc;
+    background: #ccc;
+    border-color: #999;
     cursor: not-allowed;
+    box-shadow: none;
+}
+
+.chatbot-input button i {
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+}
+
+.chatbot-input button:hover i {
+    color: #7b3b95;
+    transform: scale(1.1);
 }
 
 /* ปุ่มเปิดแชทบอท */
@@ -191,39 +374,63 @@
     cursor: pointer;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
     z-index: 9998;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: golden-pulse 2s infinite, gentle-shake 3s infinite;
 }
 
 .chatbot-toggle:hover {
     transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4), 0 0 30px rgba(255, 215, 0, 0.6);
+    animation: golden-pulse 0.5s infinite, gentle-shake 0.5s infinite;
 }
 
 .chatbot-toggle i {
     font-size: 24px;
+    transition: transform 0.2s ease;
 }
 
-/* ไอคอนโหลด */
+.chatbot-toggle:hover i {
+    transform: scale(1.1);
+}
+
+/* ไอคอนโหลด - DesUPGPT Premium Typing Indicator */
 .typing-indicator {
     display: flex;
     align-items: center;
-    padding: 10px 15px;
-    background-color: #e9e9eb;
+    padding: 12px 18px;
+    background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%);
     color: #666;
-    border-radius: 15px;
+    border-radius: 18px;
     align-self: flex-start;
     font-size: 14px;
     max-width: 80%;
-    border-bottom-left-radius: 5px;
+    border-bottom-left-radius: 8px;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    animation: typing-appear 0.3s ease-out;
+}
+
+@keyframes typing-appear {
+    0% {
+        opacity: 0;
+        transform: translateY(10px) scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .typing-indicator span {
-    height: 8px;
-    width: 8px;
-    margin: 0 1px;
-    background-color: #7b3b95;
+    height: 10px;
+    width: 10px;
+    margin: 0 2px;
+    background: linear-gradient(135deg, #7b3b95 0%, #ffd700 100%);
     display: block;
     border-radius: 50%;
-    opacity: 0.4;
+    opacity: 0.6;
+    box-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
 }
 
 .typing-indicator span:nth-of-type(1) {

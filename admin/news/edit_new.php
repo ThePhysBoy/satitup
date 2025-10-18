@@ -16,10 +16,7 @@ if ($id <= 0) { header("Location: index.php"); exit; }
 $news = getNewsById($id, $conn);
 if (!$news) { header("Location: index.php"); exit; }
 
-// Categories
-$stmt = $conn->prepare("SELECT * FROM news_categories ORDER BY name");
-$stmt->execute();
-$categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+// ไม่ต้องดึงข้อมูลหมวดหมู่แล้ว เพราะเราไม่ใช้หมวดหมู่
 
 // Handle updates
 $errors = [];
@@ -27,12 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$title = trim($_POST['title'] ?? '');
 	$excerpt = trim($_POST['excerpt'] ?? '');
 	$content = trim($_POST['content'] ?? '');
-	$category_id = (int)($_POST['category_id'] ?? 0);
 	$status = $_POST['status'] ?? 'draft';
 
 	if ($title === '') $errors['title'] = 'กรุณากรอกหัวข้อข่าว';
 	if ($content === '') $errors['content'] = 'กรุณากรอกเนื้อหาข่าว';
-	if ($category_id <= 0) $errors['category_id'] = 'กรุณาเลือกหมวดหมู่';
 
 	// Featured image upload (optional)
 	$featured_image = $news['featured_image'];
@@ -48,8 +43,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	}
 
 	if (empty($errors)) {
-		$stmt = $conn->prepare("UPDATE news SET title=?, excerpt=?, content=?, category_id=?, status=?, featured_image=?, updated_at=NOW(), published_at = CASE WHEN ?='published' AND published_at IS NULL THEN NOW() ELSE published_at END WHERE id=?");
-		$stmt->bind_param('sssisssi', $title, $excerpt, $content, $category_id, $status, $featured_image, $status, $id);
+		$published_at = $news['published_at'];
+		if ($status === 'published' && empty($published_at)) {
+			$published_at = date('Y-m-d H:i:s');
+		}
+		$stmt = $conn->prepare("UPDATE news SET title=?, excerpt=?, content=?, status=?, featured_image=?, published_at=?, updated_at=NOW() WHERE id=?");
+		$stmt->bind_param('ssssssi', $title, $excerpt, $content, $status, $featured_image, $published_at, $id);
 		if ($stmt->execute()) {
 			// Handle gallery uploads
 			if (isset($_FILES['images'])) {
@@ -218,19 +217,7 @@ ob_start();
                 </div>
             </div>
             
-            <div class="card-modern mb-4">
-                <div class="card-header-modern">
-                    <h5><i class="fas fa-folder me-2"></i>หมวดหมู่</h5>
-                </div>
-                <div class="card-body-modern">
-                    <select class="form-select form-select-modern" name="category_id" required>
-                        <option value="">-- เลือกหมวดหมู่ --</option>
-                        <?php foreach ($categories as $cat): ?>
-                        <option value="<?php echo $cat['id']; ?>" <?php echo $news['category_id']==$cat['id']?'selected':''; ?>><?php echo htmlspecialchars($cat['name']); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-            </div>
+            <!-- ลบการเลือกหมวดหมู่ออกแล้ว -->
             
             <div class="card-modern mb-4">
                 <div class="card-header-modern">
@@ -242,7 +229,7 @@ ob_start();
                         <img src="../../<?php echo htmlspecialchars($news['featured_image']); ?>" class="img-fluid rounded" style="max-height: 200px; object-fit: contain;" alt="">
                     </div>
                     <div class="d-grid mb-3">
-                        <form method="post" action="delete_featured.php" onsubmit="return confirm('ยืนยันการลบรูปภาพหลัก?');">
+                        <form method="post" action="delete_featured_image.php" onsubmit="return confirm('ยืนยันการลบรูปภาพหลัก?');">
                             <input type="hidden" name="news_id" value="<?php echo $id; ?>">
                             <button type="submit" class="btn btn-outline-danger btn-sm w-100">
                                 <i class="fas fa-trash me-1"></i> ลบรูปภาพหลัก
@@ -273,33 +260,47 @@ $include_summernote = true;
 $custom_scripts = <<<EOT
 <script>
     $(document).ready(function() {
-        $('#content').summernote({
-            height: 300,
-            toolbar: [
-                ['style', ['style']],
-                ['font', ['bold', 'underline', 'italic', 'clear']],
-                ['fontname', ['fontname']],
-                ['color', ['color']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['table', ['table']],
-                ['insert', ['link', 'picture', 'video']],
-                ['view', ['fullscreen', 'codeview', 'help']]
-            ],
-            callbacks: {
-                onImageUpload: function(files) {
-                    // You could implement image upload here if needed
-                    for (let i = 0; i < files.length; i++) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            const img = document.createElement('img');
-                            img.src = e.target.result;
-                            $('#content').summernote('insertNode', img);
-                        };
-                        reader.readAsDataURL(files[i]);
+        console.log('jQuery version:', $.fn.jquery);
+        console.log('Summernote element exists:', $('#content').length);
+
+        // Initialize Summernote with delay to ensure DOM is ready
+        setTimeout(function() {
+            if (typeof $.fn.summernote === 'undefined') {
+                console.error('Summernote is not loaded');
+                return;
+            }
+
+            $('#content').summernote({
+                height: 300,
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'italic', 'clear']],
+                    ['fontname', ['fontname']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ],
+                callbacks: {
+                    onImageUpload: function(files) {
+                        // You could implement image upload here if needed
+                        for (let i = 0; i < files.length; i++) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                const img = document.createElement('img');
+                                img.src = e.target.result;
+                                $('#content').summernote('insertNode', img);
+                            };
+                            reader.readAsDataURL(files[i]);
+                        }
                     }
                 }
-            }
-        });
+            });
+            console.log('Summernote initialized successfully');
+        }, 100);
+
+        // Add any additional custom functionality here if needed
     });
 </script>
 EOT;

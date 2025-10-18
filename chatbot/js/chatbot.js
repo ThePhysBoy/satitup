@@ -27,39 +27,139 @@ class SatitChatbot {
         
         // สร้าง DOM elements
         this.createElements();
-        
+
+        // สร้างและกำหนดเสียงแจ้งเตือน
+        this.createNotificationSound();
+
         // เพิ่ม event listeners
         this.addEventListeners();
-        
+
         // เพิ่มข้อความต้อนรับ
         this.addBotMessage(this.welcomeMessage);
-        
+
         // เปิดแชทบอทอัตโนมัติถ้าตั้งค่าไว้
         if (this.autoOpen) {
             setTimeout(() => this.toggleChat(true), 1000);
         }
     }
-    
+
+    // สร้างและกำหนดเสียงแจ้งเตือน
+    createNotificationSound() {
+        // สร้าง function สำหรับเล่นเสียงด้วย Web Audio API
+        this.playBeepSound = () => {
+            try {
+                // ตรวจสอบและสร้าง AudioContext ถ้ายังไม่มี
+                if (!this.audioContext) {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+
+                // ถ้า AudioContext ถูกระงับ (suspended) ให้ resume ก่อน
+                if (this.audioContext.state === 'suspended') {
+                    this.audioContext.resume();
+                }
+
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+
+                // สร้างเสียงบี๊บสองตัว (สูงแล้วต่ำ)
+                oscillator.frequency.setValueAtTime(800, this.audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(600, this.audioContext.currentTime + 0.1);
+
+                gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.2);
+
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + 0.2);
+            } catch (e) {
+                console.log('ไม่สามารถเล่นเสียงแจ้งเตือนได้:', e);
+            }
+        };
+
+        // สร้าง audio element สำหรับ fallback
+        this.notificationSound = new Audio();
+        this.notificationSound.volume = 0.3;
+
+        // ลองใช้ไฟล์เสียงจริงก่อน ถ้ามี
+        try {
+            // พยายามใช้ไฟล์เสียงจากเซิร์ฟเวอร์ก่อน
+            this.notificationSound.src = 'chatbot/sounds/notification.mp3';
+        } catch (e) {
+            try {
+                // ถ้าไม่มีไฟล์เสียงจริง ให้ใช้ data URI เป็น fallback
+                this.notificationSound.src = 'data:audio/mpeg;base64,/+MYxAAAAANIAAAAAExBTUUzLjk4LjIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+            } catch (e2) {
+                // ถ้า data URI ไม่ทำงาน ให้ใช้ Web Audio API เป็นหลัก
+                console.log('ไฟล์เสียงไม่พบ ใช้ Web Audio API แทน');
+            }
+        }
+
+        // ทดสอบการโหลดเสียง
+        this.notificationSound.addEventListener('loadeddata', () => {
+            console.log('ไฟล์เสียงโหลดสำเร็จ');
+        });
+
+        this.notificationSound.addEventListener('error', () => {
+            console.log('ไฟล์เสียงโหลดไม่สำเร็จ ใช้ Web Audio API แทน');
+            this.notificationSound = null;
+        });
+    }
+
+    // เล่นเสียงแจ้งเตือน
+    playNotificationSound() {
+        try {
+            // ลำดับความสำคัญ: Web Audio API -> Audio Element
+            if (this.playBeepSound) {
+                this.playBeepSound();
+            } else if (this.notificationSound) {
+                this.notificationSound.currentTime = 0;
+                this.notificationSound.play().catch(e => {
+                    console.log('ไม่สามารถเล่นเสียงได้ ลองใช้ Web Audio API');
+                    if (this.playBeepSound) {
+                        this.playBeepSound();
+                    }
+                });
+            }
+        } catch (e) {
+            console.log('เกิดข้อผิดพลาดในการเล่นเสียง:', e);
+        }
+    }
+
+    // ฟังก์ชันสำหรับเปิดใช้งานเสียงเมื่อมีการคลิกครั้งแรก
+    enableAudioContext() {
+        if (this.audioContext && this.audioContext.state === 'suspended') {
+            this.audioContext.resume().then(() => {
+                console.log('AudioContext เปิดใช้งานแล้ว');
+            }).catch(e => {
+                console.log('ไม่สามารถเปิดใช้งาน AudioContext ได้:', e);
+            });
+        }
+    }
+
     // สร้าง DOM elements สำหรับแชทบอท
     createElements() {
+        console.log('กำลังสร้าง elements ของแชทบอท...');
+
         // ปรับสีหลักของแชทบอทตามที่ตั้งค่าไว้
         if (this.themeColor) {
             const style = document.createElement('style');
             style.textContent = `
                 .chatbot-toggle, .chatbot-header {
-                    background: linear-gradient(135deg, ${this.themeColor} 0%, ${this.getLighterColor(this.themeColor)} 100%);
+                    background: linear-gradient(135deg, ${this.themeColor} 0%, ${this.getLighterColor(this.themeColor)} 100%) !important;
                 }
                 .chatbot-input button {
-                    background-color: ${this.themeColor};
+                    background-color: ${this.themeColor} !important;
                 }
                 .chatbot-input button:hover {
-                    background-color: ${this.getLighterColor(this.themeColor)};
+                    background-color: ${this.getLighterColor(this.themeColor)} !important;
                 }
                 .typing-indicator span {
-                    background-color: ${this.themeColor};
+                    background-color: ${this.themeColor} !important;
                 }
                 .user-message {
-                    background-color: ${this.themeColor};
+                    background-color: ${this.themeColor} !important;
                 }
             `;
             document.head.appendChild(style);
@@ -69,7 +169,71 @@ class SatitChatbot {
         this.toggleButton = document.createElement('div');
         this.toggleButton.className = 'chatbot-toggle';
         this.toggleButton.innerHTML = '<i class="fas fa-comments"></i>';
+        this.toggleButton.title = '🤖 DesUPGPT - แชทบอทอัจฉริยะ';
+        this.toggleButton.style.cssText = `
+            position: fixed !important;
+            bottom: 20px !important;
+            right: 20px !important;
+            width: 60px !important;
+            height: 60px !important;
+            background: #7b3b95 !important;
+            border-radius: 50% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: #fff !important;
+            cursor: pointer !important;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2), 0 0 0 3px #ffd700 !important;
+            z-index: 999999 !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: none !important;
+            animation: none !important;
+            transition: none !important;
+        `;
+
+        // เพิ่มการตรวจสอบว่าปุ่มถูกสร้างใน DOM หรือไม่
+        if (document.body.contains(this.toggleButton)) {
+            console.log('✅ ปุ่มถูกเพิ่มใน DOM แล้ว');
+        } else {
+            console.error('❌ ปุ่มไม่ถูกเพิ่มใน DOM');
+        }
+
+        // เพิ่มข้อความแสดงชื่อข้างปุ่มแบบ inline style
+        const textElement = document.createElement('div');
+        textElement.innerHTML = '🤖 DesUPGPT';
+        textElement.style.cssText = `
+            position: absolute !important;
+            bottom: -25px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            font-size: 10px !important;
+            font-weight: bold !important;
+            color: #ffd700 !important;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.8) !important;
+            background: rgba(0, 0, 0, 0.3) !important;
+            padding: 2px 6px !important;
+            border-radius: 8px !important;
+            border: 1px solid rgba(255, 215, 0, 0.5) !important;
+            white-space: nowrap !important;
+            z-index: 999999 !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        `;
+
+        this.toggleButton.appendChild(textElement);
+        console.log('📝 เพิ่มข้อความข้างปุ่มแล้ว');
+
         document.body.appendChild(this.toggleButton);
+
+        console.log('🔧 ปุ่มแชทบอทถูกสร้างแล้ว:', this.toggleButton);
+        console.log('📏 ตำแหน่งและขนาดปุ่ม:', {
+            offsetTop: this.toggleButton.offsetTop,
+            offsetLeft: this.toggleButton.offsetLeft,
+            offsetWidth: this.toggleButton.offsetWidth,
+            offsetHeight: this.toggleButton.offsetHeight,
+            computedStyle: window.getComputedStyle(this.toggleButton)
+        });
         
         // สร้างคอนเทนเนอร์แชทบอท
         this.container = document.createElement('div');
@@ -139,7 +303,13 @@ class SatitChatbot {
     // เปิด/ปิดแชทบอท
     toggleChat(open = !this.isOpen) {
         this.isOpen = open;
-        
+
+        // เปิดใช้งาน AudioContext เมื่อมีการคลิกครั้งแรก
+        this.enableAudioContext();
+
+        // เล่นเสียงเมื่อคลิกปุ่ม toggle
+        this.playNotificationSound();
+
         if (this.isOpen) {
             this.container.classList.add('active');
             this.inputField.focus();
@@ -153,10 +323,13 @@ class SatitChatbot {
         const messageElement = document.createElement('div');
         messageElement.className = 'chat-message user-message';
         messageElement.textContent = message;
-        
+
         this.messagesContainer.appendChild(messageElement);
         this.scrollToBottom();
-        
+
+        // เล่นเสียงแจ้งเตือนเมื่อผู้ใช้ส่งข้อความ
+        this.playNotificationSound();
+
         // เก็บประวัติการสนทนา
         this.chatHistory.push({
             role: 'user',
@@ -169,10 +342,13 @@ class SatitChatbot {
         const messageElement = document.createElement('div');
         messageElement.className = 'chat-message bot-message';
         messageElement.textContent = message;
-        
+
         this.messagesContainer.appendChild(messageElement);
         this.scrollToBottom();
-        
+
+        // เล่นเสียงแจ้งเตือนเมื่อบอทตอบกลับ
+        this.playNotificationSound();
+
         // เก็บประวัติการสนทนา
         this.chatHistory.push({
             role: 'model',
@@ -376,13 +552,16 @@ class SatitChatbot {
                 
                 // ลบ streaming class เมื่อได้รับข้อความทั้งหมดแล้ว
                 placeholderElement.classList.remove('streaming');
-                
+
+                // เล่นเสียงแจ้งเตือนเมื่อได้รับข้อความตอบกลับแบบ streaming
+                this.playNotificationSound();
+
                 // เก็บประวัติการสนทนา
                 this.chatHistory.push({
                     role: 'model',
                     parts: [{ text: fullResponse }]
                 });
-                
+
                 return null; // ไม่ต้องส่งคืนข้อความเพราะได้แสดงไปแล้ว
             } else {
                 // ถ้าไม่ใช่ streaming response ให้ใช้วิธีเดิม
@@ -486,14 +665,17 @@ class SatitChatbot {
     async sendMessage() {
         const message = this.inputField.value.trim();
         if (message === '' || this.isWaiting) return;
-        
+
+        // เปิดใช้งาน AudioContext เมื่อมีการส่งข้อความ (user interaction)
+        this.enableAudioContext();
+
         // เคลียร์ช่องข้อความ
         this.inputField.value = '';
         this.sendButton.disabled = true;
-        
+
         // แสดงข้อความผู้ใช้
         this.addUserMessage(message);
-        
+
         // แสดงตัวบ่งชี้การพิมพ์
         this.showTypingIndicator();
         this.isWaiting = true;
@@ -557,4 +739,92 @@ function initChatbot() {
 }
 
 // เริ่มต้นแชทบอทเมื่อหน้าเว็บโหลดเสร็จ
-document.addEventListener('DOMContentLoaded', initChatbot);
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔄 เริ่มต้นการทำงานของแชทบอท DesUPGPT...');
+
+    // ตรวจสอบว่า initChatbot function มีอยู่หรือไม่
+    if (typeof initChatbot === 'function') {
+        console.log('✅ พบฟังก์ชัน initChatbot');
+        initChatbot();
+    } else {
+        console.error('❌ ไม่พบฟังก์ชัน initChatbot');
+    }
+
+    // เพิ่มเอฟเฟกต์ต้อนรับเมื่อหน้าเว็บโหลดเสร็จ
+    setTimeout(function() {
+        console.log('🔍 กำลังมองหาปุ่มแชทบอท...');
+        const chatbotToggle = document.querySelector('.chatbot-toggle');
+
+        if (chatbotToggle) {
+            console.log('✅ พบปุ่มแชทบอท!');
+            console.log('📍 ตำแหน่งปุ่มก่อนเพิ่มคลาส:', {
+                top: chatbotToggle.offsetTop,
+                left: chatbotToggle.offsetLeft,
+                width: chatbotToggle.offsetWidth,
+                height: chatbotToggle.offsetHeight,
+                display: chatbotToggle.style.display,
+                visibility: chatbotToggle.style.visibility,
+                opacity: chatbotToggle.style.opacity,
+                zIndex: chatbotToggle.style.zIndex
+            });
+
+            chatbotToggle.classList.add('page-loaded');
+
+            console.log('📍 ตำแหน่งปุ่มหลังเพิ่มคลาส:', {
+                top: chatbotToggle.offsetTop,
+                left: chatbotToggle.offsetLeft,
+                width: chatbotToggle.offsetWidth,
+                height: chatbotToggle.offsetHeight,
+                display: chatbotToggle.style.display,
+                visibility: chatbotToggle.style.visibility,
+                opacity: chatbotToggle.style.opacity,
+                zIndex: chatbotToggle.style.zIndex
+            });
+
+            // เพิ่มเอฟเฟกต์เสียงต้อนรับแบบง่าย ๆ
+            if (window.satitChatbot) {
+                console.log('🔊 กำลังเล่นเสียงต้อนรับ...');
+                try {
+                    // สร้างเสียงบี๊บง่าย ๆ
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.2);
+
+                    console.log('✅ เสียงต้อนรับเล่นสำเร็จ');
+                } catch (e) {
+                    console.log('❌ ไม่สามารถเล่นเสียงต้อนรับได้:', e);
+                }
+            }
+
+            console.log('🎉 เอฟเฟกต์ต้อนรับทำงานแล้ว');
+        } else {
+            console.log('❌ ไม่พบปุ่มแชทบอท');
+
+            // แสดงรายการ elements ทั้งหมดใน body เพื่อดูว่าเกิดอะไรขึ้น
+            console.log('📋 Elements ใน body:', document.body.children.length);
+            for (let i = 0; i < Math.min(10, document.body.children.length); i++) {
+                console.log(`Element ${i}:`, document.body.children[i].tagName, document.body.children[i].className);
+            }
+
+            // ลองหาปุ่มอีกครั้งหลังจากรอเพิ่มเติม
+            setTimeout(function() {
+                const retryToggle = document.querySelector('.chatbot-toggle');
+                if (retryToggle) {
+                    console.log('✅ พบปุ่มแชทบอทในการลองครั้งที่ 2');
+                } else {
+                    console.log('❌ ยังไม่พบปุ่มแชทบอทในการลองครั้งที่ 2');
+                }
+            }, 2000);
+        }
+    }, 1000); // รอ 1 วินาทีหลังจากหน้าเว็บโหลดเสร็จ
+});

@@ -1,230 +1,124 @@
-# Admin News Management System - Template Guide
+# ระบบจัดการข่าวประชาสัมพันธ์
 
-## 📋 ภาพรวม
+ระบบจัดการข่าวประชาสัมพันธ์สำหรับเว็บไซต์โรงเรียนสาธิตมหาวิทยาลัยพะเยา
 
-ระบบจัดการข่าวสำหรับผู้ดูแลระบบที่ใช้การออกแบบ Glass Morphism สมัยใหม่ พร้อมฟีเจอร์ครบครัน
+## ฟังก์ชันการทำงาน
 
-## 🎨 Template System
+ระบบจัดการข่าวประชาสัมพันธ์มีฟังก์ชันการทำงานดังนี้:
 
-### ไฟล์หลัก
+### 1. การจัดการข่าว
+- เพิ่มข่าวใหม่
+- แก้ไขข่าวที่มีอยู่
+- ลบข่าว
+- ดูรายละเอียดข่าว
+- กำหนดสถานะข่าว (แบบร่าง, รอตรวจสอบ, เผยแพร่)
+- กำหนดข่าวเด่น
 
-- **`template.php`** - Template หลักสำหรับการออกแบบ
-- **`create.php`** - หน้าสร้างข่าวใหม่ (ใช้ template)
-- **`edit_new.php`** - หน้าแก้ไขข่าว (ตัวอย่างการใช้ template)
-- **`index_template_example.php`** - ตัวอย่างการใช้ template สำหรับหน้า index
+### 2. การจัดการหมวดหมู่
+- เพิ่มหมวดหมู่ใหม่
+- แก้ไขหมวดหมู่
+- ลบหมวดหมู่
+- เปิด/ปิดการใช้งานหมวดหมู่
 
-## 🚀 การใช้ Template
+### 3. การจัดการรูปภาพ
+- อัพโหลดรูปภาพหลัก
+- อัพโหลดรูปภาพแกลเลอรี
+- ลบรูปภาพ
+- ปรับขนาดรูปภาพอัตโนมัติ
 
-### 1. รวมโค๊ด PHP Logic ก่อน
+### 4. ฟังก์ชันขั้นสูง
+- ค้นหาข่าว
+- กรองข่าวตามหมวดหมู่
+- กรองข่าวตามสถานะ
+- ส่งออกข้อมูลข่าวเป็นไฟล์ CSV
+- แดชบอร์ดแสดงสถิติข่าว
 
-```php
-<?php
-// Include required files
-require_once '../includes/db_config.php';
-require_once '../includes/auth_functions.php';
+## โครงสร้างไฟล์
 
-// Your PHP logic here
-$errors = [];
-$success_message = '';
-
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Process form data
-}
-
-// Set template variables
-$page_title = "ชื่อหน้า";
-$page_header_icon = '<i class="fas fa-icon me-3"></i>';
-$back_button = true;
-$back_url = 'index.php';
-$back_text = 'กลับ';
-$include_summernote = true; // ถ้าต้องการ Summernote editor
-
-// Build content
-ob_start();
-?>
+```
+admin/news/
+# ไฟล์ที่ถูกลบออกแล้ว:
+# ├── categories.php          # จัดการหมวดหมู่ (ถูกลบเพราะไม่ใช้หมวดหมู่อีกต่อไป)
+# ├── category_news.php       # แสดงข่าวตามหมวดหมู่ (ถูกลบเพราะไม่ใช้หมวดหมู่อีกต่อไป)
+├── create.php              # เพิ่มข่าวใหม่
+├── dashboard.php           # แดชบอร์ดสถิติข่าว
+├── delete.php              # ลบข่าว
+├── delete_featured.php     # ยกเลิกสถานะข่าวเด่น
+├── delete_image.php        # ลบรูปภาพ
+├── edit_new.php            # แก้ไขข่าว
+├── export.php              # ส่งออกข้อมูลเป็น CSV
+├── export_form.php         # ฟอร์มส่งออกข้อมูล
+├── index.php               # หน้าหลักแสดงรายการข่าว
+├── news_functions.php      # ฟังก์ชันช่วยเหลือต่างๆ
+├── search.php              # ค้นหาข่าว
+├── set_featured.php        # ตั้งเป็นข่าวเด่น
+├── sidebar_menu.php        # เมนูด้านข้าง
+├── template.php            # เทมเพลตหน้าเว็บ
+└── view.php                # ดูรายละเอียดข่าว
 ```
 
-### 2. สร้างเนื้อหา HTML
+## การติดตั้ง
 
-```php
-<!-- Your HTML content here -->
-<div class="card-modern">
-    <div class="card-header-modern">
-        <h6><i class="fas fa-icon"></i>หัวข้อ</h6>
-    </div>
-    <div class="card-body-modern">
-        <!-- Form or content -->
-    </div>
-</div>
+1. อัพโหลดไฟล์ทั้งหมดไปยังเซิร์ฟเวอร์
+2. สร้างฐานข้อมูลและตารางตามที่กำหนดใน `news_tables.sql`
+3. ปรับแต่งค่าการเชื่อมต่อฐานข้อมูลใน `../includes/db_config.php`
+4. ตรวจสอบสิทธิ์การเข้าถึงโฟลเดอร์ `uploads/` ให้สามารถเขียนได้
 
-<?php
-$content = ob_get_clean();
-include 'template.php';
-?>
-```
+## ฐานข้อมูล
 
-## 🎨 CSS Classes ที่มีให้ใช้
+ระบบใช้ตารางในฐานข้อมูลดังนี้:
 
-### Layout Classes
-- `.wrapper` - Container หลัก
-- `.sidebar` - Sidebar ด้านซ้าย
-- `main` - Main content area
+1. `news` - เก็บข้อมูลข่าว
+2. `news_categories` - เก็บข้อมูลหมวดหมู่
+3. `news_images` - เก็บข้อมูลรูปภาพแกลเลอรี
 
-### Card Components
-- `.card-modern` - Card container
-- `.card-header-modern` - Card header
-- `.card-body-modern` - Card body
+## การใช้งาน
 
-### Form Elements
-- `.form-control-modern` - Input fields
-- `.form-select-modern` - Select dropdowns
-- `.form-label-modern` - Labels
+### การเพิ่มข่าวใหม่
+1. คลิกที่ "เพิ่มข่าวใหม่"
+2. กรอกข้อมูลข่าว (หัวข้อ, เนื้อหา, หมวดหมู่, สถานะ)
+3. อัพโหลดรูปภาพ (ถ้ามี)
+4. คลิกบันทึก
 
-### Buttons
-- `.btn-glass` - Glass effect buttons
-- `.btn-primary-gradient` - Primary gradient buttons
+### การแก้ไขข่าว
+1. คลิกที่ไอคอนแก้ไขในรายการข่าว
+2. แก้ไขข้อมูลตามต้องการ
+3. คลิกบันทึก
 
-### Alerts
-- `.alert-modern` - Error alerts
-- `.alert-success-modern` - Success alerts
+### การตั้งเป็นข่าวเด่น
+1. คลิกที่ไอคอนดาวในรายการข่าว
+2. ระบบจะตั้งข่าวนั้นเป็นข่าวเด่นและยกเลิกข่าวเด่นเดิม (ถ้ามี)
 
-### Tables
-- `.table-modern` - Modern styled tables
+### การส่งออกข้อมูล
+1. ไปที่หน้า "ส่งออกข้อมูล"
+2. เลือกประเภทการส่งออก (ทั้งหมด, ตามหมวดหมู่, ตามสถานะ, ตามช่วงวันที่)
+3. คลิกส่งออกข้อมูล
+4. ดาวน์โหลดไฟล์ CSV
 
-### Status Badges
-- `.status-badge` - Base status badge
-- `.status-draft` - Draft status
-- `.status-published` - Published status
-- `.status-pending` - Pending status
+## การจัดการสิทธิ์
 
-## 📱 Responsive Design
+ระบบมีการจัดการสิทธิ์การเข้าถึงดังนี้:
+- `admin` - สามารถจัดการได้ทุกส่วน
+- `pr_officer` - สามารถจัดการข่าวได้ แต่ไม่สามารถจัดการผู้ใช้หรือการตั้งค่าระบบ
 
-Template รองรับการแสดงผลบนอุปกรณ์ทุกขนาด:
-- **Desktop** - แสดง sidebar และ layout เต็ม
-- **Mobile** - ซ่อน sidebar และปรับ layout ให้เหมาะสม
+## การแก้ไขปัญหาเบื้องต้น
 
-## 🎯 Features
+### รูปภาพไม่แสดง
+- ตรวจสอบสิทธิ์การเข้าถึงโฟลเดอร์ `uploads/`
+- ตรวจสอบว่าพาธของรูปภาพถูกต้อง
 
-### Built-in Features
-- ✅ Glass Morphism Design
-- ✅ Smooth Animations
-- ✅ Responsive Layout
-- ✅ Modern Typography
-- ✅ Interactive Elements
-- ✅ Loading States
-- ✅ Error Handling
+### เครื่องมือแก้ไขเนื้อหาไม่แสดง
+- ตรวจสอบว่ามีการโหลด jQuery และ Summernote อย่างถูกต้อง
+- ตรวจสอบ Console ใน Developer Tools เพื่อหาข้อผิดพลาด
 
-### JavaScript Utilities
-- Summernote Editor Integration
-- Image Preview
-- Form Validation
-- Modal Confirmations
-- Auto-save Functionality
+### ข้อความแจ้งเตือน "ไม่มีสิทธิ์เข้าถึง"
+- ตรวจสอบว่าคุณได้เข้าสู่ระบบแล้ว
+- ตรวจสอบว่าบัญชีของคุณมีสิทธิ์เข้าถึงส่วนนั้น
 
-## 📝 ตัวอย่างการใช้งาน
+## ผู้พัฒนา
 
-### 1. หน้าสร้างข่าว (create.php)
-- ✅ ใช้ template หลัก
-- ✅ รวม Summernote editor
-- ✅ อัพโหลดรูปภาพ
-- ✅ ตัวอย่างรูปภาพ
+ระบบนี้พัฒนาโดยทีมพัฒนาเว็บไซต์โรงเรียนสาธิตมหาวิทยาลัยพะเยา
 
-### 2. หน้าแก้ไขข่าว (edit_new.php)
-- ✅ ใช้ template หลัก
-- ✅ โหลดข้อมูลที่มีอยู่
-- ✅ จัดการรูปภาพแกลเลอรี่
-- ✅ ลบรูปภาพ
+## ลิขสิทธิ์
 
-### 3. หน้าจัดการข่าว (index_template_example.php)
-- ✅ แสดงตารางข้อมูล
-- ✅ ตัวกรองและค้นหา
-- ✅ Pagination
-- ✅ Modal ยืนยันการลบ
-
-## 🔧 การปรับแต่ง
-
-### เพิ่ม CSS เพิ่มเติม
-
-```css
-<style>
-    /* Your custom styles */
-    .custom-element {
-        /* Custom styling */
-    }
-</style>
-```
-
-### เพิ่ม JavaScript
-
-```javascript
-<script>
-    $(document).ready(function() {
-        // Your custom JavaScript
-    });
-</script>
-```
-
-## 📋 Template Variables
-
-| Variable | Type | Description | Default |
-|----------|------|-------------|---------|
-| `$page_title` | string | ชื่อหน้า | - |
-| `$page_header_icon` | string | ไอคอนหน้า | `<i class="fas fa-cog me-3"></i>` |
-| `$back_button` | boolean | แสดงปุ่มกลับ | `false` |
-| `$back_url` | string | URL ปุ่มกลับ | `'index.php'` |
-| `$back_text` | string | ข้อความปุ่มกลับ | `'กลับ'` |
-| `$include_summernote` | boolean | รวม Summernote | `false` |
-
-## 🎨 Color Scheme
-
-### CSS Variables
-```css
-:root {
-    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --glass-bg: rgba(255, 255, 255, 0.25);
-    --glass-border: rgba(255, 255, 255, 0.18);
-    --shadow-soft: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-    --shadow-hover: 0 15px 35px 0 rgba(31, 38, 135, 0.4);
-}
-```
-
-## 📱 Browser Support
-
-- ✅ Chrome 60+
-- ✅ Firefox 55+
-- ✅ Safari 12+
-- ✅ Edge 79+
-
-## 🔄 การอัปเดต
-
-เมื่อต้องการอัปเดต template:
-1. แก้ไข `template.php`
-2. ทดสอบกับหน้าต่างๆ
-3. อัปเดต documentation
-
-## 🐛 การแก้ไขปัญหา
-
-### ปัญหาทั่วไป
-
-1. **CSS ไม่แสดงผล**
-   - ตรวจสอบการรวม CSS files
-   - ตรวจสอบ CSS specificity
-
-2. **JavaScript ไม่ทำงาน**
-   - ตรวจสอบการรวม jQuery
-   - ตรวจสอบ event listeners
-
-3. **Responsive ไม่ทำงาน**
-   - ตรวจสอบ media queries
-   - ตรวจสอบ viewport meta tag
-
-## 📞 การสนับสนุน
-
-สำหรับการสนับสนุนเพิ่มเติม กรุณาติดต่อทีมพัฒนา
-
----
-
-**สร้างโดย:** Admin Template System
-**เวอร์ชัน:** 1.0.0
-**อัปเดตล่าสุด:** <?php echo date('d/m/Y'); ?>
+© 2025 โรงเรียนสาธิตมหาวิทยาลัยพะเยา สงวนลิขสิทธิ์

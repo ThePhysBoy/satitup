@@ -1,18 +1,343 @@
+<?php
+// ตรวจสอบการเชื่อมต่อฐานข้อมูล
+if (!isset($conn) || !($conn instanceof mysqli)) {
+    $db_host = 'localhost';
+    $db_user = 'root';
+    $db_pass = '';
+    //$db_name = 'school_satitup';
+    $db_name = 'satitup';
+    $db_port = 3306;
+    $conn = @new mysqli($db_host, $db_user, $db_pass, $db_name, $db_port);
+    
+    if ($conn && !$conn->connect_error) {
+        $conn->set_charset('utf8mb4');
+    }
+}
+
+// ตรวจสอบว่ามีไฟล์ functions.php หรือไม่
+if (file_exists(__DIR__ . '/news/functions.php')) {
+    require_once __DIR__ . '/news/functions.php';
+}
+
+if (!isset($latest_news) || empty($latest_news)) {
+    if (function_exists('getLatestNews')) {
+        $latest_news = getLatestNews($conn, 15, 0, false); // ดึงข่าวทั้งหมดโดยไม่สนใจหมวดหมู่
+    } else {
+        $latest_news = [];
+        if ($conn && !$conn->connect_error) {
+            $stmt = $conn->prepare("SELECT n.id, n.title, n.slug, n.excerpt, n.published_at, n.created_at, n.featured_image, n.views as view_count, u.full_name, u.username
+                                    FROM news n
+                                    LEFT JOIN users u ON n.author_id = u.id
+                                    WHERE n.status = 'published'
+                                    ORDER BY COALESCE(n.published_at, n.created_at) DESC
+                                    LIMIT 15");
+            if ($stmt) {
+                $stmt->execute();
+                $res = $stmt->get_result();
+                $latest_news = $res->fetch_all(MYSQLI_ASSOC);
+                $stmt->close();
+            }
+        }
+    }
+}
+
+// ดึงข้อมูลเอกสารราชการจากฐานข้อมูล
+$official_docs = [
+    'regulation' => [],
+    'rule' => [],
+    'announcement' => [],
+    'order' => []
+];
+
+if ($conn && !$conn->connect_error) {
+    // ตรวจสอบว่ามีตารางหรือไม่
+    $table_check = $conn->query("SHOW TABLES LIKE 'official_documents'");
+    if ($table_check && $table_check->num_rows > 0) {
+        // ดึงเอกสารแต่ละประเภท
+        $types = ['regulation', 'rule', 'announcement', 'order'];
+        foreach ($types as $type) {
+            $stmt = $conn->prepare("SELECT d.*, c.category_name 
+                                   FROM official_documents d
+                                   LEFT JOIN official_documents_categories c ON d.category_id = c.id
+                                   WHERE d.doc_type = ? AND d.status = 'active'
+                                   ORDER BY d.publish_date DESC, d.created_at DESC
+                                   LIMIT 5");
+            if ($stmt) {
+                $stmt->bind_param("s", $type);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                $official_docs[$type] = $res->fetch_all(MYSQLI_ASSOC);
+                $stmt->close();
+            }
+        }
+    }
+}
+
+// สำหรับการเข้ากันได้กับโค้ดเดิม
+if (!isset($announcements) || empty($announcements)) {
+    $announcements = $official_docs['announcement'];
+}
+
+$latest = $latest_news ?? [];
+
+$news_items = [];
+if (!empty($latest)) {
+    foreach ($latest as $item) {
+        // Fix image path
+        $cover = '';
+        if (!empty($item['featured_image'])) {
+            $cover = $item['featured_image'];
+            // Remove leading slash if exists
+            $cover = ltrim($cover, '/');
+            // Remove admin/ prefix if exists
+            if (strpos($cover, 'admin/') === 0) {
+                $cover = substr($cover, 6);
+            }
+        } else if (!empty($item['gallery_image'])) {
+            $cover = $item['gallery_image'];
+            $cover = ltrim($cover, '/');
+            if (strpos($cover, 'admin/') === 0) {
+                $cover = substr($cover, 6);
+            }
+        } else {
+            $cover = 'images/comingsoon.png';
+        }
+
+        $displayDate = $item['display_date'] ?? ($item['published_at'] ?? $item['created_at']);
+
+        // ดึงข้อมูลยอดวิวและไลค์
+        $views = $item['view_count'] ?? $item['views'] ?? 0;
+        $likes = 0; // กำหนดค่าเริ่มต้นเป็น 0 ชั่วคราวจนกว่าจะเพิ่มฟิลด์ likes ในฐานข้อมูล
+
+        $item['cover_image'] = $cover;
+        $item['display_date'] = $displayDate;
+        $item['views'] = $views;
+        $item['likes'] = $likes;
+        $news_items[] = $item;
+    }
+}
+?>
+
 <!-- เริ่มต้นส่วนข่าวสารและประกาศ -->
 <section class="news-announcements-section py-5">
-    <!-- พื้นที่ส่วนข่าวสารและประกาศ ระยะห่างด้านบนและล่าง 5 หน่วย (py-5) -->
     <div class="container">
-        <!-- กำหนดความกว้างของเนื้อหาให้อยู่ภายใน container ตามมาตรฐาน Bootstrap -->
         <div class="section-header text-center mb-5">
-            <!-- ส่วนหัวของเซคชั่น จัดข้อความตรงกลาง และมีระยะห่างด้านล่าง 5 หน่วย -->
-            <h2 class="section-title">ข่าวประชาสัมพันธ์</h2>
-            <!-- หัวข้อหลักของเซคชั่น -->
-            <p class="section-subtitle">ติดตามข่าวสารและประกาศสำคัญจากโรงเรียนสาธิตมหาวิทยาลัยพะเยา</p>
-            <!-- คำอธิบายเพิ่มเติมใต้หัวข้อหลัก -->
+            <h2 class="section-title" style="font-size: 32px; font-weight: 500; color: #333; margin-bottom: 12px;">กิจกรรมประชาสัมพันธ์ / ข่าวสาร</h2>
+            <p class="section-subtitle" style="font-size: 16px; color: #666;">Activities / News</p>
         </div>
         
         <!-- สไตล์สำหรับรายการประกาศ -->
         <style>
+        /* Portfolio Grid Styles */
+        .news-portfolio .portfolio-filters {
+            padding: 0;
+            margin: 0 0 30px 0;
+            list-style: none;
+            text-align: center;
+            border-bottom: 1px solid #e8e8e8;
+            padding-bottom: 15px;
+        }
+        
+        .news-portfolio .portfolio-filters li {
+            cursor: pointer;
+            display: inline-block;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1;
+            color: #666;
+            margin: 0 2px;
+            transition: all 0.2s ease;
+            border-radius: 0;
+            border: none;
+            background: none;
+            position: relative;
+        }
+        
+        .news-portfolio .portfolio-filters li:hover {
+            color: #0066cc;
+        }
+        
+        .news-portfolio .portfolio-filters li.filter-active {
+            color: #0066cc;
+            font-weight: 500;
+        }
+        
+        .news-portfolio .portfolio-filters li.filter-active::after {
+            content: "";
+            position: absolute;
+            bottom: -16px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #0066cc;
+        }
+        
+        .news-portfolio .portfolio-filters li::before {
+            content: "";
+            margin: 0 8px;
+            color: #ddd;
+        }
+        
+        .news-portfolio .portfolio-filters li:first-child::before {
+            display: none;
+        }
+        
+        .news-portfolio .portfolio-filters li:not(:first-child)::before {
+            content: "|";
+            position: absolute;
+            left: -5px;
+            color: #ddd;
+        }
+        
+        .news-portfolio .portfolio-item {
+            margin-bottom: 30px;
+        }
+        
+        .news-portfolio .portfolio-content {
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            background: #fff;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+            cursor: pointer;
+        }
+        
+        .news-portfolio .portfolio-content:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+            border-color: #0066cc;
+        }
+        
+        .news-portfolio .portfolio-image {
+            position: relative;
+            overflow: hidden;
+            height: 200px;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .news-portfolio .portfolio-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            transition: transform 0.4s ease;
+        }
+        
+        .news-portfolio .portfolio-content:hover .portfolio-image img {
+            transform: scale(1.08);
+        }
+        
+        /* Remove overlay - keep it simple */
+        .news-portfolio .portfolio-info {
+            display: none;
+        }
+        
+        .news-activity-date {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 2;
+        }
+        
+        .news-category-badge {
+            display: inline-block;
+            background: #f0f0f0;
+            color: #666;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 5px 12px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+        
+        .news-activity-title {
+            font-size: 17px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            line-height: 1.5;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            min-height: 76px;
+            color: #333;
+        }
+        
+        .news-activity-title::before {
+            content: "📢 ";
+            margin-right: 5px;
+            font-size: 16px;
+        }
+        
+        .news-activity-title a {
+            color: #333;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        
+        .news-activity-title a:hover {
+            color: #0066cc;
+        }
+        
+        .news-excerpt {
+            display: none;
+            font-size: 12px;
+            color: #666;
+            line-height: 1.4;
+            margin-top: 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .portfolio-content:hover .news-excerpt {
+            display: block;
+            opacity: 1;
+        }
+        
+.portfolio-meta {
+    padding: 15px;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-height: 100px;
+    background: #fff;
+    position: relative;
+}
+        
+        .portfolio-meta .text-muted {
+            font-size: 13px;
+        }
+        
+        .portfolio-meta-content {
+            flex: 1 1 auto;
+        }
+        
+        .portfolio-meta-footer {
+            margin-top: auto;
+            padding-top: 10px;
+            border-top: 1px solid #f0f0f0;
+            display: none;
+        }
+        
         /* สไตล์สำหรับเมนูย่อย */
         .announcement-submenu .nav-link {
             color: #333;
@@ -41,14 +366,26 @@
         }
         
         .announcement-list .list-group-item {
-            padding: 15px 20px;
-            border-left: none;
+            padding: 18px 25px;
+            border-left: 3px solid transparent;
             border-right: none;
+            border-bottom: 1px solid #f0f0f0;
             transition: all 0.3s ease;
+            position: relative;
         }
         
         .announcement-list .list-group-item:hover {
-            background-color: #f8f9fa;
+            background: linear-gradient(90deg, #f8f5ff 0%, #ffffff 100%);
+            border-left-color: #7b3b95;
+            transform: translateX(5px);
+        }
+        
+        .announcement-list .list-group-item:nth-child(even) {
+            background-color: #fafafa;
+        }
+        
+        .announcement-list .list-group-item:last-child {
+            border-bottom: none;
         }
         
         .announcement-list .list-group-item:first-child {
@@ -99,12 +436,128 @@
             }
         }
         
+        /* Custom grid for 5 columns */
+        .custom-news-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1.5rem;
+        }
+
+        .custom-news-grid .portfolio-item {
+            width: 100%;
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 1200px) {
+            .custom-news-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .custom-news-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .custom-news-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         /* ปรับการแสดงผลบนอุปกรณ์มือถือ */
         @media (max-width: 767px) {
-            .announcement-submenu .nav-link {
-                margin: 3px;
+            .news-portfolio .portfolio-image {
+                height: 160px;
+            }
+
+            .news-activity-title {
+                font-size: 14px;
+                min-height: 60px;
+            }
+
+            .portfolio-meta {
+                padding: 12px;
+                min-height: 90px;
+            }
+
+        .news-excerpt {
+            font-size: 11px;
+        }
+
+        .news-stats {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .news-views, .news-likes {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .news-views i, .news-likes i {
+            margin-right: 4px;
+            font-size: 11px;
+        }
+
+        .news-portfolio .portfolio-filters li {
+                font-size: 13px;
+                padding: 7px 12px;
+            }
+            
+            .news-activity-date {
+                font-size: 12px;
                 padding: 6px 10px;
+            }
+            
+            .news-category-badge {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+            
+            .announcement-submenu .nav-link {
+                margin: 2px;
+                padding: 5px 8px;
+                font-size: 0.85rem;
+            }
+            
+            .announcement-submenu .nav-link i {
                 font-size: 0.9rem;
+            }
+            
+            /* สีเฉพาะสำหรับแต่ละประเภท */
+            #regulations.tab-pane .list-group-item:hover {
+                border-left-color: #8B7AA8 !important;
+            }
+            
+            #rules.tab-pane .list-group-item:hover {
+                border-left-color: #9b59b6 !important;
+            }
+            
+            #announcement.tab-pane .list-group-item:hover {
+                border-left-color: #27ae60 !important;
+            }
+            
+            #order.tab-pane .list-group-item:hover {
+                border-left-color: #e67e22 !important;
+            }
+            
+            /* Animation */
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateX(-20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+            
+            .tab-pane.active .list-group-item {
+                animation: slideIn 0.5s ease-out;
+                animation-fill-mode: both;
             }
             
             .d-flex.justify-content-between {
@@ -116,268 +569,435 @@
                 margin-top: 5px;
             }
         }
+
+        /* ============================================= */
+        /* GOLDEN EFFECT STYLES FOR HALL OF FAME CARDS */
+        /* ============================================= */
+
+        /* Golden effect for hall of fame cards */
+        .hall-of-fame-card {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Golden animated border - placed outside card */
+        .hall-of-fame-card::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            border-radius: calc(0.375rem + 3px);
+            background: linear-gradient(45deg,
+                #FF6B35, #F7931E, #FDC830, #FFD700,
+                #FFA500, #FF6347, #FF6B35
+            );
+            background-size: 400% 400%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            animation: gradient-animation 3s ease infinite;
+            z-index: -1;
+        }
+
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Show golden border on hover */
+        .hall-of-fame-card:hover::before {
+            opacity: 1;
+        }
+
+        /* Shine sweep effect */
+        .hall-of-fame-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 30%,
+                rgba(255, 215, 0, 0.5) 50%,
+                transparent 70%
+            );
+            transform: rotate(45deg) translateX(-100%);
+            transition: transform 0.6s;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .hall-of-fame-card:hover::after {
+            transform: rotate(45deg) translateX(100%);
+            opacity: 1;
+        }
+
+        /* Main hover transformation */
+        .hall-of-fame-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow:
+                0 20px 40px rgba(255, 107, 53, 0.4),
+                0 0 60px rgba(255, 165, 0, 0.3),
+                0 0 100px rgba(255, 215, 0, 0.2);
+            animation: glow-pulse 2s ease-in-out infinite;
+        }
+
+        /* Glow pulse animation */
+        @keyframes glow-pulse {
+            0%, 100% {
+                box-shadow:
+                    0 20px 40px rgba(255, 107, 53, 0.4),
+                    0 0 60px rgba(255, 165, 0, 0.3),
+                    0 0 100px rgba(255, 215, 0, 0.2);
+            }
+            50% {
+                box-shadow:
+                    0 25px 50px rgba(255, 107, 53, 0.6),
+                    0 0 80px rgba(255, 165, 0, 0.5),
+                    0 0 120px rgba(255, 215, 0, 0.3);
+            }
+        }
+
+        /* Image effects */
+        .hall-of-fame-card .card-img-top {
+            transition: all 0.5s ease;
+            filter: brightness(0.95);
+        }
+
+        .hall-of-fame-card:hover .card-img-top {
+            filter: brightness(1.2) saturate(1.3);
+            transform: scale(1.05);
+        }
+
+        /* Text golden gradient on hover */
+        .hall-of-fame-card .card-title {
+            transition: all 0.5s ease;
+        }
+
+        .hall-of-fame-card:hover .card-title {
+            background: linear-gradient(45deg, #FF6B35, #FFA500, #FFD700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transform: scale(1.05);
+        }
+
+        .hall-of-fame-card:hover .card-text small {
+            background: linear-gradient(45deg, #FF6B35, #FFA500, #FFD700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Button glow on hover */
+        .hall-of-fame-card:hover .btn-primary {
+            box-shadow: 0 0 20px rgba(255, 165, 0, 0.5);
+            transform: scale(1.05);
+        }
         </style>
-        
+
+        <!-- สไตล์เพิ่มเติมสำหรับแท็บเมนู -->
+        <style>
+        /* ปรับแต่งแท็บเมนูให้สวยงามและเป็นระเบียบ */
+        .news-tabs-wrapper {
+            background: #fff;
+            border-radius: 12px;
+            padding: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 2rem !important;
+        }
+
+        .news-tabs {
+            border: none;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            padding: 8px;
+            gap: 4px;
+        }
+
+        .news-tabs .nav-link {
+            border: none !important;
+            border-radius: 8px !important;
+            color: #495057;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 10px 16px;
+            margin: 2px;
+            transition: all 0.3s ease;
+            background: transparent;
+            white-space: nowrap;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .news-tabs .nav-link:hover {
+            background: rgba(255,255,255,0.8);
+            color: #007bff;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,123,255,0.15);
+        }
+
+        .news-tabs .nav-link.active {
+            background: #fff !important;
+            color: #007bff !important;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+        }
+
+        .news-tabs .nav-link i {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .news-tabs .nav-link.active i {
+            color: #007bff;
+            opacity: 1;
+        }
+
+        /* Responsive design สำหรับแท็บ */
+        @media (max-width: 1199px) {
+            .news-tabs {
+                gap: 2px;
+            }
+
+            .news-tabs .nav-link {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 991px) {
+            .news-tabs-wrapper {
+                margin-bottom: 1.5rem !important;
+            }
+
+            .news-tabs {
+                padding: 6px;
+                gap: 1px;
+            }
+
+            .news-tabs .nav-link {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+                min-height: 40px;
+            }
+
+            .news-tabs .nav-link i {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .news-tabs-wrapper {
+                margin-bottom: 1rem !important;
+            }
+
+            .news-tabs {
+                padding: 4px;
+                gap: 0;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+
+            .news-tabs .nav-link {
+                padding: 8px 6px;
+                font-size: 0.75rem;
+                min-height: 36px;
+                text-align: center;
+            }
+
+            .news-tabs .nav-link i {
+                display: block;
+                margin-bottom: 2px;
+                font-size: 1rem;
+            }
+
+            .news-tabs .nav-link span {
+                font-size: 0.7rem !important;
+                line-height: 1.2;
+            }
+        }
+
+        @media (max-width: 575px) {
+            .news-tabs {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            }
+
+            .news-tabs .nav-link {
+                padding: 6px 4px;
+                font-size: 0.7rem;
+            }
+
+            .news-tabs .nav-link i {
+                font-size: 0.9rem;
+            }
+
+            .news-tabs .nav-link span {
+                display: none;
+            }
+
+            .news-tabs .nav-link i {
+                margin-bottom: 0;
+            }
+        }
+
+        /* เพิ่มลูกเล่นให้แท็บดูมีมิติ */
+        .news-tabs-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(0,123,255,0.2) 50%, transparent 100%);
+        }
+
+        .news-tabs .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: #007bff;
+            transition: width 0.3s ease;
+        }
+
+        .news-tabs .nav-link.active::after {
+            width: 60%;
+        }
+
+        /* Animation สำหรับแท็บที่ active */
+        @keyframes tabPulse {
+            0% { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+            50% { box-shadow: 0 4px 12px rgba(0,123,255,0.3); }
+            100% { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        }
+
+        .news-tabs .nav-link.active {
+            animation: tabPulse 2s ease-in-out infinite;
+        }
+        </style>
+
         <!-- แถบเมนู Tab สำหรับเลือกประเภทข่าวสาร -->
         <div class="news-tabs-wrapper mb-4">
-            <!-- กล่องครอบแถบเมนู Tab มีระยะห่างด้านล่าง 4 หน่วย -->
-            <ul class="nav nav-tabs news-tabs" id="newsTab" role="tablist">
-                <!-- รายการแถบเมนู Tab ใช้คลาส Bootstrap nav และ nav-tabs -->
+            <ul class="nav nav-tabs news-tabs justify-content-center flex-wrap" id="newsTab" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <!-- รายการเมนูแรก: ภาพข่าวกิจกรรม -->
                     <button class="nav-link active" id="news-activities-tab" data-bs-toggle="tab" data-bs-target="#news-activities" type="button" role="tab">
-                        <!-- ปุ่มเมนู Tab แรก กำหนดให้เป็น active (แสดงเริ่มต้น) -->
                         <i class="fas fa-camera"></i>
-                        <!-- ไอคอนรูปกล้อง จาก Font Awesome -->
-                        <span>ภาพข่าวกิจกรรม</span>
-                        <!-- ข้อความบนปุ่มเมนู -->
+                        <span class="d-none d-sm-inline">ภาพข่าวกิจกรรม</span>
+                        <span class="d-sm-none">ภาพข่าว</span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <!-- รายการเมนูที่สอง: คำสั่งและประกาศ -->
                     <button class="nav-link" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders" type="button" role="tab">
-                        <!-- ปุ่มเมนู Tab สำหรับคำสั่งและประกาศ -->
                         <i class="fas fa-file-signature"></i>
-                        <!-- ไอคอนรูปเอกสารและปากกา จาก Font Awesome -->
-                        <span>คำสั่งและประกาศ</span>
-                        <!-- ข้อความบนปุ่มเมนู -->
+                        <span class="d-none d-md-inline">คำสั่งและประกาศ</span>
+                        <span class="d-md-none">คำสั่ง</span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <!-- รายการเมนูที่สอง: การจัดซื้อจัดจ้าง -->
                     <button class="nav-link" id="procurement-tab" data-bs-toggle="tab" data-bs-target="#procurement" type="button" role="tab">
-                        <!-- ปุ่มเมนู Tab สำหรับการจัดซื้อจัดจ้าง -->
                         <i class="fas fa-shopping-cart"></i>
-                        <!-- ไอคอนรูปตะกร้าสินค้า จาก Font Awesome -->
-                        <span>การจัดซื้อจัดจ้าง</span>
-                        <!-- ข้อความบนปุ่มเมนู -->
+                        <span class="d-none d-lg-inline">การจัดซื้อจัดจ้าง</span>
+                        <span class="d-lg-none">จัดซื้อ</span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <!-- รายการเมนูที่สาม: การรับสมัครงาน -->
                     <button class="nav-link" id="recruitment-tab" data-bs-toggle="tab" data-bs-target="#recruitment" type="button" role="tab">
-                        <!-- ปุ่มเมนู Tab สำหรับการรับสมัครงาน -->
                         <i class="fas fa-user-tie"></i>
-                        <!-- ไอคอนรูปคนใส่สูท จาก Font Awesome -->
-                        <span>การรับสมัครงาน</span>
-                        <!-- ข้อความบนปุ่มเมนู -->
+                        <span class="d-none d-md-inline">การรับสมัครงาน</span>
+                        <span class="d-md-none">สมัครงาน</span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <!-- รายการเมนูที่สี่: การอบรม -->
                     <button class="nav-link" id="training-tab" data-bs-toggle="tab" data-bs-target="#training" type="button" role="tab">
-                        <!-- ปุ่มเมนู Tab สำหรับการอบรม -->
                         <i class="fas fa-chalkboard-teacher"></i>
-                        <!-- ไอคอนรูปครูสอนหน้ากระดาน จาก Font Awesome -->
-                        <span>การอบรม</span>
-                        <!-- ข้อความบนปุ่มเมนู -->
+                        <span class="d-none d-lg-inline">การอบรม</span>
+                        <span class="d-lg-none">อบรม</span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <!-- รายการเมนูที่ห้า: การประกวดแข่งขัน -->
                     <button class="nav-link" id="competition-tab" data-bs-toggle="tab" data-bs-target="#competition" type="button" role="tab">
-                        <!-- ปุ่มเมนู Tab สำหรับการประกวดแข่งขัน -->
                         <i class="fas fa-trophy"></i>
-                        <!-- ไอคอนรูปถ้วยรางวัล จาก Font Awesome -->
-                        <span>การประกวดแข่งขัน</span>
-                        <!-- ข้อความบนปุ่มเมนู -->
+                        <span class="d-none d-md-inline">หอเกียรติยศ</span>
+                        <span class="d-md-none">เกียรติยศ</span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <!-- รายการเมนูที่หก: การไปต่างประเทศ -->
                     <button class="nav-link" id="international-tab" data-bs-toggle="tab" data-bs-target="#international" type="button" role="tab">
-                        <!-- ปุ่มเมนู Tab สำหรับการไปต่างประเทศ -->
                         <i class="fas fa-globe"></i>
-                        <!-- ไอคอนรูปโลก จาก Font Awesome -->
-                        <span>การไปต่างประเทศ</span>
-                        <!-- ข้อความบนปุ่มเมนู -->
+                        <span class="d-none d-lg-inline">ไปต่างประเทศ
+                        <span class="d-lg-none">ไปต่างประเทศ</span>
                     </button>
                 </li>
             </ul>
         </div>
         
-        <!-- สไตล์สำหรับภาพข่าวกิจกรรม -->
-        <style>
-            /* สไตล์สำหรับการ์ดข่าวกิจกรรม */
-            .news-activity-card {
-                border-radius: 12px;
-                overflow: hidden;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-                margin-bottom: 30px;
-                transition: all 0.3s ease;
-                background-color: #fff;
-            }
-            
-            .news-activity-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 10px 25px rgba(123, 59, 149, 0.2);
-            }
-            
-            .news-activity-image {
-                position: relative;
-                overflow: hidden;
-                height: 240px;
-            }
-            
-            .news-activity-image img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                transition: transform 0.5s ease;
-            }
-            
-            .news-activity-card:hover .news-activity-image img {
-                transform: scale(1.05);
-            }
-            
-            .news-activity-date {
-                position: absolute;
-                top: 15px;
-                right: 15px;
-                background: rgba(123, 59, 149, 0.85);
-                color: white;
-                padding: 8px 15px;
-                border-radius: 20px;
-                font-weight: 500;
-                font-size: 0.9rem;
-                backdrop-filter: blur(5px);
-            }
-            
-            .news-activity-content {
-                padding: 20px;
-            }
-            
-            .news-activity-title {
-                font-size: 1.25rem;
-                font-weight: 600;
-                margin-bottom: 10px;
-                color: #333;
-                line-height: 1.4;
-            }
-            
-            .news-activity-title a {
-                color: #333;
-                text-decoration: none;
-                transition: color 0.3s ease;
-            }
-            
-            .news-activity-title a:hover {
-                color: #7b3b95;
-            }
-            
-            .news-activity-meta {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                color: #666;
-                font-size: 0.9rem;
-                margin-top: 15px;
-            }
-            
-            .news-activity-author {
-                display: flex;
-                align-items: center;
-            }
-            
-            .news-activity-author i {
-                margin-right: 5px;
-                color: #7b3b95;
-            }
-            
-            /* แอนิเมชันสำหรับการ์ดข่าวกิจกรรม */
-            @keyframes fadeInUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(20px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-            
-            .animate-card {
-                animation: fadeInUp 0.6s ease forwards;
-            }
-            
-            /* ปรับการแสดงผลบนอุปกรณ์มือถือ */
-            @media (max-width: 767px) {
-                .news-activity-image {
-                    height: 180px;
-                }
-                
-                .news-activity-content {
-                    padding: 15px;
-                }
-                
-                .news-activity-title {
-                    font-size: 1.1rem;
-                }
-            }
-        </style>
-        
         <!-- เนื้อหาของแต่ละแท็บ -->
         <div class="tab-content" id="newsTabContent">
             <!-- เนื้อหาแท็บ: ภาพข่าวกิจกรรม (แสดงเริ่มต้น) -->
             <div class="tab-pane fade show active" id="news-activities" role="tabpanel">
-                <!-- แท็บแรกถูกกำหนดให้แสดงเริ่มต้นด้วย class active และ show -->
-                <div class="row g-4">
-<?php
-// ดึง 5 ข่าวล่าสุดจากฐานข้อมูลสำหรับภาพข่าวกิจกรรม
-if (!isset($conn) || !($conn instanceof mysqli)) {
-    $db_host = 'localhost';
-    $db_user = 'root';
-    $db_pass = '';
-    $db_name = 'satitup';
-    $conn = @new mysqli($db_host, $db_user, $db_pass, $db_name);
-}
+                <div class="news-portfolio portfolio">
+                    <div class="isotope-layout" data-layout="fitRows" data-default-filter="*">
+<?php if (!empty($news_items)): ?>
+                        <!-- ลบตัวกรองหมวดหมู่ออก เพราะเราไม่ใช้หมวดหมู่แล้ว -->
 
-$latest = [];
-if ($conn && !$conn->connect_error) {
-    $stmt = $conn->prepare("SELECT n.title, n.slug, n.published_at, n.created_at, n.featured_image, n.views, u.full_name, u.username
-                            FROM news n
-                            LEFT JOIN users u ON u.id = n.author_id
-                            WHERE n.status = 'published'
-                            ORDER BY COALESCE(n.published_at, n.created_at) DESC
-                            LIMIT 5");
-    $stmt->execute();
-    $res = $stmt->get_result();
-    $latest = $res->fetch_all(MYSQLI_ASSOC);
-}
-?>
-<?php if (!empty($latest)): ?>
-<?php foreach ($latest as $index => $item): ?>
-<?php $colClass = ($index < 2) ? 'col-lg-6' : 'col-lg-4'; ?>
-                    <div class="<?php echo $colClass; ?>">
-                        <div class="news-activity-card">
-                            <div class="news-activity-image">
-                                <img src="<?php echo htmlspecialchars(!empty($item['featured_image']) ? $item['featured_image'] : 'images/comingsoon.png'); ?>" alt="<?php echo htmlspecialchars($item['title']); ?>">
-                                <div class="news-activity-date"><?php echo date('d/m/Y', strtotime($item['published_at'] ?: $item['created_at'])); ?></div>
-                                </div>
-                            <div class="news-activity-content">
-                                <h3 class="news-activity-title">
-                                    <a href="news/detail.php?slug=<?php echo urlencode($item['slug']); ?>"><?php echo htmlspecialchars($item['title']); ?></a>
-                                </h3>
-                                <div class="news-activity-meta">
-                                    <span class="news-activity-author">
-                                        <i class="fas fa-user"></i> โดย <?php echo htmlspecialchars($item['full_name'] ?? 'ระบบ'); ?>
-                                    </span>
-                                    <span>
-                                        <i class="fas fa-eye"></i> <?php echo number_format((int)$item['views']); ?>
-                                    </span>
-                            </div>
+                        <div class="isotope-container custom-news-grid">
+<?php foreach ($news_items as $item): ?>
+                            <div class="portfolio-item isotope-item">
+                                <div class="portfolio-content h-100">
+                                    <div class="portfolio-image">
+                                        <img src="<?php echo htmlspecialchars($item['cover_image']); ?>" class="img-fluid" alt="<?php echo htmlspecialchars($item['title']); ?>" onerror="this.src='images/comingsoon.png'">
+                                        <div class="news-activity-date"><?php echo date('d/m/Y', strtotime($item['display_date'])); ?></div>
+                                    </div>
+                                    <div class="portfolio-meta">
+                                        <h3 class="news-activity-title">
+                                            <?php if (!empty($item['slug'])): ?>
+                                            <a href="news/detail.php?slug=<?php echo urlencode($item['slug']); ?>"><?php echo htmlspecialchars($item['title']); ?></a>
+                                            <?php else: ?>
+                                            <a href="news/detail.php?id=<?php echo $item['id']; ?>"><?php echo htmlspecialchars($item['title']); ?></a>
+                                            <?php endif; ?>
+                                        </h3>
+                                        <?php if (!empty($item['excerpt'])): ?>
+                                        <div class="news-excerpt" title="<?php echo htmlspecialchars(strip_tags($item['excerpt'])); ?>">
+                                            <?php echo htmlspecialchars(mb_substr(strip_tags($item['excerpt']), 0, 80) . (mb_strlen(strip_tags($item['excerpt'])) > 80 ? '...' : '')); ?>
+                                        </div>
+                                        <?php endif; ?>
+                                        <!-- แสดงยอดวิวและไลค์แทนหมวดหมู่ -->
+                                        <div class="news-stats mt-2">
+                                            <span class="news-views me-3">
+                                                <i class="fas fa-eye"></i> <?php echo number_format($item['views']); ?>
+                                            </span>
+                                            <span class="news-likes">
+                                                <i class="fas fa-heart"></i> <?php echo number_format($item['likes']); ?>
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                    </div>
 <?php endforeach; ?>
+                        </div>
 <?php else: ?>
-                    <div class="col-12">
-                        <div class="alert alert-info">ยังไม่มีข่าวเผยแพร่</div>
-                    </div>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            ยังไม่มีข่าวเผยแพร่ หรือกรุณาตรวจสอบการเชื่อมต่อฐานข้อมูล
+                            <br><small>ลองเข้า <a href="test_database.php" target="_blank">test_database.php</a> เพื่อตรวจสอบฐานข้อมูล</small>
+                        </div>
 <?php endif; ?>
+                    </div>
                 </div>
-                
-                <!-- ปุ่มดูทั้งหมด -->
+
                 <div class="text-center mt-4">
                     <a href="news/index.php" class="btn btn-view-all">
                         ข่าวทั้งหมด <i class="fas fa-arrow-right ms-2"></i>
@@ -387,16 +1007,20 @@ if ($conn && !$conn->connect_error) {
             
             <!-- เนื้อหาแท็บ: คำสั่งและประกาศ -->
             <div class="tab-pane fade" id="orders" role="tabpanel">
-                <!-- แท็บนี้ถูกกำหนดให้ไม่แสดงเริ่มต้น (ไม่มี class active และ show) -->
-                <!-- เมนูย่อยและเนื้อหาสำหรับคำสั่งและประกาศต่างๆ -->
-                
-                <!-- เมนูย่อยสำหรับคำสั่งและประกาศ -->
                 <div class="announcement-submenu mb-4">
-                    <!-- เมนูย่อยมีระยะห่างด้านล่าง 4 หน่วย -->
                     <ul class="nav nav-pills justify-content-center">
-                        <!-- เมนูย่อยแบบปุ่ม (pills) จัดให้อยู่ตรงกลาง -->
                         <li class="nav-item">
-                            <a class="nav-link active" href="#announcement" data-bs-toggle="pill">
+                            <a class="nav-link active" href="#regulations" data-bs-toggle="pill">
+                                <i class="fas fa-gavel"></i> ข้อบังคับ
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#rules" data-bs-toggle="pill">
+                                <i class="fas fa-clipboard-list"></i> ระเบียบ
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#announcement" data-bs-toggle="pill">
                                 <i class="fas fa-bullhorn"></i> ประกาศ
                             </a>
                         </li>
@@ -405,1805 +1029,710 @@ if ($conn && !$conn->connect_error) {
                                 <i class="fas fa-file-alt"></i> คำสั่ง
                             </a>
                         </li>
+                    </ul>
+                </div>
+                
+                <div class="tab-content">
+                    <!-- ข้อบังคับ -->
+                    <div class="tab-pane fade show active" id="regulations">
+                        <div class="announcement-list">
+                            <div class="card">
+                                <div class="card-body p-0">
+                                    <?php if (!empty($official_docs['regulation'])): ?>
+                                    <ul class="list-group list-group-flush">
+                                        <?php foreach ($official_docs['regulation'] as $doc): ?>
+                                        <li class="list-group-item">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="flex-grow-1">
+                                                    <div class="d-flex align-items-start">
+                                                        <a href="official_documents/view.php?id=<?php echo $doc['id']; ?>" class="announcement-title text-decoration-none">
+                                                            <?php if ($doc['file_path']): ?>
+                                                                <i class="fas fa-file-pdf text-danger me-2"></i>
+                                                            <?php else: ?>
+                                                                <i class="fas fa-file-alt text-secondary me-2"></i>
+                                                            <?php endif; ?>
+                                                            <strong><?php echo htmlspecialchars($doc['title']); ?></strong>
+                                                        </a>
+                                                        <?php if ($doc['doc_number']): ?>
+                                                            <span class="badge bg-secondary ms-2" style="font-size: 0.75rem;"><?php echo htmlspecialchars($doc['doc_number']); ?></span>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-calendar-alt me-1"></i>
+                                                            <?php echo date('d/m/Y', strtotime($doc['publish_date'])); ?>
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                                <div class="text-end">
+                                                    <small class="text-muted d-block"><?php echo htmlspecialchars($doc['publisher_name']); ?></small>
+                                                    <small class="text-muted" style="font-size: 0.75rem;"><?php echo htmlspecialchars($doc['publisher_position']); ?></small>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                    <?php else: ?>
+                                    <div class="p-5 text-center">
+                                        <i class="fas fa-gavel fa-3x text-muted mb-3 opacity-50"></i>
+                                        <h5 class="text-muted">ยังไม่มีข้อบังคับ</h5>
+                                        <p class="text-muted small">กำลังรอการเผยแพร่</p>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ระเบียบ -->
+                    <div class="tab-pane fade" id="rules">
+                        <div class="announcement-list">
+                            <div class="card">
+                                <div class="card-body p-0">
+                                    <?php if (!empty($official_docs['rule'])): ?>
+                                    <ul class="list-group list-group-flush">
+                                        <?php foreach ($official_docs['rule'] as $doc): ?>
+                                        <li class="list-group-item">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="flex-grow-1">
+                                                    <div class="d-flex align-items-start">
+                                                        <a href="official_documents/view.php?id=<?php echo $doc['id']; ?>" class="announcement-title text-decoration-none">
+                                                            <?php if ($doc['file_path']): ?>
+                                                                <i class="fas fa-file-pdf text-danger me-2"></i>
+                                                            <?php else: ?>
+                                                                <i class="fas fa-file-alt text-secondary me-2"></i>
+                                                            <?php endif; ?>
+                                                            <strong><?php echo htmlspecialchars($doc['title']); ?></strong>
+                                                        </a>
+                                                        <?php if ($doc['doc_number']): ?>
+                                                            <span class="badge bg-secondary ms-2" style="font-size: 0.75rem;"><?php echo htmlspecialchars($doc['doc_number']); ?></span>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-calendar-alt me-1"></i>
+                                                            <?php echo date('d/m/Y', strtotime($doc['publish_date'])); ?>
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                                <div class="text-end">
+                                                    <small class="text-muted d-block"><?php echo htmlspecialchars($doc['publisher_name']); ?></small>
+                                                    <small class="text-muted" style="font-size: 0.75rem;"><?php echo htmlspecialchars($doc['publisher_position']); ?></small>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                    <?php else: ?>
+                                    <div class="p-4 text-center">
+                                        <i class="fas fa-clipboard-list fa-2x text-muted mb-3"></i>
+                                        <p class="text-muted">ยังไม่มีระเบียบ</p>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ประกาศ -->
+                    <div class="tab-pane fade" id="announcement">
+                        <div class="announcement-list">
+                            <div class="card">
+                                <div class="card-body p-0">
+                                    <?php if (!empty($official_docs['announcement'])): ?>
+                                    <ul class="list-group list-group-flush">
+                                        <?php foreach ($official_docs['announcement'] as $doc): ?>
+                                        <li class="list-group-item">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="flex-grow-1">
+                                                    <div class="d-flex align-items-start">
+                                                        <a href="official_documents/view.php?id=<?php echo $doc['id']; ?>" class="announcement-title text-decoration-none">
+                                                            <?php if ($doc['file_path']): ?>
+                                                                <i class="fas fa-file-pdf text-danger me-2"></i>
+                                                            <?php else: ?>
+                                                                <i class="fas fa-file-alt text-secondary me-2"></i>
+                                                            <?php endif; ?>
+                                                            <strong><?php echo htmlspecialchars($doc['title']); ?></strong>
+                                                        </a>
+                                                        <?php if ($doc['doc_number']): ?>
+                                                            <span class="badge bg-secondary ms-2" style="font-size: 0.75rem;"><?php echo htmlspecialchars($doc['doc_number']); ?></span>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-calendar-alt me-1"></i>
+                                                            <?php echo date('d/m/Y', strtotime($doc['publish_date'])); ?>
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                                <div class="text-end">
+                                                    <small class="text-muted d-block"><?php echo htmlspecialchars($doc['publisher_name']); ?></small>
+                                                    <small class="text-muted" style="font-size: 0.75rem;"><?php echo htmlspecialchars($doc['publisher_position']); ?></small>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                    <?php else: ?>
+                                    <div class="p-4 text-center">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        ยังไม่มีประกาศ
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- คำสั่ง -->
+                    <div class="tab-pane fade" id="order">
+                        <div class="announcement-list">
+                            <div class="card">
+                                <div class="card-body p-0">
+                                    <?php if (!empty($official_docs['order'])): ?>
+                                    <ul class="list-group list-group-flush">
+                                        <?php foreach ($official_docs['order'] as $doc): ?>
+                                        <li class="list-group-item">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="flex-grow-1">
+                                                    <div class="d-flex align-items-start">
+                                                        <a href="official_documents/view.php?id=<?php echo $doc['id']; ?>" class="announcement-title text-decoration-none">
+                                                            <?php if ($doc['file_path']): ?>
+                                                                <i class="fas fa-file-pdf text-danger me-2"></i>
+                                                            <?php else: ?>
+                                                                <i class="fas fa-file-alt text-secondary me-2"></i>
+                                                            <?php endif; ?>
+                                                            <strong><?php echo htmlspecialchars($doc['title']); ?></strong>
+                                                        </a>
+                                                        <?php if ($doc['doc_number']): ?>
+                                                            <span class="badge bg-secondary ms-2" style="font-size: 0.75rem;"><?php echo htmlspecialchars($doc['doc_number']); ?></span>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-calendar-alt me-1"></i>
+                                                            <?php echo date('d/m/Y', strtotime($doc['publish_date'])); ?>
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                                <div class="text-end">
+                                                    <small class="text-muted d-block"><?php echo htmlspecialchars($doc['publisher_name']); ?></small>
+                                                    <small class="text-muted" style="font-size: 0.75rem;"><?php echo htmlspecialchars($doc['publisher_position']); ?></small>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                    <?php else: ?>
+                                    <div class="p-4 text-center">
+                                        <i class="fas fa-file-alt fa-2x text-muted mb-3"></i>
+                                        <p class="text-muted">ยังไม่มีคำสั่ง</p>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="news/announcements.php" class="btn btn-view-all">
+                        ดูทั้งหมด <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- แท็บอื่นๆ -->
+            <div class="tab-pane fade" id="procurement" role="tabpanel">
+                <div class="text-center p-5">
+                    <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                    <h4>การจัดซื้อจัดจ้าง</h4>
+                    <p class="text-muted">ส่วนนี้กำลังพัฒนา</p>
+                </div>
+            </div>
+            
+            <div class="tab-pane fade" id="recruitment" role="tabpanel">
+                <div class="text-center p-5">
+                    <i class="fas fa-user-tie fa-3x text-muted mb-3"></i>
+                    <h4>การรับสมัครงาน</h4>
+                    <p class="text-muted">ส่วนนี้กำลังพัฒนา</p>
+                </div>
+            </div>
+            
+            <div class="tab-pane fade" id="training" role="tabpanel">
+                <div class="text-center p-5">
+                    <i class="fas fa-chalkboard-teacher fa-3x text-muted mb-3"></i>
+                    <h4>การอบรม</h4>
+                    <p class="text-muted">ส่วนนี้กำลังพัฒนา</p>
+                </div>
+            </div>
+            
+            <div class="tab-pane fade" id="competition" role="tabpanel">
+                <!-- หมวดหมู่ย่อยหอเกียรติยศ -->
+                <div class="announcement-submenu mb-4">
+                    <ul class="nav nav-pills justify-content-center">
                         <li class="nav-item">
-                            <a class="nav-link" href="#regulation" data-bs-toggle="pill">
-                                <i class="fas fa-clipboard-list"></i> ระเบียบ
+                            <a class="nav-link active" href="#hall-academic" data-bs-toggle="pill">
+                                <i class="fas fa-graduation-cap"></i> วิชาการ
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#rule" data-bs-toggle="pill">
-                                <i class="fas fa-gavel"></i> ข้อบังคับ
+                            <a class="nav-link" href="#hall-sports" data-bs-toggle="pill">
+                                <i class="fas fa-trophy"></i> กีฬา
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#act" data-bs-toggle="pill">
-                                <i class="fas fa-landmark"></i> พระราชบัญญัติ
+                            <a class="nav-link" href="#hall-music" data-bs-toggle="pill">
+                                <i class="fas fa-music"></i> ดนตรี
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#hall-scholarship" data-bs-toggle="pill">
+                                <i class="fas fa-award"></i> ทุนการศึกษา
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#hall-outstanding" data-bs-toggle="pill">
+                                <i class="fas fa-star"></i> ความโดดเด่น
                             </a>
                         </li>
                     </ul>
                 </div>
                 
-                <!-- เนื้อหาของแต่ละเมนูย่อย -->
+                <!-- เนื้อหาหอเกียรติยศ -->
                 <div class="tab-content">
-                    <!-- สไตล์สำหรับประกาศและคำสั่ง -->
-                    <style>
-                        .order-announcement-list {
-                            background-color: #fff;
-                            border-radius: 12px;
-                            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-                            overflow: hidden;
-                        }
-                        
-                        .order-announcement-item {
-                            padding: 18px 20px;
-                            border-bottom: 1px solid #eee;
-                            transition: all 0.3s ease;
-                        }
-                        
-                        .order-announcement-item:last-child {
-                            border-bottom: none;
-                        }
-                        
-                        .order-announcement-item:hover {
-                            background-color: #f8f5ff;
-                        }
-                        
-                        .order-announcement-header {
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: flex-start;
-                            margin-bottom: 10px;
-                        }
-                        
-                        .order-announcement-title {
-                            font-size: 1.1rem;
-                            font-weight: 600;
-                            color: #333;
-                            margin: 0;
-                            padding-right: 15px;
-                            margin-bottom: 8px;
-                        }
-                        
-                        .order-announcement-title a {
-                            color: #333;
-                            text-decoration: none;
-                            transition: color 0.2s ease;
-                        }
-                        
-                        .order-announcement-title a:hover {
-                            color: #7b3b95;
-                        }
-                        
-                        .order-announcement-date {
-                            background-color: #7b3b95;
-                            color: white;
-                            padding: 5px 12px;
-                            border-radius: 20px;
-                            font-size: 0.85rem;
-                            font-weight: 500;
-                            white-space: nowrap;
-                            min-width: 130px;
-                            text-align: center;
-                        }
-                        
-                        .order-announcement-info {
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: center;
-                            font-size: 0.9rem;
-                            color: #666;
-                        }
-                        
-                        .order-announcement-budget {
-                            font-weight: 500;
-                        }
-                        
-                        .order-announcement-budget span {
-                            color: #28a745;
-                        }
-                        
-                        .order-announcement-status {
-                            display: flex;
-                            align-items: center;
-                        }
-                        
-                        .order-announcement-badge {
-                            padding: 3px 10px;
-                            border-radius: 15px;
-                            font-size: 0.8rem;
-                            font-weight: 500;
-                            margin-right: 10px;
-                        }
-                        
-                        .status-open {
-                            background-color: #e3f5ff;
-                            color: #0088cc;
-                        }
-                        
-                        .status-closed {
-                            background-color: #ffe3e3;
-                            color: #dc3545;
-                        }
-                        
-                        .order-announcement-department {
-                            color: #666;
-                        }
-                        
-                        .order-announcement-department i {
-                            color: #7b3b95;
-                            margin-right: 5px;
-                        }
-                        
-                        .order-announcement-search {
-                            position: relative;
-                            max-width: 400px;
-                            margin: 0 auto 20px;
-                        }
-                        
-                        .order-announcement-search input {
-                            width: 100%;
-                            padding: 10px 15px 10px 40px;
-                            border: 1px solid #ddd;
-                            border-radius: 25px;
-                            font-size: 0.95rem;
-                        }
-                        
-                        .order-announcement-search i {
-                            position: absolute;
-                            left: 15px;
-                            top: 50%;
-                            transform: translateY(-50%);
-                            color: #7b3b95;
-                        }
-                        
-                        @media (max-width: 767px) {
-                            .order-announcement-header {
-                                flex-direction: column;
-                            }
-                            
-                            .order-announcement-date {
-                                margin-top: 10px;
-                                align-self: flex-start;
-                            }
-                            
-                            .order-announcement-info {
-                                flex-direction: column;
-                                align-items: flex-start;
-                            }
-                            
-                            .order-announcement-budget {
-                                margin-bottom: 10px;
+                    <?php 
+                    // ดึงข้อมูลหอเกียรติยศ
+                    $hall_categories = ['academic' => 'วิชาการ', 'sports' => 'กีฬา', 'music' => 'ดนตรี', 
+                                       'scholarship' => 'ทุนการศึกษา', 'outstanding' => 'ความโดดเด่น'];
+                    $hall_data = [];
+                    
+                    foreach (array_keys($hall_categories) as $category) {
+                        $hall_sql = "SELECT * FROM hall_of_fame 
+                                    WHERE category = '$category' AND status = 'active' 
+                                    ORDER BY featured DESC, date_achieved DESC, created_at DESC 
+                                    LIMIT 15";
+                        $hall_result = $conn->query($hall_sql);
+                        $hall_data[$category] = [];
+                        if ($hall_result) {
+                            while ($row = $hall_result->fetch_assoc()) {
+                                $hall_data[$category][] = $row;
                             }
                         }
-                    </style>
+                    }
+                    ?>
                     
-                    <!-- เนื้อหาประกาศ (แสดงเริ่มต้น) -->
-                    <div class="tab-pane fade show active" id="announcement">
-                        <!-- ช่องค้นหาประกาศ -->
-                        <div class="order-announcement-search">
-                            <i class="fas fa-search"></i>
-                            <input type="text" placeholder="ค้นหาประกาศ..." id="announcement-search-input">
-                        </div>
-                        
-                        <!-- รายการประกาศ -->
-                        <div class="order-announcement-list">
-                            <!-- ประกาศที่ 1 -->
-                            <div class="order-announcement-item">
-                                <div class="order-announcement-header">
-                                    <h3 class="order-announcement-title">
-                                        <a href="#">ประกาศโรงเรียนสาธิตมหาวิทยาลัยพะเยา เรื่อง ประกวดราคาซื้อครุภัณฑ์ห้องปฏิบัติการวิทยาศาสตร์ จำนวน 1 ชุด</a>
-                                    </h3>
-                                    <div class="order-announcement-date">20 กันยายน 2568</div>
-                                </div>
-                                <div class="order-announcement-info">
-                                    <div class="order-announcement-budget">งบประมาณ: <span>2,500,000 บาท</span></div>
-                                    <div class="order-announcement-status">
-                                        <div class="order-announcement-badge status-open">เปิดรับ</div>
-                                        <div class="order-announcement-department"><i class="fas fa-building"></i> ฝ่ายพัสดุ / โดย adminsatit</div>
+                    <!-- วิชาการ -->
+                    <div class="tab-pane fade show active" id="hall-academic">
+                        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
+                            <?php if (!empty($hall_data['academic'])): ?>
+                                <?php foreach ($hall_data['academic'] as $item): ?>
+                                <div class="col">
+                                    <div class="card h-100 hall-of-fame-card">
+                                        <?php if ($item['image_path']): ?>
+                                        <img src="<?php echo htmlspecialchars($item['image_path']); ?>" 
+                                             class="card-img-top" style="height: 150px; object-fit: cover;"
+                                             alt="<?php echo htmlspecialchars($item['student_name']); ?>">
+                                        <?php else: ?>
+                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                            <i class="fas fa-graduation-cap fa-2x text-muted"></i>
+                                        </div>
+                                        <?php endif; ?>
+                                        <div class="card-body p-2">
+                                            <h6 class="card-title small" style="font-size: 0.9rem; line-height: 1.2; height: 2.4em; overflow: hidden;">
+                                                <?php echo mb_substr(htmlspecialchars($item['title']), 0, 50); ?>...
+                                            </h6>
+                                            <p class="card-text mb-2">
+                                                <small class="text-muted" style="font-size: 0.8rem;">
+                                                    <i class="fas fa-user"></i> <?php echo htmlspecialchars($item['student_name']); ?>
+                                                    <?php if ($item['class']): ?>
+                                                    <br><i class="fas fa-school"></i> <?php echo htmlspecialchars($item['class']); ?>
+                                                    <?php endif; ?>
+                                                </small>
+                                            </p>
+                                            <a href="hall_of_fame/view.php?id=<?php echo $item['id']; ?>" class="btn btn-sm btn-primary w-100" style="font-size: 0.8rem;">
+                                                <i class="fas fa-eye"></i> ดูรายละเอียด
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                            <div class="col-12 text-center p-4">
+                                <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">ยังไม่มีข้อมูลรางวัลด้านวิชาการ</p>
                             </div>
-                            
-                            <!-- ประกาศที่ 2 -->
-                            <div class="order-announcement-item">
-                                <div class="order-announcement-header">
-                                    <h3 class="order-announcement-title">
-                                        <a href="#">ประกาศโรงเรียนสาธิตมหาวิทยาลัยพะเยา เรื่อง ประกวดราคาจ้างปรับปรุงห้องสมุด จำนวน 1 งาน</a>
-                                    </h3>
-                                    <div class="order-announcement-date">15 กันยายน 2568</div>
-                                </div>
-                                <div class="order-announcement-info">
-                                    <div class="order-announcement-budget">งบประมาณ: <span>1,800,000 บาท</span></div>
-                                    <div class="order-announcement-status">
-                                        <div class="order-announcement-badge status-open">เปิดรับ</div>
-                                        <div class="order-announcement-department"><i class="fas fa-building"></i> ฝ่ายพัสดุ / โดย adminsatit</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- ประกาศที่ 3 -->
-                            <div class="order-announcement-item">
-                                <div class="order-announcement-header">
-                                    <h3 class="order-announcement-title">
-                                        <a href="#">ประกาศโรงเรียนสาธิตมหาวิทยาลัยพะเยา เรื่อง ประกวดราคาซื้อครุภัณฑ์คอมพิวเตอร์ จำนวน 50 เครื่อง</a>
-                                    </h3>
-                                    <div class="order-announcement-date">10 กันยายน 2568</div>
-                                </div>
-                                <div class="order-announcement-info">
-                                    <div class="order-announcement-budget">งบประมาณ: <span>1,250,000 บาท</span></div>
-                                    <div class="order-announcement-status">
-                                        <div class="order-announcement-badge status-closed">ประกาศผล</div>
-                                        <div class="order-announcement-department"><i class="fas fa-building"></i> ฝ่ายพัสดุ / โดย adminsatit</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- ประกาศที่ 4 -->
-                            <div class="order-announcement-item">
-                                <div class="order-announcement-header">
-                                    <h3 class="order-announcement-title">
-                                        <a href="#">ประกาศโรงเรียนสาธิตมหาวิทยาลัยพะเยา เรื่อง จัดซื้อหนังสือเรียนและแบบฝึกหัด ประจำปีการศึกษา 2568</a>
-                                    </h3>
-                                    <div class="order-announcement-date">5 กันยายน 2568</div>
-                                </div>
-                                <div class="order-announcement-info">
-                                    <div class="order-announcement-budget">งบประมาณ: <span>850,000 บาท</span></div>
-                                    <div class="order-announcement-status">
-                                        <div class="order-announcement-badge status-closed">ประกาศผล</div>
-                                        <div class="order-announcement-department"><i class="fas fa-building"></i> ฝ่ายพัสดุ / โดย adminsatit</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- ประกาศที่ 5 -->
-                            <div class="order-announcement-item">
-                                <div class="order-announcement-header">
-                                    <h3 class="order-announcement-title">
-                                        <a href="#">ประกาศโรงเรียนสาธิตมหาวิทยาลัยพะเยา เรื่อง จัดซื้อวัสดุสำนักงาน ประจำปีงบประมาณ 2568</a>
-                                    </h3>
-                                    <div class="order-announcement-date">1 กันยายน 2568</div>
-                                </div>
-                                <div class="order-announcement-info">
-                                    <div class="order-announcement-budget">งบประมาณ: <span>350,000 บาท</span></div>
-                                    <div class="order-announcement-status">
-                                        <div class="order-announcement-badge status-closed">ปิดรับ</div>
-                                        <div class="order-announcement-department"><i class="fas fa-building"></i> ฝ่ายพัสดุ / โดย adminsatit</div>
-                                    </div>
-                                </div>
-                            </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                     
-                    <!-- เนื้อหาคำสั่ง -->
-                    <div class="tab-pane fade" id="order">
-                        <!-- ช่องค้นหาคำสั่ง -->
-                        <div class="order-announcement-search">
-                            <i class="fas fa-search"></i>
-                            <input type="text" placeholder="ค้นหาคำสั่ง..." id="order-search-input">
-                        </div>
-                        
-                        <!-- รายการคำสั่ง -->
-                        <div class="order-announcement-list">
-                            <!-- คำสั่งที่ 1 -->
-                            <div class="order-announcement-item">
-                                <div class="order-announcement-header">
-                                    <h3 class="order-announcement-title">
-                                        <a href="#">คำสั่งโรงเรียนสาธิตมหาวิทยาลัยพะเยา ที่ 023/2568 เรื่อง แต่งตั้งคณะกรรมการดำเนินงานพิธีไหว้ครู ประจำปีการศึกษา 2568</a>
-                                    </h3>
-                                    <div class="order-announcement-date">15 พฤษภาคม 2568</div>
-                                </div>
-                                <div class="order-announcement-info">
-                                    <div class="order-announcement-budget">ประเภท: <span>คำสั่งแต่งตั้ง</span></div>
-                                    <div class="order-announcement-status">
-                                        <div class="order-announcement-department"><i class="fas fa-user-tie"></i> ฝ่ายบริหาร / โดย adminsatit</div>
+                    <!-- กีฬา -->
+                    <div class="tab-pane fade" id="hall-sports">
+                        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
+                            <?php if (!empty($hall_data['sports'])): ?>
+                                <?php foreach ($hall_data['sports'] as $item): ?>
+                                <div class="col">
+                                    <div class="card h-100 hall-of-fame-card">
+                                        <?php if ($item['image_path']): ?>
+                                        <img src="<?php echo htmlspecialchars($item['image_path']); ?>" 
+                                             class="card-img-top" style="height: 150px; object-fit: cover;"
+                                             alt="<?php echo htmlspecialchars($item['student_name']); ?>">
+                                        <?php else: ?>
+                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                            <i class="fas fa-trophy fa-2x text-muted"></i>
+                                        </div>
+                                        <?php endif; ?>
+                                        <div class="card-body p-2">
+                                            <h6 class="card-title small" style="font-size: 0.9rem; line-height: 1.2; height: 2.4em; overflow: hidden;">
+                                                <?php echo mb_substr(htmlspecialchars($item['title']), 0, 50); ?>...
+                                            </h6>
+                                            <p class="card-text mb-2">
+                                                <small class="text-muted" style="font-size: 0.8rem;">
+                                                    <i class="fas fa-user"></i> <?php echo htmlspecialchars($item['student_name']); ?>
+                                                    <?php if ($item['class']): ?>
+                                                    <br><i class="fas fa-school"></i> <?php echo htmlspecialchars($item['class']); ?>
+                                                    <?php endif; ?>
+                                                </small>
+                                            </p>
+                                            <a href="hall_of_fame/view.php?id=<?php echo $item['id']; ?>" class="btn btn-sm btn-primary w-100" style="font-size: 0.8rem;">
+                                                <i class="fas fa-eye"></i> ดูรายละเอียด
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                            <div class="col-12 text-center p-4">
+                                <i class="fas fa-trophy fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">ยังไม่มีข้อมูลรางวัลด้านกีฬา</p>
                             </div>
-                            
-                            <!-- คำสั่งที่ 2 -->
-                            <div class="order-announcement-item">
-                                <div class="order-announcement-header">
-                                    <h3 class="order-announcement-title">
-                                        <a href="#">คำสั่งโรงเรียนสาธิตมหาวิทยาลัยพะเยา ที่ 022/2568 เรื่อง แต่งตั้งคณะกรรมการจัดทำแผนยุทธศาสตร์โรงเรียน ประจำปี 2568-2572</a>
-                                    </h3>
-                                    <div class="order-announcement-date">10 พฤษภาคม 2568</div>
-                                </div>
-                                <div class="order-announcement-info">
-                                    <div class="order-announcement-budget">ประเภท: <span>คำสั่งแต่งตั้ง</span></div>
-                                    <div class="order-announcement-status">
-                                        <div class="order-announcement-department"><i class="fas fa-user-tie"></i> ฝ่ายบริหาร / โดย adminsatit</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- คำสั่งที่ 3 -->
-                            <div class="order-announcement-item">
-                                <div class="order-announcement-header">
-                                    <h3 class="order-announcement-title">
-                                        <a href="#">คำสั่งโรงเรียนสาธิตมหาวิทยาลัยพะเยา ที่ 021/2568 เรื่อง แต่งตั้งคณะกรรมการดำเนินงานวันสถาปนาโรงเรียน ประจำปี 2568</a>
-                                    </h3>
-                                    <div class="order-announcement-date">5 พฤษภาคม 2568</div>
-                                </div>
-                                <div class="order-announcement-info">
-                                    <div class="order-announcement-budget">ประเภท: <span>คำสั่งแต่งตั้ง</span></div>
-                                    <div class="order-announcement-status">
-                                        <div class="order-announcement-department"><i class="fas fa-user-tie"></i> ฝ่ายบริหาร / โดย adminsatit</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- คำสั่งที่ 4 -->
-                            <div class="order-announcement-item">
-                                <div class="order-announcement-header">
-                                    <h3 class="order-announcement-title">
-                                        <a href="#">คำสั่งโรงเรียนสาธิตมหาวิทยาลัยพะเยา ที่ 020/2568 เรื่อง มอบหมายหน้าที่และความรับผิดชอบของบุคลากรฝ่ายวิชาการ ประจำปีการศึกษา 2568</a>
-                                    </h3>
-                                    <div class="order-announcement-date">1 พฤษภาคม 2568</div>
-                                </div>
-                                <div class="order-announcement-info">
-                                    <div class="order-announcement-budget">ประเภท: <span>คำสั่งมอบหมายงาน</span></div>
-                                    <div class="order-announcement-status">
-                                        <div class="order-announcement-department"><i class="fas fa-user-tie"></i> ฝ่ายวิชาการ / โดย adminsatit</div>
-                                    </div>
-                                </div>
-                            </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                     
-                    <!-- เนื้อหาระเบียบ -->
-                    <div class="tab-pane fade" id="regulation">
-                        <div class="announcement-list">
-                            <div class="card">
-                                <div class="card-body p-0">
-                                    <ul class="list-group list-group-flush">
-                                        <!-- รายการระเบียบที่ 1 -->
-                                        <li class="list-group-item">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <a href="#" class="announcement-title">ระเบียบโรงเรียนสาธิตมหาวิทยาลัยพะเยา ว่าด้วยการแต่งกายของนักเรียน พ.ศ. 2568</a>
-                                                    <div class="announcement-date">5 เมษายน 2568</div>
-                                                </div>
-                                                <div>
-                                                    <span class="announcement-author">/ โดย adminsatit</span>
-                                                </div>
-                                            </div>
-                                        </li>
-                                        
-                                        <!-- รายการระเบียบที่ 2 -->
-                                        <li class="list-group-item">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <a href="#" class="announcement-title">ระเบียบโรงเรียนสาธิตมหาวิทยาลัยพะเยา ว่าด้วยการวัดและประเมินผลการเรียน พ.ศ. 2567</a>
-                                                    <div class="announcement-date">15 ธันวาคม 2567</div>
-                                                </div>
-                                                <div>
-                                                    <span class="announcement-author">/ โดย adminsatit</span>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </ul>
+                    <!-- ดนตรี -->
+                    <div class="tab-pane fade" id="hall-music">
+                        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
+                            <?php if (!empty($hall_data['music'])): ?>
+                                <?php foreach ($hall_data['music'] as $item): ?>
+                                <div class="col">
+                                    <div class="card h-100 hall-of-fame-card">
+                                        <?php if ($item['image_path']): ?>
+                                        <img src="<?php echo htmlspecialchars($item['image_path']); ?>" 
+                                             class="card-img-top" style="height: 150px; object-fit: cover;"
+                                             alt="<?php echo htmlspecialchars($item['student_name']); ?>">
+                                        <?php else: ?>
+                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                            <i class="fas fa-music fa-2x text-muted"></i>
+                                        </div>
+                                        <?php endif; ?>
+                                        <div class="card-body p-2">
+                                            <h6 class="card-title small" style="font-size: 0.9rem; line-height: 1.2; height: 2.4em; overflow: hidden;">
+                                                <?php echo mb_substr(htmlspecialchars($item['title']), 0, 50); ?>...
+                                            </h6>
+                                            <p class="card-text mb-2">
+                                                <small class="text-muted" style="font-size: 0.8rem;">
+                                                    <i class="fas fa-user"></i> <?php echo htmlspecialchars($item['student_name']); ?>
+                                                    <?php if ($item['class']): ?>
+                                                    <br><i class="fas fa-school"></i> <?php echo htmlspecialchars($item['class']); ?>
+                                                    <?php endif; ?>
+                                                </small>
+                                            </p>
+                                            <a href="hall_of_fame/view.php?id=<?php echo $item['id']; ?>" class="btn btn-sm btn-primary w-100" style="font-size: 0.8rem;">
+                                                <i class="fas fa-eye"></i> ดูรายละเอียด
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                            <div class="col-12 text-center p-4">
+                                <i class="fas fa-music fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">ยังไม่มีข้อมูลรางวัลด้านดนตรี</p>
                             </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                     
-                    <!-- เนื้อหาข้อบังคับ -->
-                    <div class="tab-pane fade" id="rule">
-                        <div class="announcement-list">
-                            <div class="card">
-                                <div class="card-body p-0">
-                                    <ul class="list-group list-group-flush">
-                                        <!-- รายการข้อบังคับที่ 1 -->
-                                        <li class="list-group-item">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <a href="#" class="announcement-title">ข้อบังคับมหาวิทยาลัยพะเยา ว่าด้วยการบริหารงานโรงเรียนสาธิตมหาวิทยาลัยพะเยา พ.ศ. 2568</a>
-                                                    <div class="announcement-date">20 มีนาคม 2568</div>
-                                                </div>
-                                                <div>
-                                                    <span class="announcement-author">/ โดย adminsatit</span>
-                                                </div>
-                                            </div>
-                                        </li>
-                                        
-                                        <!-- รายการข้อบังคับที่ 2 -->
-                                        <li class="list-group-item">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <a href="#" class="announcement-title">ข้อบังคับมหาวิทยาลัยพะเยา ว่าด้วยการจัดการศึกษาในโรงเรียนสาธิตมหาวิทยาลัยพะเยา พ.ศ. 2567</a>
-                                                    <div class="announcement-date">10 พฤศจิกายน 2567</div>
-                                                </div>
-                                                <div>
-                                                    <span class="announcement-author">/ โดย adminsatit</span>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </ul>
+                    <!-- ทุนการศึกษา -->
+                    <div class="tab-pane fade" id="hall-scholarship">
+                        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
+                            <?php if (!empty($hall_data['scholarship'])): ?>
+                                <?php foreach ($hall_data['scholarship'] as $item): ?>
+                                <div class="col">
+                                    <div class="card h-100 hall-of-fame-card">
+                                        <?php if ($item['image_path']): ?>
+                                        <img src="<?php echo htmlspecialchars($item['image_path']); ?>" 
+                                             class="card-img-top" style="height: 150px; object-fit: cover;"
+                                             alt="<?php echo htmlspecialchars($item['student_name']); ?>">
+                                        <?php else: ?>
+                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                            <i class="fas fa-award fa-2x text-muted"></i>
+                                        </div>
+                                        <?php endif; ?>
+                                        <div class="card-body p-2">
+                                            <h6 class="card-title small" style="font-size: 0.9rem; line-height: 1.2; height: 2.4em; overflow: hidden;">
+                                                <?php echo mb_substr(htmlspecialchars($item['title']), 0, 50); ?>...
+                                            </h6>
+                                            <p class="card-text mb-2">
+                                                <small class="text-muted" style="font-size: 0.8rem;">
+                                                    <i class="fas fa-user"></i> <?php echo htmlspecialchars($item['student_name']); ?>
+                                                    <?php if ($item['class']): ?>
+                                                    <br><i class="fas fa-school"></i> <?php echo htmlspecialchars($item['class']); ?>
+                                                    <?php endif; ?>
+                                                </small>
+                                            </p>
+                                            <a href="hall_of_fame/view.php?id=<?php echo $item['id']; ?>" class="btn btn-sm btn-primary w-100" style="font-size: 0.8rem;">
+                                                <i class="fas fa-eye"></i> ดูรายละเอียด
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                            <div class="col-12 text-center p-4">
+                                <i class="fas fa-award fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">ยังไม่มีข้อมูลทุนการศึกษา</p>
                             </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                     
-                    <!-- เนื้อหาพระราชบัญญัติ -->
-                    <div class="tab-pane fade" id="act">
-                        <div class="announcement-list">
-                            <div class="card">
-                                <div class="card-body p-0">
-                                    <ul class="list-group list-group-flush">
-                                        <!-- รายการพระราชบัญญัติที่ 1 -->
-                                        <li class="list-group-item">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <a href="#" class="announcement-title">พระราชบัญญัติการศึกษาแห่งชาติ พ.ศ. 2566</a>
-                                                    <div class="announcement-date">15 มกราคม 2567</div>
-                                                </div>
-                                                <div>
-                                                    <span class="announcement-author">/ โดย adminsatit</span>
-                                                </div>
-                                            </div>
-                                        </li>
-                                        
-                                        <!-- รายการพระราชบัญญัติที่ 2 -->
-                                        <li class="list-group-item">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <a href="#" class="announcement-title">พระราชบัญญัติการพัฒนาเด็กปฐมวัย พ.ศ. 2562</a>
-                                                    <div class="announcement-date">30 เมษายน 2562</div>
-                                                </div>
-                                                <div>
-                                                    <span class="announcement-author">/ โดย adminsatit</span>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </ul>
+                    <!-- ความโดดเด่น -->
+                    <div class="tab-pane fade" id="hall-outstanding">
+                        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
+                            <?php if (!empty($hall_data['outstanding'])): ?>
+                                <?php foreach ($hall_data['outstanding'] as $item): ?>
+                                <div class="col">
+                                    <div class="card h-100 hall-of-fame-card">
+                                        <?php if ($item['image_path']): ?>
+                                        <img src="<?php echo htmlspecialchars($item['image_path']); ?>" 
+                                             class="card-img-top" style="height: 150px; object-fit: cover;"
+                                             alt="<?php echo htmlspecialchars($item['student_name']); ?>">
+                                        <?php else: ?>
+                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                            <i class="fas fa-star fa-2x text-muted"></i>
+                                        </div>
+                                        <?php endif; ?>
+                                        <div class="card-body p-2">
+                                            <h6 class="card-title small" style="font-size: 0.9rem; line-height: 1.2; height: 2.4em; overflow: hidden;">
+                                                <?php echo mb_substr(htmlspecialchars($item['title']), 0, 50); ?>...
+                                            </h6>
+                                            <p class="card-text mb-2">
+                                                <small class="text-muted" style="font-size: 0.8rem;">
+                                                    <i class="fas fa-user"></i> <?php echo htmlspecialchars($item['student_name']); ?>
+                                                    <?php if ($item['class']): ?>
+                                                    <br><i class="fas fa-school"></i> <?php echo htmlspecialchars($item['class']); ?>
+                                                    <?php endif; ?>
+                                                </small>
+                                            </p>
+                                            <a href="hall_of_fame/view.php?id=<?php echo $item['id']; ?>" class="btn btn-sm btn-primary w-100" style="font-size: 0.8rem;">
+                                                <i class="fas fa-eye"></i> ดูรายละเอียด
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                            <div class="col-12 text-center p-4">
+                                <i class="fas fa-star fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">ยังไม่มีข้อมูลความโดดเด่น</p>
                             </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
                 
-                <!-- ปุ่มดูทั้งหมด -->
+                <!-- ลิงก์ดูทั้งหมด -->
                 <div class="text-center mt-4">
-                    <!-- จัดตำแหน่งปุ่มให้อยู่ตรงกลาง มีระยะห่างด้านบน 4 หน่วย -->
-                    <a href="#" class="btn btn-view-all">
-                        <!-- ปุ่มลิงก์ไปยังหน้าแสดงข่าวทั้งหมด -->
-                        ข่าวทั้งหมด <i class="fas fa-arrow-right ms-2"></i>
-                        <!-- ข้อความบนปุ่ม พร้อมไอคอนลูกศรขวา มีระยะห่างด้านซ้าย 2 หน่วย -->
+                    <a href="hall_of_fame/index.php" class="btn btn-outline-primary">
+                        <i class="fas fa-trophy me-2"></i> ดูหอเกียรติยศทั้งหมด
                     </a>
                 </div>
             </div>
             
-            <!-- เนื้อหาแท็บ: การจัดซื้อจัดจ้าง -->
-            <div class="tab-pane fade" id="procurement" role="tabpanel">
-                <!-- แท็บนี้จะถูกซ่อนไว้เริ่มต้น (ไม่มี class active) จะแสดงเมื่อคลิกที่แท็บ -->
-                
-                <!-- สไตล์สำหรับการจัดซื้อจัดจ้าง -->
-                <style>
-                    .procurement-list {
-                        background-color: #fff;
-                        border-radius: 12px;
-                        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-                        overflow: hidden;
-                    }
-                    
-                    .procurement-item {
-                        padding: 18px 20px;
-                        border-bottom: 1px solid #eee;
-                        transition: all 0.3s ease;
-                    }
-                    
-                    .procurement-item:last-child {
-                        border-bottom: none;
-                    }
-                    
-                    .procurement-item:hover {
-                        background-color: #f8f5ff;
-                    }
-                    
-                    .procurement-header {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        margin-bottom: 10px;
-                    }
-                    
-                    .procurement-title {
-                        font-size: 1.1rem;
-                        font-weight: 600;
-                        color: #333;
-                        margin: 0;
-                        padding-right: 15px;
-                    }
-                    
-                    .procurement-title a {
-                        color: #333;
-                        text-decoration: none;
-                        transition: color 0.2s ease;
-                    }
-                    
-                    .procurement-title a:hover {
-                        color: #7b3b95;
-                    }
-                    
-                    .procurement-date {
-                        background-color: #7b3b95;
-                        color: white;
-                        padding: 5px 12px;
-                        border-radius: 20px;
-                        font-size: 0.85rem;
-                        font-weight: 500;
-                        white-space: nowrap;
-                    }
-                    
-                    .procurement-info {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        font-size: 0.9rem;
-                        color: #666;
-                    }
-                    
-                    .procurement-budget {
-                        font-weight: 500;
-                    }
-                    
-                    .procurement-budget span {
-                        color: #28a745;
-                    }
-                    
-                    .procurement-status {
-                        display: flex;
-                        align-items: center;
-                    }
-                    
-                    .status-badge {
-                        padding: 3px 10px;
-                        border-radius: 15px;
-                        font-size: 0.8rem;
-                        font-weight: 500;
-                        margin-right: 10px;
-                    }
-                    
-                    .status-open {
-                        background-color: #e3f5ff;
-                        color: #0088cc;
-                    }
-                    
-                    .status-closed {
-                        background-color: #ffe3e3;
-                        color: #dc3545;
-                    }
-                    
-                    .status-awarded {
-                        background-color: #e3ffe3;
-                        color: #28a745;
-                    }
-                    
-                    .procurement-department {
-                        color: #666;
-                    }
-                    
-                    .procurement-department i {
-                        color: #7b3b95;
-                        margin-right: 5px;
-                    }
-                    
-                    .procurement-filter {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        margin-bottom: 20px;
-                    }
-                    
-                    .procurement-search {
-                        position: relative;
-                        flex: 1;
-                        max-width: 400px;
-                    }
-                    
-                    .procurement-search input {
-                        width: 100%;
-                        padding: 10px 15px 10px 40px;
-                        border: 1px solid #ddd;
-                        border-radius: 25px;
-                        font-size: 0.95rem;
-                    }
-                    
-                    .procurement-search i {
-                        position: absolute;
-                        left: 15px;
-                        top: 50%;
-                        transform: translateY(-50%);
-                        color: #7b3b95;
-                    }
-                    
-                    .procurement-sort {
-                        display: flex;
-                        align-items: center;
-                    }
-                    
-                    .procurement-sort label {
-                        margin-right: 10px;
-                        color: #666;
-                        font-size: 0.95rem;
-                    }
-                    
-                    .procurement-sort select {
-                        padding: 8px 30px 8px 15px;
-                        border: 1px solid #ddd;
-                        border-radius: 20px;
-                        font-size: 0.9rem;
-                        background-color: #f8f8f8;
-                        appearance: none;
-                        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%237b3b95' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-                        background-repeat: no-repeat;
-                        background-position: calc(100% - 10px) center;
-                    }
-                    
-                    @media (max-width: 767px) {
-                        .procurement-filter {
-                            flex-direction: column;
-                            align-items: flex-start;
-                        }
-                        
-                        .procurement-search {
-                            width: 100%;
-                            max-width: none;
-                            margin-bottom: 15px;
-                        }
-                        
-                        .procurement-header {
-                            flex-direction: column;
-                            align-items: flex-start;
-                        }
-                        
-                        .procurement-date {
-                            margin-top: 10px;
-                        }
-                        
-                        .procurement-info {
-                            flex-direction: column;
-                            align-items: flex-start;
-                        }
-                        
-                        .procurement-budget {
-                            margin-bottom: 10px;
-                        }
-                    }
-                </style>
-                
-                <!-- ตัวกรองและการค้นหา -->
-                <div class="procurement-filter">
-                    <div class="procurement-search">
-                        <i class="fas fa-search"></i>
-                        <input type="text" placeholder="ค้นหาการจัดซื้อจัดจ้าง...">
-                                </div>
-                    <div class="procurement-sort">
-                        <label for="procurement-sort-select">เรียงตาม:</label>
-                        <select id="procurement-sort-select">
-                            <option value="date-desc" selected>วันที่: ล่าสุด - เก่าสุด</option>
-                            <option value="date-asc">วันที่: เก่าสุด - ล่าสุด</option>
-                            <option value="budget-desc">งบประมาณ: สูง - ต่ำ</option>
-                            <option value="budget-asc">งบประมาณ: ต่ำ - สูง</option>
-                        </select>
-                            </div>
-                                </div>
-                
-                <!-- รายการจัดซื้อจัดจ้าง -->
-                <div class="procurement-list">
-                    <!-- รายการที่ 1 -->
-                    <div class="procurement-item">
-                        <div class="procurement-header">
-                            <h3 class="procurement-title">
-                                <a href="#">ประกาศโรงเรียนสาธิตมหาวิทยาลัยพะเยา เรื่อง ประกวดราคาซื้อครุภัณฑ์ห้องปฏิบัติการวิทยาศาสตร์ จำนวน 1 ชุด</a>
-                            </h3>
-                            <div class="procurement-date">20 กันยายน 2568</div>
-                            </div>
-                        <div class="procurement-info">
-                            <div class="procurement-budget">งบประมาณ: <span>2,500,000 บาท</span></div>
-                            <div class="procurement-status">
-                                <div class="status-badge status-open">เปิดรับ</div>
-                                <div class="procurement-department"><i class="fas fa-building"></i> ฝ่ายพัสดุ / โดย adminsatit</div>
-                            </div>
-                    </div>
-                </div>
-                
-                    <!-- รายการที่ 2 -->
-                    <div class="procurement-item">
-                        <div class="procurement-header">
-                            <h3 class="procurement-title">
-                                <a href="#">ประกาศโรงเรียนสาธิตมหาวิทยาลัยพะเยา เรื่อง ประกวดราคาจ้างปรับปรุงห้องสมุด จำนวน 1 งาน</a>
-                            </h3>
-                            <div class="procurement-date">15 กันยายน 2568</div>
-                        </div>
-                        <div class="procurement-info">
-                            <div class="procurement-budget">งบประมาณ: <span>1,800,000 บาท</span></div>
-                            <div class="procurement-status">
-                                <div class="status-badge status-open">เปิดรับ</div>
-                                <div class="procurement-department"><i class="fas fa-building"></i> ฝ่ายพัสดุ / โดย adminsatit</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- รายการที่ 3 -->
-                    <div class="procurement-item">
-                        <div class="procurement-header">
-                            <h3 class="procurement-title">
-                                <a href="#">ประกาศโรงเรียนสาธิตมหาวิทยาลัยพะเยา เรื่อง ประกวดราคาซื้อครุภัณฑ์คอมพิวเตอร์ จำนวน 50 เครื่อง</a>
-                            </h3>
-                            <div class="procurement-date">10 กันยายน 2568</div>
-                        </div>
-                        <div class="procurement-info">
-                            <div class="procurement-budget">งบประมาณ: <span>1,250,000 บาท</span></div>
-                            <div class="procurement-status">
-                                <div class="status-badge status-awarded">ประกาศผล</div>
-                                <div class="procurement-department"><i class="fas fa-building"></i> ฝ่ายพัสดุ / โดย adminsatit</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- รายการที่ 4 -->
-                    <div class="procurement-item">
-                        <div class="procurement-header">
-                            <h3 class="procurement-title">
-                                <a href="#">ประกาศโรงเรียนสาธิตมหาวิทยาลัยพะเยา เรื่อง จัดซื้อหนังสือเรียนและแบบฝึกหัด ประจำปีการศึกษา 2568</a>
-                            </h3>
-                            <div class="procurement-date">5 กันยายน 2568</div>
-                        </div>
-                        <div class="procurement-info">
-                            <div class="procurement-budget">งบประมาณ: <span>850,000 บาท</span></div>
-                            <div class="procurement-status">
-                                <div class="status-badge status-awarded">ประกาศผล</div>
-                                <div class="procurement-department"><i class="fas fa-building"></i> ฝ่ายพัสดุ / โดย adminsatit</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- รายการที่ 5 -->
-                    <div class="procurement-item">
-                        <div class="procurement-header">
-                            <h3 class="procurement-title">
-                                <a href="#">ประกาศโรงเรียนสาธิตมหาวิทยาลัยพะเยา เรื่อง จัดซื้อวัสดุสำนักงาน ประจำปีงบประมาณ 2568</a>
-                            </h3>
-                            <div class="procurement-date">1 กันยายน 2568</div>
-                        </div>
-                        <div class="procurement-info">
-                            <div class="procurement-budget">งบประมาณ: <span>350,000 บาท</span></div>
-                            <div class="procurement-status">
-                                <div class="status-badge status-closed">ปิดรับ</div>
-                                <div class="procurement-department"><i class="fas fa-building"></i> ฝ่ายพัสดุ / โดย adminsatit</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- ปุ่มดูทั้งหมด -->
-                <div class="text-center mt-4">
-                    <!-- จัดตำแหน่งปุ่มให้อยู่ตรงกลาง มีระยะห่างด้านบน 4 หน่วย -->
-                    <a href="#" class="btn btn-view-all">
-                        <!-- ปุ่มลิงก์ไปยังหน้าแสดงข่าวทั้งหมดในหมวดการจัดซื้อจัดจ้าง -->
-                        ดูทั้งหมด <i class="fas fa-arrow-right ms-2"></i>
-                        <!-- ข้อความบนปุ่ม พร้อมไอคอนลูกศรขวา มีระยะห่างด้านซ้าย 2 หน่วย -->
-                    </a>
-                </div>
-            </div>
-            
-            <!-- เนื้อหาแท็บ: การรับสมัครงาน -->
-            <div class="tab-pane fade" id="recruitment" role="tabpanel">
-                <!-- แท็บนี้จะถูกซ่อนไว้เริ่มต้น จะแสดงเมื่อคลิกที่แท็บ -->
-                
-                <!-- สไตล์สำหรับการรับสมัครงาน -->
-                <style>
-                    .job-list {
-                        background-color: #fff;
-                        border-radius: 12px;
-                        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-                        overflow: hidden;
-                    }
-                    
-                    .job-item {
-                        padding: 18px 20px;
-                        border-bottom: 1px solid #eee;
-                        transition: all 0.3s ease;
-                    }
-                    
-                    .job-item:last-child {
-                        border-bottom: none;
-                    }
-                    
-                    .job-item:hover {
-                        background-color: #f8f5ff;
-                    }
-                    
-                    .job-header {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        margin-bottom: 10px;
-                    }
-                    
-                    .job-title {
-                        font-size: 1.1rem;
-                        font-weight: 600;
-                        color: #333;
-                        margin: 0;
-                        padding-right: 15px;
-                    }
-                    
-                    .job-title a {
-                        color: #333;
-                        text-decoration: none;
-                        transition: color 0.2s ease;
-                    }
-                    
-                    .job-title a:hover {
-                        color: #7b3b95;
-                    }
-                    
-                    .job-date {
-                        background-color: #7b3b95;
-                        color: white;
-                        padding: 5px 12px;
-                        border-radius: 20px;
-                        font-size: 0.85rem;
-                        font-weight: 500;
-                        white-space: nowrap;
-                    }
-                    
-                    .job-info {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        font-size: 0.9rem;
-                        color: #666;
-                    }
-                    
-                    .job-details {
-                        display: flex;
-                        gap: 15px;
-                    }
-                    
-                    .job-detail {
-                        display: flex;
-                        align-items: center;
-                    }
-                    
-                    .job-detail i {
-                        margin-right: 5px;
-                        color: #7b3b95;
-                    }
-                    
-                    .job-salary {
-                        font-weight: 500;
-                    }
-                    
-                    .job-salary span {
-                        color: #28a745;
-                    }
-                    
-                    .job-status {
-                        display: flex;
-                        align-items: center;
-                    }
-                    
-                    .job-badge {
-                        padding: 3px 10px;
-                        border-radius: 15px;
-                        font-size: 0.8rem;
-                        font-weight: 500;
-                        margin-right: 10px;
-                    }
-                    
-                    .job-open {
-                        background-color: #e3f5ff;
-                        color: #0088cc;
-                    }
-                    
-                    .job-closed {
-                        background-color: #ffe3e3;
-                        color: #dc3545;
-                    }
-                    
-                    .job-urgent {
-                        background-color: #fff3cd;
-                        color: #856404;
-                    }
-                    
-                    .job-department {
-                        color: #666;
-                    }
-                    
-                    .job-department i {
-                        color: #7b3b95;
-                        margin-right: 5px;
-                    }
-                    
-                    .job-filter {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        margin-bottom: 20px;
-                    }
-                    
-                    .job-search {
-                        position: relative;
-                        flex: 1;
-                        max-width: 400px;
-                    }
-                    
-                    .job-search input {
-                        width: 100%;
-                        padding: 10px 15px 10px 40px;
-                        border: 1px solid #ddd;
-                        border-radius: 25px;
-                        font-size: 0.95rem;
-                    }
-                    
-                    .job-search i {
-                        position: absolute;
-                        left: 15px;
-                        top: 50%;
-                        transform: translateY(-50%);
-                        color: #7b3b95;
-                    }
-                    
-                    .job-filter-options {
-                        display: flex;
-                        gap: 10px;
-                    }
-                    
-                    .job-filter-select {
-                        padding: 8px 30px 8px 15px;
-                        border: 1px solid #ddd;
-                        border-radius: 20px;
-                        font-size: 0.9rem;
-                        background-color: #f8f8f8;
-                        appearance: none;
-                        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%237b3b95' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-                        background-repeat: no-repeat;
-                        background-position: calc(100% - 10px) center;
-                    }
-                    
-                    @media (max-width: 767px) {
-                        .job-filter {
-                            flex-direction: column;
-                            align-items: flex-start;
-                        }
-                        
-                        .job-search {
-                            width: 100%;
-                            max-width: none;
-                            margin-bottom: 15px;
-                        }
-                        
-                        .job-filter-options {
-                            width: 100%;
-                            justify-content: space-between;
-                        }
-                        
-                        .job-filter-select {
-                            flex: 1;
-                        }
-                        
-                        .job-header {
-                            flex-direction: column;
-                            align-items: flex-start;
-                        }
-                        
-                        .job-date {
-                            margin-top: 10px;
-                        }
-                        
-                        .job-info {
-                            flex-direction: column;
-                            align-items: flex-start;
-                        }
-                        
-                        .job-details {
-                            flex-direction: column;
-                            gap: 5px;
-                            margin-bottom: 10px;
-                        }
-                    }
-                </style>
-                
-                <!-- ตัวกรองและการค้นหา -->
-                <div class="job-filter">
-                    <div class="job-search">
-                        <i class="fas fa-search"></i>
-                        <input type="text" placeholder="ค้นหาตำแหน่งงาน...">
-                    </div>
-                    <div class="job-filter-options">
-                        <select id="job-type-select" class="job-filter-select">
-                            <option value="all" selected>ทุกประเภท</option>
-                            <option value="full-time">เต็มเวลา</option>
-                            <option value="part-time">นอกเวลา</option>
-                            <option value="contract">สัญญาจ้าง</option>
-                        </select>
-                        <select id="job-sort-select" class="job-filter-select">
-                            <option value="date-desc" selected>วันที่: ล่าสุด - เก่าสุด</option>
-                            <option value="date-asc">วันที่: เก่าสุด - ล่าสุด</option>
-                            <option value="salary-desc">เงินเดือน: สูง - ต่ำ</option>
-                            <option value="salary-asc">เงินเดือน: ต่ำ - สูง</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <!-- รายการรับสมัครงาน -->
-                <div class="job-list">
-                    <!-- รายการที่ 1 -->
-                    <div class="job-item">
-                        <div class="job-header">
-                            <h3 class="job-title">
-                                <a href="#">รับสมัครครูผู้สอนวิชาคณิตศาสตร์ ระดับมัธยมศึกษา</a>
-                            </h3>
-                            <div class="job-date">20 กันยายน 2568</div>
-                        </div>
-                        <div class="job-info">
-                            <div class="job-details">
-                                <div class="job-detail">
-                                    <i class="fas fa-briefcase"></i> เต็มเวลา
-                                </div>
-                                <div class="job-detail job-salary">
-                                    <i class="fas fa-money-bill-wave"></i> เงินเดือน: <span>20,000 - 25,000 บาท</span>
-                                </div>
-                                <div class="job-detail">
-                                    <i class="fas fa-user-graduate"></i> วุฒิปริญญาโท
-                                </div>
-                            </div>
-                            <div class="job-status">
-                                <div class="job-badge job-open">เปิดรับสมัคร</div>
-                                <div class="job-department"><i class="fas fa-building"></i> ฝ่ายบุคคล / โดย adminsatit</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- รายการที่ 2 -->
-                    <div class="job-item">
-                        <div class="job-header">
-                            <h3 class="job-title">
-                                <a href="#">รับสมัครครูผู้สอนวิชาวิทยาศาสตร์ ระดับประถมศึกษา</a>
-                            </h3>
-                            <div class="job-date">15 กันยายน 2568</div>
-                        </div>
-                        <div class="job-info">
-                            <div class="job-details">
-                                <div class="job-detail">
-                                    <i class="fas fa-briefcase"></i> เต็มเวลา
-                                </div>
-                                <div class="job-detail job-salary">
-                                    <i class="fas fa-money-bill-wave"></i> เงินเดือน: <span>18,000 - 22,000 บาท</span>
-                                </div>
-                                <div class="job-detail">
-                                    <i class="fas fa-user-graduate"></i> วุฒิปริญญาตรี
-                                </div>
-                            </div>
-                            <div class="job-status">
-                                <div class="job-badge job-urgent">ด่วน</div>
-                                <div class="job-department"><i class="fas fa-building"></i> ฝ่ายบุคคล / โดย adminsatit</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- รายการที่ 3 -->
-                    <div class="job-item">
-                        <div class="job-header">
-                            <h3 class="job-title">
-                                <a href="#">รับสมัครเจ้าหน้าที่ธุรการ</a>
-                            </h3>
-                            <div class="job-date">10 กันยายน 2568</div>
-                        </div>
-                        <div class="job-info">
-                            <div class="job-details">
-                                <div class="job-detail">
-                                    <i class="fas fa-briefcase"></i> เต็มเวลา
-                                </div>
-                                <div class="job-detail job-salary">
-                                    <i class="fas fa-money-bill-wave"></i> เงินเดือน: <span>15,000 - 18,000 บาท</span>
-                                </div>
-                                <div class="job-detail">
-                                    <i class="fas fa-user-graduate"></i> วุฒิปริญญาตรี
-                                </div>
-                            </div>
-                            <div class="job-status">
-                                <div class="job-badge job-open">เปิดรับสมัคร</div>
-                                <div class="job-department"><i class="fas fa-building"></i> ฝ่ายบุคคล / โดย adminsatit</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- รายการที่ 4 -->
-                    <div class="job-item">
-                        <div class="job-header">
-                            <h3 class="job-title">
-                                <a href="#">รับสมัครนักการภารโรง</a>
-                            </h3>
-                            <div class="job-date">5 กันยายน 2568</div>
-                        </div>
-                        <div class="job-info">
-                            <div class="job-details">
-                                <div class="job-detail">
-                                    <i class="fas fa-briefcase"></i> เต็มเวลา
-                                </div>
-                                <div class="job-detail job-salary">
-                                    <i class="fas fa-money-bill-wave"></i> เงินเดือน: <span>9,000 - 12,000 บาท</span>
-                                </div>
-                                <div class="job-detail">
-                                    <i class="fas fa-user-graduate"></i> วุฒิ ม.3 ขึ้นไป
-                                </div>
-                            </div>
-                            <div class="job-status">
-                                <div class="job-badge job-closed">ปิดรับสมัคร</div>
-                                <div class="job-department"><i class="fas fa-building"></i> ฝ่ายบุคคล / โดย adminsatit</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- รายการที่ 5 -->
-                    <div class="job-item">
-                        <div class="job-header">
-                            <h3 class="job-title">
-                                <a href="#">รับสมัครครูผู้สอนวิชาภาษาอังกฤษ (นอกเวลา)</a>
-                            </h3>
-                            <div class="job-date">1 กันยายน 2568</div>
-                        </div>
-                        <div class="job-info">
-                            <div class="job-details">
-                                <div class="job-detail">
-                                    <i class="fas fa-briefcase"></i> นอกเวลา
-                                </div>
-                                <div class="job-detail job-salary">
-                                    <i class="fas fa-money-bill-wave"></i> ค่าตอบแทน: <span>300 บาท/ชั่วโมง</span>
-                                </div>
-                                <div class="job-detail">
-                                    <i class="fas fa-user-graduate"></i> วุฒิปริญญาตรี
-                                </div>
-                            </div>
-                            <div class="job-status">
-                                <div class="job-badge job-open">เปิดรับสมัคร</div>
-                                <div class="job-department"><i class="fas fa-building"></i> ฝ่ายบุคคล / โดย adminsatit</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- ปุ่มดูทั้งหมด -->
-                <div class="text-center mt-4">
-                    <!-- จัดตำแหน่งปุ่มให้อยู่ตรงกลาง มีระยะห่างด้านบน 4 หน่วย -->
-                    <a href="#" class="btn btn-view-all">
-                        <!-- ปุ่มลิงก์ไปยังหน้าแสดงข่าวทั้งหมดในหมวดการรับสมัครงาน -->
-                        ดูทั้งหมด <i class="fas fa-arrow-right ms-2"></i>
-                        <!-- ข้อความบนปุ่ม พร้อมไอคอนลูกศรขวา มีระยะห่างด้านซ้าย 2 หน่วย -->
-                    </a>
-                </div>
-            </div>
-            
-            <!-- เนื้อหาแท็บ: การอบรม -->
-            <div class="tab-pane fade" id="training" role="tabpanel">
-                <!-- แท็บนี้จะถูกซ่อนไว้เริ่มต้น จะแสดงเมื่อคลิกที่แท็บ -->
-                <div class="row g-4">
-                    <!-- จัดเรียงการ์ดข่าวเป็นแถว มีระยะห่างระหว่างการ์ด 4 หน่วย -->
-                    <div class="col-lg-4 col-md-6">
-                        <!-- การ์ดข่าวกว้าง 4 คอลัมน์บนจอใหญ่, 6 คอลัมน์บนจอกลาง -->
-                        <article class="news-card">
-                            <!-- บทความข่าวเกี่ยวกับการอบรม -->
-                            <div class="news-card-image">
-                                <!-- ส่วนรูปภาพของการ์ดข่าว -->
-                                <img src="images/comingsoon.png" alt="อบรมครู">
-                                <!-- รูปภาพข่าว พร้อมข้อความอธิบายภาพ -->
-                                <div class="news-category">อบรม</div>
-                                <!-- ป้ายหมวดหมู่ข่าว -->
-                                <div class="news-date">
-                                    <!-- ส่วนแสดงวันที่ของข่าว -->
-                                    <span class="day">11</span>
-                                    <!-- วันที่ -->
-                                    <span class="month">ม.ค.</span>
-                                    <!-- เดือน -->
-                                </div>
-                            </div>
-                            <div class="news-card-content">
-                                <!-- ส่วนเนื้อหาของการ์ดข่าว -->
-                                <h5 class="news-title">
-                                    <!-- หัวข้อข่าว -->
-                                    <a href="#">อบรมเชิงปฏิบัติการ Active Learning</a>
-                                    <!-- ลิงก์ไปยังหน้ารายละเอียดข่าว -->
-                                </h5>
-                                <p class="news-excerpt">จัดอบรมเชิงปฏิบัติการการจัดการเรียนรู้แบบ Active Learning สำหรับครูผู้สอน...</p>
-                                <!-- เนื้อหาย่อของข่าว -->
-                                <div class="news-meta">
-                                    <!-- ข้อมูลเพิ่มเติมของข่าว -->
-                                    <span><i class="fas fa-user"></i> ฝ่ายวิชาการ</span>
-                                    <!-- ผู้เขียนหรือแหล่งที่มา พร้อมไอคอนรูปคน -->
-                                    <span><i class="fas fa-eye"></i> 567</span>
-                                    <!-- จำนวนผู้เข้าชม พร้อมไอคอนรูปตา -->
-                                </div>
-                                <a href="#" class="btn-read-more">อ่านเพิ่มเติม <i class="fas fa-arrow-right"></i></a>
-                                <!-- ปุ่มอ่านเพิ่มเติม พร้อมไอคอนลูกศรขวา -->
-                            </div>
-                        </article>
-                    </div>
-                </div>
-                
-                <!-- ปุ่มดูทั้งหมด -->
-                <div class="text-center mt-4">
-                    <!-- จัดตำแหน่งปุ่มให้อยู่ตรงกลาง มีระยะห่างด้านบน 4 หน่วย -->
-                    <a href="#" class="btn btn-view-all">
-                        <!-- ปุ่มลิงก์ไปยังหน้าแสดงข่าวทั้งหมดในหมวดการอบรม -->
-                        ดูทั้งหมด <i class="fas fa-arrow-right ms-2"></i>
-                        <!-- ข้อความบนปุ่ม พร้อมไอคอนลูกศรขวา มีระยะห่างด้านซ้าย 2 หน่วย -->
-                    </a>
-                </div>
-            </div>
-            
-            <!-- เนื้อหาแท็บ: การประกวดแข่งขัน -->
-            <div class="tab-pane fade" id="competition" role="tabpanel">
-                <!-- แท็บนี้จะถูกซ่อนไว้เริ่มต้น จะแสดงเมื่อคลิกที่แท็บ -->
-                <div class="row g-4">
-                    <!-- จัดเรียงการ์ดข่าวเป็นแถว มีระยะห่างระหว่างการ์ด 4 หน่วย -->
-                    <div class="col-lg-4 col-md-6">
-                        <!-- การ์ดข่าวกว้าง 4 คอลัมน์บนจอใหญ่, 6 คอลัมน์บนจอกลาง -->
-                        <article class="news-card">
-                            <!-- บทความข่าวเกี่ยวกับการประกวดแข่งขัน -->
-                            <div class="news-card-image">
-                                <!-- ส่วนรูปภาพของการ์ดข่าว -->
-                                <img src="images/comingsoon.png" alt="การแข่งขัน">
-                                <!-- รูปภาพข่าว พร้อมข้อความอธิบายภาพ -->
-                                <div class="news-category">แข่งขัน</div>
-                                <!-- ป้ายหมวดหมู่ข่าว -->
-                                <div class="news-date">
-                                    <!-- ส่วนแสดงวันที่ของข่าว -->
-                                    <span class="day">09</span>
-                                    <!-- วันที่ -->
-                                    <span class="month">ม.ค.</span>
-                                    <!-- เดือน -->
-                                </div>
-                            </div>
-                            <div class="news-card-content">
-                                <!-- ส่วนเนื้อหาของการ์ดข่าว -->
-                                <h5 class="news-title">
-                                    <!-- หัวข้อข่าว -->
-                                    <a href="#">การแข่งขันโครงงานวิทยาศาสตร์ระดับภาค</a>
-                                    <!-- ลิงก์ไปยังหน้ารายละเอียดข่าว -->
-                                </h5>
-                                <p class="news-excerpt">นักเรียนได้รับรางวัลชนะเลิศการแข่งขันโครงงานวิทยาศาสตร์ระดับภาคเหนือ...</p>
-                                <!-- เนื้อหาย่อของข่าว -->
-                                <div class="news-meta">
-                                    <!-- ข้อมูลเพิ่มเติมของข่าว -->
-                                    <span><i class="fas fa-user"></i> ฝ่ายวิชาการ</span>
-                                    <!-- ผู้เขียนหรือแหล่งที่มา พร้อมไอคอนรูปคน -->
-                                    <span><i class="fas fa-eye"></i> 892</span>
-                                    <!-- จำนวนผู้เข้าชม พร้อมไอคอนรูปตา -->
-                                </div>
-                                <a href="#" class="btn-read-more">อ่านเพิ่มเติม <i class="fas fa-arrow-right"></i></a>
-                                <!-- ปุ่มอ่านเพิ่มเติม พร้อมไอคอนลูกศรขวา -->
-                            </div>
-                        </article>
-                    </div>
-                </div>
-                
-                <!-- ปุ่มดูทั้งหมด -->
-                <div class="text-center mt-4">
-                    <!-- จัดตำแหน่งปุ่มให้อยู่ตรงกลาง มีระยะห่างด้านบน 4 หน่วย -->
-                    <a href="#" class="btn btn-view-all">
-                        <!-- ปุ่มลิงก์ไปยังหน้าแสดงข่าวทั้งหมดในหมวดการประกวดแข่งขัน -->
-                        ดูทั้งหมด <i class="fas fa-arrow-right ms-2"></i>
-                        <!-- ข้อความบนปุ่ม พร้อมไอคอนลูกศรขวา มีระยะห่างด้านซ้าย 2 หน่วย -->
-                    </a>
-                </div>
-            </div>
-            
-            <!-- เนื้อหาแท็บ: การไปต่างประเทศ -->
             <div class="tab-pane fade" id="international" role="tabpanel">
-                <!-- แท็บนี้จะถูกซ่อนไว้เริ่มต้น จะแสดงเมื่อคลิกที่แท็บ -->
-                <div class="row g-4">
-                    <!-- จัดเรียงการ์ดข่าวเป็นแถว มีระยะห่างระหว่างการ์ด 4 หน่วย -->
-                    <div class="col-lg-4 col-md-6">
-                        <!-- การ์ดข่าวกว้าง 4 คอลัมน์บนจอใหญ่, 6 คอลัมน์บนจอกลาง -->
-                        <article class="news-card">
-                            <!-- บทความข่าวเกี่ยวกับการไปต่างประเทศ -->
-                            <div class="news-card-image">
-                                <!-- ส่วนรูปภาพของการ์ดข่าว -->
-                                <img src="images/comingsoon.png" alt="ต่างประเทศ">
-                                <!-- รูปภาพข่าว พร้อมข้อความอธิบายภาพ -->
-                                <div class="news-category">ต่างประเทศ</div>
-                                <!-- ป้ายหมวดหมู่ข่าว -->
-                                <div class="news-date">
-                                    <!-- ส่วนแสดงวันที่ของข่าว -->
-                                    <span class="day">08</span>
-                                    <!-- วันที่ -->
-                                    <span class="month">ม.ค.</span>
-                                    <!-- เดือน -->
-                                </div>
-                            </div>
-                            <div class="news-card-content">
-                                <!-- ส่วนเนื้อหาของการ์ดข่าว -->
-                                <h5 class="news-title">
-                                    <!-- หัวข้อข่าว -->
-                                    <a href="#">โครงการแลกเปลี่ยนนักเรียนญี่ปุ่น</a>
-                                    <!-- ลิงก์ไปยังหน้ารายละเอียดข่าว -->
-                                </h5>
-                                <p class="news-excerpt">เปิดรับสมัครนักเรียนเข้าร่วมโครงการแลกเปลี่ยนวัฒนธรรมกับประเทศญี่ปุ่น...</p>
-                                <!-- เนื้อหาย่อของข่าว -->
-                                <div class="news-meta">
-                                    <!-- ข้อมูลเพิ่มเติมของข่าว -->
-                                    <span><i class="fas fa-user"></i> ฝ่ายต่างประเทศ</span>
-                                    <!-- ผู้เขียนหรือแหล่งที่มา พร้อมไอคอนรูปคน -->
-                                    <span><i class="fas fa-eye"></i> 1,567</span>
-                                    <!-- จำนวนผู้เข้าชม พร้อมไอคอนรูปตา -->
-                                </div>
-                                <a href="#" class="btn-read-more">อ่านเพิ่มเติม <i class="fas fa-arrow-right"></i></a>
-                                <!-- ปุ่มอ่านเพิ่มเติม พร้อมไอคอนลูกศรขวา -->
-                            </div>
-                        </article>
-                    </div>
-                </div>
-                
-                <!-- ปุ่มดูทั้งหมด -->
-                <div class="text-center mt-4">
-                    <!-- จัดตำแหน่งปุ่มให้อยู่ตรงกลาง มีระยะห่างด้านบน 4 หน่วย -->
-                    <a href="#" class="btn btn-view-all">
-                        <!-- ปุ่มลิงก์ไปยังหน้าแสดงข่าวทั้งหมดในหมวดการไปต่างประเทศ -->
-                        ดูทั้งหมด <i class="fas fa-arrow-right ms-2"></i>
-                        <!-- ข้อความบนปุ่ม พร้อมไอคอนลูกศรขวา มีระยะห่างด้านซ้าย 2 หน่วย -->
-                    </a>
+                <div class="text-center p-5">
+                    <i class="fas fa-globe fa-3x text-muted mb-3"></i>
+                    <h4>การไปต่างประเทศ</h4>
+                    <p class="text-muted">ส่วนนี้กำลังพัฒนา</p>
                 </div>
             </div>
         </div>
-        <!-- จบส่วนเนื้อหาของแต่ละแท็บ -->
     </div>
-    <!-- จบส่วน container -->
 </section>
-<!-- จบส่วนข่าวสารและประกาศ -->
 
-<!-- ส่วน JavaScript สำหรับการทำงานของแท็บข่าวสาร -->
+<!-- CSS เพิ่มเติมสำหรับการ์ดข่าว -->
+<style>
+.news-activity-card {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+    transition: all 0.3s ease;
+    background-color: #fff;
+    height: 100%;
+}
+
+.news-activity-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(123, 59, 149, 0.2);
+}
+
+.news-activity-image {
+    position: relative;
+    overflow: hidden;
+    height: 240px;
+}
+
+.news-activity-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.news-activity-card:hover .news-activity-image img {
+    transform: scale(1.05);
+}
+
+.news-activity-date {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(123, 59, 149, 0.85);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    backdrop-filter: blur(5px);
+}
+
+.news-activity-content {
+    padding: 20px;
+}
+
+.news-activity-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+    line-height: 1.4;
+}
+
+.news-activity-title a {
+    color: #333;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.news-activity-title a:hover {
+    color: #7b3b95;
+}
+
+.news-excerpt {
+    color: var(--text-medium, #666);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.news-activity-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 15px;
+}
+
+.news-activity-author {
+    display: flex;
+    align-items: center;
+}
+
+.news-activity-author i {
+    margin-right: 5px;
+    color: #7b3b95;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+    .news-activity-image {
+        height: 180px;
+    }
+    
+    .news-activity-content {
+        padding: 15px;
+    }
+    
+    .news-activity-title {
+        font-size: 1.1rem;
+    }
+}
+
+ /* ปุ่มดูทั้งหมด */
+ .btn-view-all {
+     background: #0066cc;
+     color: white;
+     border: none;
+     padding: 12px 32px;
+     border-radius: 6px;
+     font-weight: 500;
+     font-size: 15px;
+     transition: all 0.2s ease;
+     text-decoration: none;
+     display: inline-block;
+ }
+ 
+ .btn-view-all:hover {
+     background: #0052a3;
+     color: white;
+     text-decoration: none;
+     transform: translateY(-2px);
+     box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+ }
+</style>
+
+<!-- JavaScript สำหรับการทำงานของแท็บ -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // เพิ่มแอนิเมชันให้กับรายการประกาศเมื่อมีการเปลี่ยนแท็บ
-    // รอให้เอกสาร HTML โหลดเสร็จสมบูรณ์ก่อนทำงาน
-    
-    // เพิ่มการทำงานของช่องค้นหาในแท็บประกาศ
-    const announcementSearchInput = document.getElementById('announcement-search-input');
-    if (announcementSearchInput) {
-        announcementSearchInput.addEventListener('input', function() {
-            const searchValue = this.value.toLowerCase();
-            const announcementItems = document.querySelectorAll('#announcement .order-announcement-item');
-            
-            announcementItems.forEach(item => {
-                const title = item.querySelector('.order-announcement-title').textContent.toLowerCase();
-                const budget = item.querySelector('.order-announcement-budget').textContent.toLowerCase();
-                const department = item.querySelector('.order-announcement-department').textContent.toLowerCase();
-                const status = item.querySelector('.order-announcement-badge')?.textContent.toLowerCase() || '';
-                
-                if (title.includes(searchValue) || 
-                    budget.includes(searchValue) || 
-                    department.includes(searchValue) || 
-                    status.includes(searchValue)) {
-                    item.style.display = '';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        });
-    }
-    
-    // เพิ่มการทำงานของช่องค้นหาในแท็บคำสั่ง
-    const orderSearchInput = document.getElementById('order-search-input');
-    if (orderSearchInput) {
-        orderSearchInput.addEventListener('input', function() {
-            const searchValue = this.value.toLowerCase();
-            const orderItems = document.querySelectorAll('#order .order-announcement-item');
-            
-            orderItems.forEach(item => {
-                const title = item.querySelector('.order-announcement-title').textContent.toLowerCase();
-                const type = item.querySelector('.order-announcement-budget').textContent.toLowerCase();
-                const department = item.querySelector('.order-announcement-department').textContent.toLowerCase();
-                
-                if (title.includes(searchValue) || 
-                    type.includes(searchValue) || 
-                    department.includes(searchValue)) {
-                    item.style.display = '';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        });
-    }
-    
-    // ค้นหาปุ่มแท็บทั้งหมด
-    const tabButtons = document.querySelectorAll('#newsTab button[data-bs-toggle="tab"]');
-    
-    // วนลูปเพื่อเพิ่ม event listener ให้กับทุกปุ่มแท็บ
-    tabButtons.forEach(button => {
-        // เมื่อแท็บถูกแสดง (หลังจากคลิก)
-        button.addEventListener('shown.bs.tab', function (e) {
-            // ค้นหาพื้นที่เนื้อหาของแท็บที่ถูกเลือก
-            const targetPane = document.querySelector(e.target.getAttribute('data-bs-target'));
-            
-            // ตรวจสอบว่ามีรายการประกาศหรือไม่
-            const announcementItems = targetPane.querySelectorAll('.list-group-item');
-            if (announcementItems.length > 0) {
-                // วนลูปเพื่อเพิ่มแอนิเมชันให้กับแต่ละรายการประกาศ
-                announcementItems.forEach((item, index) => {
-                    // ตั้งค่าเริ่มต้น: ซ่อนรายการและเลื่อนลงด้านล่าง
-                    item.style.opacity = '0';
-                    item.style.transform = 'translateY(10px)';
-                    
-                    // ตั้งเวลาเพื่อแสดงรายการด้วยแอนิเมชัน
-                    setTimeout(() => {
-                        // กำหนดการเปลี่ยนแปลงแบบนุ่มนวล
-                        item.style.transition = 'all 0.3s ease';
-                        // แสดงรายการ
-                        item.style.opacity = '1';
-                        // เลื่อนรายการกลับมาตำแหน่งปกติ
-                        item.style.transform = 'translateY(0)';
-                    }, index * 50); // หน่วงเวลา 50ms คูณด้วยลำดับของรายการ ทำให้รายการทยอยปรากฏ
-                });
-            }
-            
-            // ตรวจสอบว่ามีรายการจัดซื้อจัดจ้างหรือไม่
-            const procurementItems = targetPane.querySelectorAll('.procurement-item');
-            if (procurementItems.length > 0) {
-                // วนลูปเพื่อเพิ่มแอนิเมชันให้กับแต่ละรายการจัดซื้อจัดจ้าง
-                procurementItems.forEach((item, index) => {
-                    // ตั้งค่าเริ่มต้น: ซ่อนรายการและเลื่อนลงด้านล่าง
-                    item.style.opacity = '0';
-                    item.style.transform = 'translateY(10px)';
-                    
-                    // ตั้งเวลาเพื่อแสดงรายการด้วยแอนิเมชัน
-                    setTimeout(() => {
-                        // กำหนดการเปลี่ยนแปลงแบบนุ่มนวล
-                        item.style.transition = 'all 0.3s ease';
-                        // แสดงรายการ
-                        item.style.opacity = '1';
-                        // เลื่อนรายการกลับมาตำแหน่งปกติ
-                        item.style.transform = 'translateY(0)';
-                    }, index * 100); // หน่วงเวลา 100ms คูณด้วยลำดับของรายการ ทำให้รายการทยอยปรากฏ
-                });
-                
-                // เพิ่มแอนิเมชันให้กับตัวกรองและการค้นหา
-                const filter = targetPane.querySelector('.procurement-filter');
-                if (filter) {
-                    filter.style.opacity = '0';
-                    filter.style.transform = 'translateY(-10px)';
-                    
-                    setTimeout(() => {
-                        filter.style.transition = 'all 0.5s ease';
-                        filter.style.opacity = '1';
-                        filter.style.transform = 'translateY(0)';
-                    }, 100);
-                }
-            }
-            
-            // ตรวจสอบว่ามีรายการรับสมัครงานหรือไม่
-            const jobItems = targetPane.querySelectorAll('.job-item');
-            if (jobItems.length > 0) {
-                // วนลูปเพื่อเพิ่มแอนิเมชันให้กับแต่ละรายการรับสมัครงาน
-                jobItems.forEach((item, index) => {
-                    // ตั้งค่าเริ่มต้น: ซ่อนรายการและเลื่อนลงด้านล่าง
-                    item.style.opacity = '0';
-                    item.style.transform = 'translateY(10px)';
-                    
-                    // ตั้งเวลาเพื่อแสดงรายการด้วยแอนิเมชัน
-                    setTimeout(() => {
-                        // กำหนดการเปลี่ยนแปลงแบบนุ่มนวล
-                        item.style.transition = 'all 0.3s ease';
-                        // แสดงรายการ
-                        item.style.opacity = '1';
-                        // เลื่อนรายการกลับมาตำแหน่งปกติ
-                        item.style.transform = 'translateY(0)';
-                    }, index * 100); // หน่วงเวลา 100ms คูณด้วยลำดับของรายการ ทำให้รายการทยอยปรากฏ
-                });
-                
-                // เพิ่มแอนิเมชันให้กับตัวกรองและการค้นหา
-                const jobFilter = targetPane.querySelector('.job-filter');
-                if (jobFilter) {
-                    jobFilter.style.opacity = '0';
-                    jobFilter.style.transform = 'translateY(-10px)';
-                    
-                    setTimeout(() => {
-                        jobFilter.style.transition = 'all 0.5s ease';
-                        jobFilter.style.opacity = '1';
-                        jobFilter.style.transform = 'translateY(0)';
-                    }, 100);
-                }
-            }
-            
-            // ตรวจสอบว่ามีการ์ดข่าวกิจกรรมหรือไม่
-            const activityCards = targetPane.querySelectorAll('.news-activity-card');
-            if (activityCards.length > 0) {
-                // วนลูปเพื่อเพิ่มแอนิเมชันให้กับแต่ละการ์ดข่าวกิจกรรม
-                activityCards.forEach((card, index) => {
-                    // ตั้งค่าเริ่มต้น: ซ่อนการ์ดและเลื่อนลงด้านล่าง
-                    card.style.opacity = '0';
-                    card.style.transform = 'translateY(20px)';
-                    
-                    // ตั้งเวลาเพื่อแสดงการ์ดด้วยแอนิเมชัน
-                    setTimeout(() => {
-                        // กำหนดการเปลี่ยนแปลงแบบนุ่มนวล
-                        card.style.transition = 'all 0.5s ease';
-                        // แสดงการ์ด
-                        card.style.opacity = '1';
-                        // เลื่อนการ์ดกลับมาตำแหน่งปกติ
-                        card.style.transform = 'translateY(0)';
-                    }, index * 150); // หน่วงเวลา 150ms คูณด้วยลำดับของการ์ด ทำให้การ์ดทยอยปรากฏ
-                });
-            }
-            
-            // ตรวจสอบว่ามีการ์ดข่าวหรือไม่ (สำหรับแท็บที่ยังใช้การแสดงแบบการ์ด)
-            const newsCards = targetPane.querySelectorAll('.news-card');
-            if (newsCards.length > 0) {
-                // วนลูปเพื่อเพิ่มแอนิเมชันให้กับแต่ละการ์ดข่าว
-            newsCards.forEach((card, index) => {
-                    // ตั้งค่าเริ่มต้น: ซ่อนการ์ดและเลื่อนลงด้านล่าง
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                
-                    // ตั้งเวลาเพื่อแสดงการ์ดด้วยแอนิเมชัน
-                setTimeout(() => {
-                        // กำหนดการเปลี่ยนแปลงแบบนุ่มนวล
-                    card.style.transition = 'all 0.5s ease';
-                        // แสดงการ์ด
-                    card.style.opacity = '1';
-                        // เลื่อนการ์ดกลับมาตำแหน่งปกติ
-                    card.style.transform = 'translateY(0)';
-                    }, index * 100); // หน่วงเวลา 100ms คูณด้วยลำดับของการ์ด ทำให้การ์ดทยอยปรากฏ
-            });
-            }
+    // เริ่มต้น Bootstrap tabs
+    var triggerTabList = [].slice.call(document.querySelectorAll('#newsTab button'));
+    triggerTabList.forEach(function (triggerEl) {
+        var tabTrigger = new bootstrap.Tab(triggerEl);
+        
+        triggerEl.addEventListener('click', function (event) {
+            event.preventDefault();
+            tabTrigger.show();
         });
     });
-    
-    // เพิ่ม event listener สำหรับเมนูย่อย (pills) ในแท็บคำสั่งและประกาศ
-    const pillButtons = document.querySelectorAll('.announcement-submenu .nav-link');
-    
-    // วนลูปเพื่อเพิ่ม event listener ให้กับทุกปุ่มเมนูย่อย
-    pillButtons.forEach(pill => {
-        // เมื่อเมนูย่อยถูกแสดง (หลังจากคลิก)
-        pill.addEventListener('shown.bs.tab', function (e) {
-            // ค้นหา ID ของเป้าหมาย (จาก href attribute)
-            const targetId = this.getAttribute('href');
-            // ค้นหาพื้นที่เนื้อหาของเมนูย่อยที่ถูกเลือก
-            const targetContent = document.querySelector(targetId);
-            
-            if (targetContent) {
-                // ค้นหารายการในเนื้อหาที่ถูกเลือก
-                const items = targetContent.querySelectorAll('.list-group-item');
-                
-                // วนลูปเพื่อเพิ่มแอนิเมชันให้กับแต่ละรายการ
-                items.forEach((item, index) => {
-                    // ตั้งค่าเริ่มต้น: ซ่อนรายการและเลื่อนลงด้านล่าง
-                    item.style.opacity = '0';
-                    item.style.transform = 'translateY(10px)';
-                    
-                    // ตั้งเวลาเพื่อแสดงรายการด้วยแอนิเมชัน
-        setTimeout(() => {
-                        // กำหนดการเปลี่ยนแปลงแบบนุ่มนวล
-                        item.style.transition = 'all 0.3s ease';
-                        // แสดงรายการ
-                        item.style.opacity = '1';
-                        // เลื่อนรายการกลับมาตำแหน่งปกติ
-                        item.style.transform = 'translateY(0)';
-                    }, index * 50); // หน่วงเวลา 50ms คูณด้วยลำดับของรายการ
-                });
-            }
+});
+</script>
+
+<!-- สคริปต์สำหรับ Isotope Filtering -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js" integrity="sha512-Zq2BOxyP1hF5CRwN1wP2Gqmtqz87R3U8GkS/EYbHrXlYh0uJp8p1Wn3NE6p3wG2FJ+3I1u2KfDX7gXw3ptzk9g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.isotope-layout').forEach(function(layoutEl) {
+        var container = layoutEl.querySelector('.isotope-container');
+        if (!container) return;
+
+        var iso = new Isotope(container, {
+            itemSelector: '.isotope-item',
+            layoutMode: 'fitRows',
+            filter: layoutEl.getAttribute('data-default-filter') || '*'
+        });
+
+        var filters = layoutEl.querySelectorAll('.isotope-filters li');
+        filters.forEach(function(filterEl) {
+            filterEl.addEventListener('click', function() {
+                layoutEl.querySelector('.filter-active').classList.remove('filter-active');
+                this.classList.add('filter-active');
+                iso.arrange({ filter: this.getAttribute('data-filter') });
+            });
         });
     });
-    
-    // เริ่มต้นแอนิเมชันสำหรับการ์ดข่าวกิจกรรมที่แสดงเริ่มต้น
-    const activityCards = document.querySelectorAll('.tab-pane.active .news-activity-card');
-    activityCards.forEach((card, index) => {
-        // เพิ่มคลาส animate-card ให้กับแต่ละการ์ด
-        setTimeout(() => {
-            card.classList.add('animate-card');
-        }, index * 150);
-    });
-    
-    // เริ่มต้นแอนิเมชันสำหรับรายการประกาศในแท็บแรกที่แสดงเมื่อโหลดหน้า
-    const activeItems = document.querySelectorAll('.tab-pane.active .list-group-item');
-    // วนลูปเพื่อเพิ่มแอนิเมชันให้กับแต่ละรายการในแท็บแรก
-    activeItems.forEach((item, index) => {
-        // ตั้งเวลาเพื่อทยอยแสดงรายการ
-        setTimeout(() => {
-            // เพิ่มคลาส animate-in ซึ่งจะมีการกำหนด CSS แอนิเมชันไว้
-            item.classList.add('animate-in');
-        }, index * 50); // หน่วงเวลา 50ms คูณด้วยลำดับของรายการ
-    });
-    
-    // เพิ่มการทำงานของตัวกรองและการเรียงลำดับในแท็บการจัดซื้อจัดจ้าง
-    const procurementSortSelect = document.getElementById('procurement-sort-select');
-    if (procurementSortSelect) {
-        procurementSortSelect.addEventListener('change', function() {
-            const sortValue = this.value;
-            const procurementList = document.querySelector('.procurement-list');
-            const procurementItems = Array.from(document.querySelectorAll('.procurement-item'));
-            
-            // เรียงลำดับรายการตามที่เลือก
-            procurementItems.sort((a, b) => {
-                if (sortValue === 'date-desc') {
-                    // เรียงตามวันที่ล่าสุด - เก่าสุด
-                    const dateA = a.querySelector('.procurement-date').textContent;
-                    const dateB = b.querySelector('.procurement-date').textContent;
-                    return new Date(dateB.split(' ').reverse().join(' ')) - new Date(dateA.split(' ').reverse().join(' '));
-                } else if (sortValue === 'date-asc') {
-                    // เรียงตามวันที่เก่าสุด - ล่าสุด
-                    const dateA = a.querySelector('.procurement-date').textContent;
-                    const dateB = b.querySelector('.procurement-date').textContent;
-                    return new Date(dateA.split(' ').reverse().join(' ')) - new Date(dateB.split(' ').reverse().join(' '));
-                } else if (sortValue === 'budget-desc') {
-                    // เรียงตามงบประมาณสูง - ต่ำ
-                    const budgetA = parseInt(a.querySelector('.procurement-budget span').textContent.replace(/[^\d]/g, ''));
-                    const budgetB = parseInt(b.querySelector('.procurement-budget span').textContent.replace(/[^\d]/g, ''));
-                    return budgetB - budgetA;
-                } else if (sortValue === 'budget-asc') {
-                    // เรียงตามงบประมาณต่ำ - สูง
-                    const budgetA = parseInt(a.querySelector('.procurement-budget span').textContent.replace(/[^\d]/g, ''));
-                    const budgetB = parseInt(b.querySelector('.procurement-budget span').textContent.replace(/[^\d]/g, ''));
-                    return budgetA - budgetB;
-                }
-                return 0;
-            });
-            
-            // ลบรายการทั้งหมดออกจาก DOM
-            procurementItems.forEach(item => {
-                item.remove();
-            });
-            
-            // เพิ่มรายการที่เรียงลำดับแล้วกลับเข้าไป
-            procurementItems.forEach((item, index) => {
-                procurementList.appendChild(item);
-                
-                // เพิ่มแอนิเมชัน
-                item.style.opacity = '0';
-                item.style.transform = 'translateY(10px)';
-                
-                setTimeout(() => {
-                    item.style.transition = 'all 0.3s ease';
-                    item.style.opacity = '1';
-                    item.style.transform = 'translateY(0)';
-                }, index * 50);
-            });
-        });
-    }
-    
-    // เพิ่มการทำงานของช่องค้นหาในแท็บการจัดซื้อจัดจ้าง
-    const procurementSearchInput = document.querySelector('.procurement-search input');
-    if (procurementSearchInput) {
-        procurementSearchInput.addEventListener('input', function() {
-            const searchValue = this.value.toLowerCase();
-            const procurementItems = document.querySelectorAll('.procurement-item');
-            
-            procurementItems.forEach(item => {
-                const title = item.querySelector('.procurement-title').textContent.toLowerCase();
-                const department = item.querySelector('.procurement-department').textContent.toLowerCase();
-                const budget = item.querySelector('.procurement-budget').textContent.toLowerCase();
-                const status = item.querySelector('.status-badge').textContent.toLowerCase();
-                
-                // ตรวจสอบว่ามีข้อความที่ค้นหาอยู่ในส่วนใดส่วนหนึ่งของรายการหรือไม่
-                if (title.includes(searchValue) || 
-                    department.includes(searchValue) || 
-                    budget.includes(searchValue) || 
-                    status.includes(searchValue)) {
-                    item.style.display = '';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        });
-    }
-    
-    // เพิ่มการทำงานของตัวกรองและการเรียงลำดับในแท็บการรับสมัครงาน
-    const jobSortSelect = document.getElementById('job-sort-select');
-    if (jobSortSelect) {
-        jobSortSelect.addEventListener('change', function() {
-            const sortValue = this.value;
-            const jobList = document.querySelector('.job-list');
-            const jobItems = Array.from(document.querySelectorAll('.job-item'));
-            
-            // เรียงลำดับรายการตามที่เลือก
-            jobItems.sort((a, b) => {
-                if (sortValue === 'date-desc') {
-                    // เรียงตามวันที่ล่าสุด - เก่าสุด
-                    const dateA = a.querySelector('.job-date').textContent;
-                    const dateB = b.querySelector('.job-date').textContent;
-                    return new Date(dateB.split(' ').reverse().join(' ')) - new Date(dateA.split(' ').reverse().join(' '));
-                } else if (sortValue === 'date-asc') {
-                    // เรียงตามวันที่เก่าสุด - ล่าสุด
-                    const dateA = a.querySelector('.job-date').textContent;
-                    const dateB = b.querySelector('.job-date').textContent;
-                    return new Date(dateA.split(' ').reverse().join(' ')) - new Date(dateB.split(' ').reverse().join(' '));
-                } else if (sortValue === 'salary-desc') {
-                    // เรียงตามเงินเดือนสูง - ต่ำ
-                    const salaryA = a.querySelector('.job-salary span').textContent;
-                    const salaryB = b.querySelector('.job-salary span').textContent;
-                    const numA = parseInt(salaryA.match(/\d+/g)[0]) || 0;
-                    const numB = parseInt(salaryB.match(/\d+/g)[0]) || 0;
-                    return numB - numA;
-                } else if (sortValue === 'salary-asc') {
-                    // เรียงตามเงินเดือนต่ำ - สูง
-                    const salaryA = a.querySelector('.job-salary span').textContent;
-                    const salaryB = b.querySelector('.job-salary span').textContent;
-                    const numA = parseInt(salaryA.match(/\d+/g)[0]) || 0;
-                    const numB = parseInt(salaryB.match(/\d+/g)[0]) || 0;
-                    return numA - numB;
-                }
-                return 0;
-            });
-            
-            // ลบรายการทั้งหมดออกจาก DOM
-            jobItems.forEach(item => {
-                item.remove();
-            });
-            
-            // เพิ่มรายการที่เรียงลำดับแล้วกลับเข้าไป
-            jobItems.forEach((item, index) => {
-                jobList.appendChild(item);
-                
-                // เพิ่มแอนิเมชัน
-                item.style.opacity = '0';
-                item.style.transform = 'translateY(10px)';
-                
-                setTimeout(() => {
-                    item.style.transition = 'all 0.3s ease';
-                    item.style.opacity = '1';
-                    item.style.transform = 'translateY(0)';
-                }, index * 50);
-            });
-        });
-    }
-    
-    // เพิ่มการทำงานของช่องค้นหาในแท็บการรับสมัครงาน
-    const jobSearchInput = document.querySelector('.job-search input');
-    if (jobSearchInput) {
-        jobSearchInput.addEventListener('input', function() {
-            const searchValue = this.value.toLowerCase();
-            const jobItems = document.querySelectorAll('.job-item');
-            
-            jobItems.forEach(item => {
-                const title = item.querySelector('.job-title').textContent.toLowerCase();
-                const department = item.querySelector('.job-department').textContent.toLowerCase();
-                const salary = item.querySelector('.job-salary').textContent.toLowerCase();
-                const status = item.querySelector('.job-badge').textContent.toLowerCase();
-                const details = item.querySelectorAll('.job-detail');
-                let detailsText = '';
-                details.forEach(detail => {
-                    detailsText += detail.textContent.toLowerCase() + ' ';
-                });
-                
-                // ตรวจสอบว่ามีข้อความที่ค้นหาอยู่ในส่วนใดส่วนหนึ่งของรายการหรือไม่
-                if (title.includes(searchValue) || 
-                    department.includes(searchValue) || 
-                    salary.includes(searchValue) || 
-                    status.includes(searchValue) ||
-                    detailsText.includes(searchValue)) {
-                    item.style.display = '';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        });
-    }
-    
-    // เพิ่มการทำงานของตัวกรองประเภทงานในแท็บการรับสมัครงาน
-    const jobTypeSelect = document.getElementById('job-type-select');
-    if (jobTypeSelect) {
-        jobTypeSelect.addEventListener('change', function() {
-            const typeValue = this.value;
-            const jobItems = document.querySelectorAll('.job-item');
-            
-            jobItems.forEach(item => {
-                if (typeValue === 'all') {
-                    item.style.display = '';
-                } else {
-                    const jobType = item.querySelector('.job-detail:first-child').textContent.toLowerCase();
-                    if ((typeValue === 'full-time' && jobType.includes('เต็มเวลา')) ||
-                        (typeValue === 'part-time' && jobType.includes('นอกเวลา')) ||
-                        (typeValue === 'contract' && jobType.includes('สัญญาจ้าง'))) {
-                        item.style.display = '';
-                    } else {
-                        item.style.display = 'none';
-                    }
-                }
-            });
-        });
-    }
 });
 </script>

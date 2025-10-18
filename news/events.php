@@ -1,21 +1,10 @@
 <?php
-// ไฟล์ wrapper สำหรับจัดระเบียบข่าวกิจกรรมภายใต้โฟลเดอร์ /news
+// ไฟล์แสดงข่าวกิจกรรม
 require_once __DIR__ . '/../admin/includes/db_config.php';
-require_once __DIR__ . '/../admin/news/news_functions.php';
+require_once __DIR__ . '/functions.php';
 
-// ดึงข่าวกิจกรรมล่าสุด
-$events_news = [];
-if ($conn && !$conn->connect_error) {
-    $stmt = $conn->prepare("SELECT n.id, n.title, n.slug, n.published_at, n.created_at, n.featured_image, n.views, u.full_name, u.username
-                            FROM news n
-                            LEFT JOIN users u ON u.id = n.author_id
-                            WHERE n.status = 'published' AND n.category_id = 1 
-                            ORDER BY COALESCE(n.published_at, n.created_at) DESC
-                            LIMIT 6");
-    $stmt->execute();
-    $res = $stmt->get_result();
-    $events_news = $res->fetch_all(MYSQLI_ASSOC);
-}
+// ดึงข่าวกิจกรรมล่าสุด (category_id = 1 คือหมวดหมู่กิจกรรม)
+$events_news = getLatestNews($conn, 6, 1);
 ?>
 
 <!DOCTYPE html>
@@ -181,7 +170,7 @@ if ($conn && !$conn->connect_error) {
                                     </span>
                                     <span>
                                         <i class="far fa-eye"></i>
-                                        <?php echo number_format((int)$event['views']); ?>
+                                        <?php echo number_format((int)($event['view_count'] ?? 0)); ?>
                                     </span>
                                 </div>
                                 <small class="text-muted">

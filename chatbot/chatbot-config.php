@@ -22,13 +22,16 @@ $nvidia_model = "meta/llama-4-maverick-17b-128e-instruct"; // โมเดลท
 
 // ตั้งค่าอื่นๆ ของแชทบอท
 $chatbot_settings = [
-    'bot_name' => 'แชทบอทโรงเรียนสาธิต',
-    'welcome_message' => 'สวัสดีครับ ผมเป็นแชทบอทอัจฉริยะของโรงเรียนสาธิตมหาวิทยาลัยพะเยา มีอะไรให้ช่วยไหมครับ?',
-    'placeholder_text' => 'พิมพ์ข้อความที่นี่...',
-    'auto_open' => false, // ตั้งค่าเป็น true ถ้าต้องการให้แชทบอทเปิดอัตโนมัติเมื่อโหลดหน้าเว็บ
+    'bot_name' => 'DesUPGPT',
+    'welcome_message' => '🎓 สวัสดีครับ! ผมคือ DesUPGPT แชทบอทอัจฉริยะตัวท็อปของโรงเรียนสาธิตมหาวิทยาลัยพะเยา พร้อมให้ข้อมูล คำแนะนำ และช่วยเหลือทุกเรื่อง! มีอะไรให้ผมช่วยไหมครับ? 🤖✨',
+    'placeholder_text' => 'ถามอะไรผมได้เลย... 💬',
+    'auto_open' => true, // เปิดอัตโนมัติเพื่อให้เด่นเป็นจุดขาย
     'theme_color' => '#7b3b95', // สีหลักของแชทบอท (สีม่วงของโรงเรียนสาธิต)
     'use_backend_api' => true, // ตั้งค่าเป็น true เพื่อใช้ API ผ่าน backend แทนที่จะเรียกตรงจาก frontend
     'api_endpoint' => 'chatbot/api/chat.php', // endpoint สำหรับเรียกใช้ API ผ่าน backend
+    'pulse_effect' => true, // เปิดเอฟเฟกต์กระพริบเพื่อดึงดูดความสนใจ
+    'sound_effects' => true, // เปิดเสียงแจ้งเตือน
+    'floating_animation' => true, // เปิดแอนิเมชันลอยตัว
 ];
 
 /**
@@ -64,6 +67,7 @@ function display_chatbot() {
     
     // เพิ่ม CSS และ JavaScript ของแชทบอท
     $html .= '<link rel="stylesheet" href="chatbot/css/chatbot.css">';
+    $html .= '<link rel="stylesheet" href="css/chatbot-animation.css">';
     $html .= '<script src="chatbot/js/chatbot.js"></script>';
     
     // ส่งคืน HTML

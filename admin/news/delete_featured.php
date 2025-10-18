@@ -1,25 +1,37 @@
 <?php
+/**
+ * Delete Featured Status
+ * Remove featured status from a news article
+ */
+
+// Include database connection and authentication functions
 $conn = require_once '../includes/db_config.php';
 require_once '../includes/auth_functions.php';
-requireLogin();
-if (!isAdmin() && !isPrOfficer()) { header('Location: index.php'); exit; }
 
-if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['news_id'])) {
-	$news_id = (int)$_POST['news_id'];
-	$stmt = $conn->prepare("SELECT featured_image FROM news WHERE id=?");
-	$stmt->bind_param('i', $news_id);
-	$stmt->execute();
-	$res = $stmt->get_result();
-	if ($res->num_rows===1) {
-		$row = $res->fetch_assoc();
-		if (!empty($row['featured_image'])) {
-			$path = '../../' . $row['featured_image'];
-			if (file_exists($path)) { @unlink($path); }
-		}
-		$u = $conn->prepare("UPDATE news SET featured_image=NULL WHERE id=?");
-		$u->bind_param('i', $news_id);
-		$u->execute();
-		header('Location: edit.php?id='.$news_id.'&success=1'); exit;
-	}
+// Require user to be logged in and have news access permission
+requireNewsAccess();
+
+// Check if ID is provided
+if (!isset($_GET['id']) || empty($_GET['id'])) {
+    $_SESSION['error_message'] = "ไม่พบรหัสข่าวที่ต้องการแก้ไข";
+    header("Location: index.php");
+    exit;
 }
-header('Location: index.php');
+
+$news_id = (int)$_GET['id'];
+
+// Update the news to remove featured status
+$stmt = $conn->prepare("UPDATE news SET is_featured = 0 WHERE id = ?");
+$stmt->bind_param('i', $news_id);
+
+if ($stmt->execute()) {
+    $_SESSION['success_message'] = "ยกเลิกสถานะข่าวเด่นเรียบร้อยแล้ว";
+} else {
+    $_SESSION['error_message'] = "เกิดข้อผิดพลาดในการยกเลิกสถานะข่าวเด่น: " . $conn->error;
+}
+
+// Redirect back to the previous page or index
+$redirect = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : 'index.php';
+header("Location: $redirect");
+exit;
+?>

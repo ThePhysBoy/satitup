@@ -2,23 +2,33 @@
 require_once __DIR__ . '/../admin/includes/db_config.php';
 require_once __DIR__ . '/../admin/news/news_functions.php';
 
+require_once __DIR__ . '/functions.php';
+
+// รองรับทั้ง id และ slug
+$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $slug = $_GET['slug'] ?? '';
-if ($slug==='') { header('Location: index.php'); exit; }
 
-$stmt = $conn->prepare("SELECT n.*, c.name as category_name, u.full_name
-                        FROM news n
-                        LEFT JOIN news_categories c ON n.category_id = c.id
-                        LEFT JOIN users u ON n.author_id = u.id
-                        WHERE n.slug=? AND n.status='published'");
-$stmt->bind_param('s', $slug);
-$stmt->execute();
-$news = $stmt->get_result()->fetch_assoc();
-if (!$news) { header('Location: index.php'); exit; }
+// ใช้ฟังก์ชันจาก functions.php
+if ($id > 0) {
+    $news = getNewsDetail($id, $conn);
+} elseif ($slug !== '') {
+    $news = getNewsDetail($slug, $conn);
+} else {
+    // ถ้าไม่มีทั้ง id และ slug
+    header('Location: index.php');
+    exit;
+}
 
-incrementViewCount($news['id'], $conn);
-$images = getNewsImages($news['id'], $conn);
+// ถ้าไม่พบข่าว ให้กลับไปหน้าหลัก
+if (!$news) { 
+    header('Location: index.php'); 
+    exit; 
+}
+
+// ข้อมูลเพิ่มเติมสำหรับแสดงผล
+$images = getNewsImages($news['id'], $conn); // ฟังก์ชันจาก admin/news/news_functions.php
 $category_name = $news['category_name'] ?? 'ทั่วไป';
-$author_name = $news['full_name'] ?? 'ระบบ';
+$author_name = $news['full_name'] ?? $news['username'] ?? 'ระบบ';
 $published_date = $news['published_at'] ? date('d F Y', strtotime($news['published_at'])) : date('d F Y', strtotime($news['created_at']));
 ?>
 <!DOCTYPE html>
@@ -104,11 +114,16 @@ $published_date = $news['published_at'] ? date('d F Y', strtotime($news['publish
 
 		.hero-image {
 			width: 100%;
-			height: 400px;
+			height: auto;
+			max-height: 500px;
+			min-height: 300px;
 			object-fit: contain;
+			object-position: center;
 			border-radius: var(--border-radius);
 			border: none;
 			background-color: #f8f9fa;
+			display: block;
+			margin: 0 auto;
 		}
 		
 		.image-overlay {
@@ -158,12 +173,15 @@ $published_date = $news['published_at'] ? date('d F Y', strtotime($news['publish
 			width: 100px;
 			height: 75px;
 			margin-bottom: 0.5rem;
+			background-color: transparent;
+			padding: 0;
 		}
 
 		.gallery-thumb {
 			width: 100px;
 			height: 75px;
-			object-fit: contain;
+			object-fit: cover;
+			object-position: center;
 			border-radius: var(--border-radius);
 			cursor: pointer;
 			border: 2px solid var(--border-color);
@@ -230,11 +248,22 @@ $published_date = $news['published_at'] ? date('d F Y', strtotime($news['publish
 
 		.content-text img {
 			max-width: 100%;
+			width: auto;
 			height: auto;
 			border-radius: var(--border-radius);
-			margin: 1.5rem 0;
+			margin: 1.5rem auto;
 			box-shadow: var(--shadow);
 			object-fit: contain;
+			display: block;
+			max-height: 600px;
+		}
+		
+		/* Specific handling for large portrait images */
+		.content-text img[width], .content-text img[height] {
+			max-width: 100% !important;
+			width: auto !important;
+			height: auto !important;
+			max-height: 600px !important;
 		}
 		
 		.content-text ul, .content-text ol {
@@ -524,14 +553,30 @@ $published_date = $news['published_at'] ? date('d F Y', strtotime($news['publish
 			justify-content: center;
 			align-items: center;
 			width: 100%;
-			height: 100%;
+			height: auto;
 			overflow: hidden;
+			position: relative;
+			background-color: #f8f9fa;
+			border-radius: var(--border-radius);
+		}
+		
+		/* Main image container for featured image */
+		.hero-section .image-container {
+			max-height: 500px;
+			background-color: #f0f0f0;
+			padding: 10px;
 		}
 		
 		/* Responsive Design */
 		@media (max-width: 768px) {
 			.hero-image {
-				height: 220px;
+				max-height: 350px;
+				min-height: 200px;
+			}
+			
+			.content-text img {
+				max-height: 400px;
+				margin: 1rem auto;
 			}
 			
 			.page-header {

@@ -10,6 +10,7 @@ if (!function_exists('mysqli_connect') || !isset($conn)) {
     $db_host = 'localhost';
     $db_user = 'root';
     $db_pass = '';
+    //$db_name = 'school_satitup';
     $db_name = 'satitup';
     
     $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
@@ -42,8 +43,7 @@ $rankings = $result->fetch_all(MYSQLI_ASSOC);
     <div class="container-fluid">
         <!-- ส่วนหัวข้อของเซคชั่น -->
         <div class="section-header text-center mb-5">
-            <h2 class="section-title">ความสำเร็จและการจัดอันดับ</h2>
-            <p class="section-subtitle">โรงเรียนสาธิตมหาวิทยาลัยพะเยาได้รับการยอมรับในระดับสากล</p>
+            <h2 class="section-title">โรงเรียนสาธิตมหาวิทยาลัยพะเยาได้รับการยอมรับในระดับสากล</h2>
         </div>
         
         <!-- สไลด์แสดงผลการจัดอันดับ - carousel-fade ทำให้เปลี่ยนสไลด์แบบจางๆ - data-bs-interval="4000" ตั้งเวลาเปลี่ยนสไลด์ทุก 4 วินาที -->
@@ -99,5 +99,5 @@ $rankings = $result->fetch_all(MYSQLI_ASSOC);
     </div>
 </section>
 
-<?php include_once 'styles.php'; ?>
-<?php include_once 'scripts.php'; ?>
+<?php include_once __DIR__ . '/styles.php'; ?>
+<?php include_once __DIR__ . '/scripts.php'; ?>
