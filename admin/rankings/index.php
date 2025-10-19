@@ -417,18 +417,20 @@ $rankings = $result->fetch_all(MYSQLI_ASSOC);
                             <table class="table table-hover" width="100%" cellspacing="0">
                                 <thead>
                                     <tr>
-                                        <th width="5%">ลำดับ</th>
-                                        <th width="20%">รูปภาพ</th>
-                                        <th width="30%">หัวข้อ</th>
-                                        <th width="25%">คำอธิบาย</th>
-                                        <th width="10%">สถานะ</th>
+                                        <th width="3%">ลำดับ</th>
+                                        <th width="15%">รูปภาพ</th>
+                                        <th width="25%">หัวข้อ</th>
+                                        <th width="15%">องค์กร/ปี</th>
+                                        <th width="10%">อันดับ</th>
+                                        <th width="15%">หมวดหมู่</th>
+                                        <th width="7%">สถานะ</th>
                                         <th width="10%">จัดการ</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php if (empty($rankings)): ?>
                                         <tr>
-                                            <td colspan="6" class="text-center">ไม่พบข้อมูลการจัดอันดับ</td>
+                                            <td colspan="8" class="text-center">ไม่พบข้อมูลการจัดอันดับ</td>
                                         </tr>
                                     <?php else: ?>
                                         <?php foreach ($rankings as $index => $ranking): ?>
@@ -450,8 +452,35 @@ $rankings = $result->fetch_all(MYSQLI_ASSOC);
                                                         </div>
                                                     <?php endif; ?>
                                                 </td>
-                                                <td><?php echo htmlspecialchars($ranking['title']); ?></td>
-                                                <td><?php echo htmlspecialchars(substr($ranking['description'], 0, 100)) . (strlen($ranking['description']) > 100 ? '...' : ''); ?></td>
+                                                <td>
+                                                    <?php echo htmlspecialchars($ranking['title']); ?>
+                                                    <?php if (!empty($ranking['featured'])): ?>
+                                                        <span class="badge bg-warning text-dark ms-1"><i class="fas fa-star me-1"></i>โดดเด่น</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td>
+                                                    <?php if (!empty($ranking['ranking_organization'])): ?>
+                                                        <strong><?php echo htmlspecialchars($ranking['ranking_organization']); ?></strong><br>
+                                                    <?php endif; ?>
+                                                    <?php if (!empty($ranking['ranking_year'])): ?>
+                                                        <span class="text-muted">ปี <?php echo htmlspecialchars($ranking['ranking_year']); ?></span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td>
+                                                    <?php if (!empty($ranking['ranking_position'])): ?>
+                                                        <span class="fw-bold"><?php echo htmlspecialchars($ranking['ranking_position']); ?></span>
+                                                    <?php endif; ?>
+                                                    <?php if (!empty($ranking['ranking_score'])): ?>
+                                                        <br><span class="badge bg-info text-white"><?php echo htmlspecialchars($ranking['ranking_score']); ?> คะแนน</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td>
+                                                    <?php if (!empty($ranking['ranking_category'])): ?>
+                                                        <?php echo htmlspecialchars($ranking['ranking_category']); ?>
+                                                    <?php else: ?>
+                                                        <span class="text-muted">-</span>
+                                                    <?php endif; ?>
+                                                </td>
                                                 <td>
                                                     <?php if ($ranking['active']): ?>
                                                         <span class="badge bg-success">แสดง</span>
@@ -464,7 +493,7 @@ $rankings = $result->fetch_all(MYSQLI_ASSOC);
                                                         <a href="edit.php?id=<?php echo $ranking['id']; ?>" class="btn btn-sm btn-primary">
                                                             <i class="fas fa-edit"></i> แก้ไข
                                                         </a>
-                                                        <a href="preview.php?id=<?php echo $ranking['id']; ?>" class="btn btn-sm btn-info" title="ดูตัวอย่าง">
+                                                        <a href="../../rankings/view.php?id=<?php echo $ranking['id']; ?>" class="btn btn-sm btn-info" title="ดูตัวอย่าง" target="_blank" rel="noopener">
                                                             <i class="fas fa-eye"></i>
                                                         </a>
                                                         <a href="index.php?delete=<?php echo $ranking['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('คุณต้องการลบรายการนี้ใช่หรือไม่?')">

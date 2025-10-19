@@ -261,6 +261,94 @@
     color: var(--primary-color);
 }
 
+/* องค์กรจัดอันดับและปี */
+.ranking-organization {
+    /* ขนาดตัวอักษร 1.1rem */
+    font-size: 1.1rem;
+    /* สีตัวอักษรตามตัวแปร primary-color (สีม่วง) */
+    color: var(--primary-color);
+    /* ตัวหนา */
+    font-weight: 600;
+    /* ระยะห่างด้านล่าง */
+    margin-bottom: 10px;
+    /* จัดข้อความตรงกลาง */
+    text-align: center;
+    /* แสดงเป็น flex เพื่อจัดเรียงองค์ประกอบ */
+    display: flex;
+    /* จัดองค์ประกอบให้อยู่ตรงกลาง */
+    justify-content: center;
+    /* ระยะห่างระหว่างองค์ประกอบ */
+    gap: 10px;
+    /* จัดเรียงองค์ประกอบในแนวนอน */
+    flex-direction: row;
+    /* ให้องค์ประกอบอยู่ตรงกลางแนวตั้ง */
+    align-items: center;
+}
+
+/* ชื่อองค์กรจัดอันดับ */
+.org-name {
+    /* ตัวหนา */
+    font-weight: 700;
+}
+
+/* ปีที่จัดอันดับ */
+.org-year {
+    /* พื้นหลังสีม่วงอ่อน */
+    background-color: var(--primary-light);
+    /* สีตัวอักษรขาว */
+    color: white;
+    /* ระยะห่างภายใน */
+    padding: 3px 10px;
+    /* มุมโค้ง */
+    border-radius: 20px;
+    /* ขนาดตัวอักษร */
+    font-size: 0.9rem;
+}
+
+/* อันดับที่ได้รับ */
+.ranking-position {
+    /* ขนาดตัวอักษร 1.1rem */
+    font-size: 1.1rem;
+    /* สีตัวอักษรตามตัวแปร accent-color (สีชมพู) */
+    color: var(--accent-color);
+    /* ระยะห่างด้านล่าง */
+    margin-bottom: 15px;
+    /* ตัวหนา */
+    font-weight: 600;
+}
+
+/* หมวดหมู่การจัดอันดับ */
+.ranking-category {
+    /* ขนาดตัวอักษร 0.9rem */
+    font-size: 0.9rem;
+    /* สีตัวอักษรเทา */
+    color: #666;
+    /* ระยะห่างซ้าย */
+    margin-left: 5px;
+    /* ตัวหนังสือปกติ (ไม่หนา) */
+    font-weight: normal;
+}
+
+/* จุดเด่นที่ทำให้ได้รับการจัดอันดับ */
+.ranking-highlights {
+    /* พื้นหลังสีเหลืองอ่อนมาก */
+    background-color: rgba(255, 248, 220, 0.7);
+    /* ระยะห่างภายใน */
+    padding: 10px 15px;
+    /* มุมโค้ง */
+    border-radius: 10px;
+    /* ขอบสีเหลืองอ่อน */
+    border-left: 3px solid #FFD700;
+    /* ระยะห่างด้านบน */
+    margin-top: 10px;
+}
+
+/* ไอคอนในจุดเด่น */
+.ranking-highlights i {
+    /* สีเหลืองทอง */
+    color: #FFD700;
+}
+
 /* คำอธิบายการจัดอันดับ */
 .ranking-description {
     /* ขนาดตัวอักษร 1.2rem */

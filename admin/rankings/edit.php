@@ -20,11 +20,23 @@ $id = $_GET['id'];
 
 // Initialize variables
 $title = '';
+$ranking_organization = '';
+$ranking_year = '';
+$ranking_category = '';
+$ranking_position = '';
+$ranking_score = '';
+$ranking_criteria = '';
+$achievement_highlights = '';
+$publication_date = '';
 $description = '';
 $link = '';
+$additional_links = '';
 $display_order = 0;
 $active = 1;
+$featured = 0;
+$color_theme = '';
 $current_image = '';
+$logo_path = '';
 $errors = [];
 $success_message = '';
 
@@ -41,20 +53,43 @@ if ($result->num_rows === 0) {
 
 $ranking = $result->fetch_assoc();
 $title = $ranking['title'];
+$ranking_organization = $ranking['ranking_organization'] ?? '';
+$ranking_year = $ranking['ranking_year'] ?? '';
+$ranking_category = $ranking['ranking_category'] ?? '';
+$ranking_position = $ranking['ranking_position'] ?? '';
+$ranking_score = $ranking['ranking_score'] ?? '';
+$ranking_criteria = $ranking['ranking_criteria'] ?? '';
+$achievement_highlights = $ranking['achievement_highlights'] ?? '';
+$publication_date = $ranking['publication_date'] ?? '';
 $description = $ranking['description'];
 $link = $ranking['link'];
+$additional_links = $ranking['additional_links'] ?? '';
 $display_order = $ranking['display_order'];
 $active = $ranking['active'];
+$featured = $ranking['featured'] ?? 0;
+$color_theme = $ranking['color_theme'] ?? '';
 $current_image = $ranking['image_path'];
+$logo_path = $ranking['logo_path'] ?? '';
 
 // Check if form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get form data
     $title = $_POST['title'] ?? '';
+    $ranking_organization = $_POST['ranking_organization'] ?? '';
+    $ranking_year = $_POST['ranking_year'] ?? '';
+    $ranking_category = $_POST['ranking_category'] ?? '';
+    $ranking_position = $_POST['ranking_position'] ?? '';
+    $ranking_score = isset($_POST['ranking_score']) && $_POST['ranking_score'] !== '' ? (float)$_POST['ranking_score'] : null;
+    $ranking_criteria = $_POST['ranking_criteria'] ?? '';
+    $achievement_highlights = $_POST['achievement_highlights'] ?? '';
+    $publication_date = $_POST['publication_date'] ?? '';
     $description = $_POST['description'] ?? '';
     $link = $_POST['link'] ?? '';
+    $additional_links = $_POST['additional_links'] ?? '';
     $display_order = isset($_POST['display_order']) ? (int)$_POST['display_order'] : 0;
     $active = isset($_POST['active']) ? 1 : 0;
+    $featured = isset($_POST['featured']) ? 1 : 0;
+    $color_theme = $_POST['color_theme'] ?? '';
     
     // Validate form data
     if (empty($title)) {
@@ -125,8 +160,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // If no errors, update the database
         if (empty($errors)) {
-            $stmt = $conn->prepare("UPDATE university_rankings SET title = ?, description = ?, image_path = ?, link = ?, display_order = ?, active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
-            $stmt->bind_param("ssssiis", $title, $description, $image_path, $link, $display_order, $active, $id);
+            // Get current user ID for updated_by field
+            $user_id = $_SESSION['user_id'] ?? null;
+            
+            // Format publication date for database
+            $formatted_pub_date = !empty($publication_date) ? date('Y-m-d', strtotime($publication_date)) : null;
+            
+            $stmt = $conn->prepare("UPDATE university_rankings SET 
+                title = ?, 
+                ranking_organization = ?,
+                ranking_year = ?,
+                ranking_category = ?,
+                ranking_position = ?,
+                ranking_score = ?,
+                ranking_criteria = ?,
+                achievement_highlights = ?,
+                publication_date = ?,
+                description = ?, 
+                image_path = ?, 
+                link = ?,
+                additional_links = ?,
+                display_order = ?, 
+                active = ?,
+                featured = ?,
+                color_theme = ?,
+                updated_by = ?,
+                updated_at = CURRENT_TIMESTAMP 
+                WHERE id = ?");
+                
+            $stmt->bind_param(
+                "sssssdsssssssiiisii", 
+                $title, 
+                $ranking_organization,
+                $ranking_year,
+                $ranking_category,
+                $ranking_position,
+                $ranking_score,
+                $ranking_criteria,
+                $achievement_highlights,
+                $formatted_pub_date,
+                $description, 
+                $image_path, 
+                $link,
+                $additional_links,
+                $display_order, 
+                $active,
+                $featured,
+                $color_theme,
+                $user_id,
+                $id
+            );
             
             if ($stmt->execute()) {
                 $success_message = "อัพเดตข้อมูลเรียบร้อยแล้ว";
@@ -410,33 +493,117 @@ if (isset($_POST['delete_image']) && $_POST['delete_image'] === '1') {
                     </div>
                     <div class="card-body">
                         <form method="post" enctype="multipart/form-data">
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="title" class="form-label">หัวข้อ <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="title" name="title" value="<?php echo htmlspecialchars($title); ?>" required>
+                            <!-- ข้อมูลพื้นฐาน -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-primary bg-opacity-75">
+                                    <h6 class="mb-0 text-white"><i class="fas fa-info-circle me-2"></i> ข้อมูลพื้นฐาน</h6>
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="link" class="form-label">ลิงก์</label>
-                                    <input type="text" class="form-control" id="link" name="link" value="<?php echo htmlspecialchars($link); ?>" placeholder="เช่น https://www.up.ac.th/NewsRead.aspx?itemID=34799">
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="title" class="form-label">หัวข้อ <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="title" name="title" value="<?php echo htmlspecialchars($title); ?>" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="ranking_organization" class="form-label">องค์กรจัดอันดับ</label>
+                                            <input type="text" class="form-control" id="ranking_organization" name="ranking_organization" value="<?php echo htmlspecialchars($ranking_organization); ?>" placeholder="เช่น QS, THE, U-Multirank">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-4">
+                                            <label for="ranking_year" class="form-label">ปีที่จัดอันดับ</label>
+                                            <input type="text" class="form-control" id="ranking_year" name="ranking_year" value="<?php echo htmlspecialchars($ranking_year); ?>" placeholder="เช่น 2023, 2024">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="ranking_category" class="form-label">หมวดหมู่การจัดอันดับ</label>
+                                            <input type="text" class="form-control" id="ranking_category" name="ranking_category" value="<?php echo htmlspecialchars($ranking_category); ?>" placeholder="เช่น World University Rankings">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="publication_date" class="form-label">วันที่ประกาศผล</label>
+                                            <input type="date" class="form-control" id="publication_date" name="publication_date" value="<?php echo htmlspecialchars($publication_date); ?>">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="ranking_position" class="form-label">อันดับที่ได้รับ</label>
+                                            <input type="text" class="form-control" id="ranking_position" name="ranking_position" value="<?php echo htmlspecialchars($ranking_position); ?>" placeholder="เช่น 1, 2-5, Top 100">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="ranking_score" class="form-label">คะแนนที่ได้รับ</label>
+                                            <input type="number" step="0.01" class="form-control" id="ranking_score" name="ranking_score" value="<?php echo htmlspecialchars($ranking_score); ?>" placeholder="เช่น 85.5">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="description" class="form-label">คำอธิบายทั่วไป</label>
+                                        <textarea class="form-control" id="description" name="description" rows="3"><?php echo htmlspecialchars($description); ?></textarea>
+                                    </div>
                                 </div>
                             </div>
                             
-                            <div class="mb-3">
-                                <label for="description" class="form-label">คำอธิบาย</label>
-                                <textarea class="form-control" id="description" name="description" rows="3"><?php echo htmlspecialchars($description); ?></textarea>
+                            <!-- ข้อมูลเพิ่มเติม -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-info bg-opacity-75">
+                                    <h6 class="mb-0 text-white"><i class="fas fa-file-alt me-2"></i> ข้อมูลเพิ่มเติม</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="ranking_criteria" class="form-label">เกณฑ์การจัดอันดับ</label>
+                                        <textarea class="form-control" id="ranking_criteria" name="ranking_criteria" rows="3"><?php echo htmlspecialchars($ranking_criteria); ?></textarea>
+                                        <small class="form-text text-muted">อธิบายเกณฑ์หรือตัวชี้วัดที่ใช้ในการจัดอันดับ</small>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="achievement_highlights" class="form-label">จุดเด่นที่ทำให้ได้รับการจัดอันดับ</label>
+                                        <textarea class="form-control" id="achievement_highlights" name="achievement_highlights" rows="3"><?php echo htmlspecialchars($achievement_highlights); ?></textarea>
+                                        <small class="form-text text-muted">ระบุจุดเด่นหรือความสำเร็จที่ทำให้ได้รับการจัดอันดับนี้</small>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="link" class="form-label">ลิงก์หลัก</label>
+                                            <input type="text" class="form-control" id="link" name="link" value="<?php echo htmlspecialchars($link); ?>" placeholder="เช่น https://www.up.ac.th/NewsRead.aspx?itemID=34799">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="additional_links" class="form-label">ลิงก์เพิ่มเติม (JSON)</label>
+                                            <input type="text" class="form-control" id="additional_links" name="additional_links" value="<?php echo htmlspecialchars($additional_links); ?>" placeholder='{"ข่าวประชาสัมพันธ์": "https://example.com", "รายละเอียด": "https://example.com/detail"}'>
+                                            <small class="form-text text-muted">ระบุในรูปแบบ JSON เช่น {"ชื่อลิงก์": "URL", "ชื่อลิงก์2": "URL2"}</small>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="display_order" class="form-label">ลำดับการแสดงผล</label>
-                                    <input type="number" class="form-control" id="display_order" name="display_order" value="<?php echo $display_order; ?>" min="0">
+                            <!-- การแสดงผล -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-success bg-opacity-75">
+                                    <h6 class="mb-0 text-white"><i class="fas fa-desktop me-2"></i> การแสดงผล</h6>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-check mt-4">
-                                        <input class="form-check-input" type="checkbox" id="active" name="active" <?php echo $active ? 'checked' : ''; ?>>
-                                        <label class="form-check-label" for="active">
-                                            แสดงรายการนี้
-                                        </label>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-4">
+                                            <label for="display_order" class="form-label">ลำดับการแสดงผล</label>
+                                            <input type="number" class="form-control" id="display_order" name="display_order" value="<?php echo $display_order; ?>" min="0">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="color_theme" class="form-label">ธีมสี</label>
+                                            <input type="text" class="form-control" id="color_theme" name="color_theme" value="<?php echo htmlspecialchars($color_theme); ?>" placeholder="เช่น blue, green, red หรือ #FF5733">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check mt-4">
+                                                <input class="form-check-input" type="checkbox" id="active" name="active" <?php echo $active ? 'checked' : ''; ?>>
+                                                <label class="form-check-label" for="active">
+                                                    แสดงรายการนี้
+                                                </label>
+                                            </div>
+                                            <div class="form-check mt-2">
+                                                <input class="form-check-input" type="checkbox" id="featured" name="featured" <?php echo $featured ? 'checked' : ''; ?>>
+                                                <label class="form-check-label" for="featured">
+                                                    รายการที่โดดเด่น
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -466,6 +633,14 @@ if (isset($_POST['delete_image']) && $_POST['delete_image'] === '1') {
                             <div class="mb-3">
                                 <label for="image" class="form-label">อัพโหลดรูปภาพใหม่</label>
                                 <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                                <div class="alert alert-info mt-2">
+                                    <i class="fas fa-info-circle me-2"></i> <strong>คำแนะนำขนาดรูปภาพที่เหมาะสม:</strong>
+                                    <ul class="mb-0 mt-1">
+                                        <li>ความกว้าง: 960 พิกเซล</li>
+                                        <li>ความสูง: 540 พิกเซล (อัตราส่วน 16:9)</li>
+                                        <li>เพื่อการแสดงผลที่ดีที่สุด ใช้รูปภาพที่มีอัตราส่วน 16:9 และมีความละเอียดสูง</li>
+                                    </ul>
+                                </div>
                                 <small class="form-text text-muted">ขนาดไฟล์ไม่เกิน 5MB (jpg, jpeg, png, gif)</small>
                                 <img id="imagePreview" class="image-preview" src="#" alt="ตัวอย่างรูปภาพ">
                             </div>

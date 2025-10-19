@@ -10,7 +10,6 @@ if (!function_exists('mysqli_connect') || !isset($conn)) {
     $db_host = 'localhost';
     $db_user = 'root';
     $db_pass = '';
-    //$db_name = 'school_satitup';
     $db_name = 'satitup';
     
     $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
@@ -35,45 +34,40 @@ if ($result->num_rows === 0) {
 
 // Fetch all rankings
 $rankings = $result->fetch_all(MYSQLI_ASSOC);
+
+// Group rankings into sets of 2
+$grouped_rankings = array_chunk($rankings, 2);
 ?>
 
 <!-- ส่วนแสดงผลการจัดอันดับและความสำเร็จของมหาวิทยาลัย -->
-<section class="rankings-section py-5">
-    <!-- container-fluid ใช้เพื่อให้ขยายเต็มความกว้างของหน้าจอ -->
-    <div class="container-fluid">
-        <!-- ส่วนหัวข้อของเซคชั่น -->
-        <div class="section-header text-center mb-5">
-            <h2 class="section-title">โรงเรียนสาธิตมหาวิทยาลัยพะเยาได้รับการยอมรับในระดับสากล</h2>
-        </div>
-        
+<section id="rankings-section" class="rankings-section">
+    <div class="container-fluid p-0">
         <!-- สไลด์แสดงผลการจัดอันดับ - carousel-fade ทำให้เปลี่ยนสไลด์แบบจางๆ - data-bs-interval="4000" ตั้งเวลาเปลี่ยนสไลด์ทุก 4 วินาที -->
-        <div id="rankingsCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4000">
+        <div id="rankingsCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
             <div class="carousel-inner">
-                <?php foreach ($rankings as $index => $ranking): ?>
+                <?php foreach ($grouped_rankings as $index => $group): ?>
                 <div class="carousel-item <?php echo $index === 0 ? 'active' : ''; ?>">
-                    <div class="row justify-content-center">
-                        <!-- col-lg-10 ใช้ 10/12 ส่วนบนหน้าจอใหญ่, col-md-11 ใช้ 11/12 ส่วนบนหน้าจอกลาง, col-sm-12 ใช้เต็มหน้าจอบนมือถือ -->
-                        <div class="col-lg-10 col-md-11 col-sm-12">
-                            <!-- การ์ดแสดงข้อมูลการจัดอันดับ - h-100 ทำให้สูงเต็มพื้นที่ -->
-                            <div class="ranking-card-single h-100">
-                                <!-- ลิงก์ไปยังข่าวต้นฉบับ -->
-                                <a href="<?php echo htmlspecialchars($ranking['link']); ?>" target="_blank" class="ranking-link">
-                                    <!-- ส่วนแสดงรูปภาพ -->
-                                    <div class="ranking-image">
+                    <div class="row g-0">
+                        <?php foreach ($group as $ranking): ?>
+                        <div class="col-12 col-md-6">
+                            <div class="ranking-block">
+                                <a href="rankings/view.php?id=<?php echo $ranking['id']; ?>" class="ranking-link" target="_blank" rel="noopener noreferrer">
+                                    <div class="ranking-image-container">
                                         <img src="<?php echo htmlspecialchars($ranking['image_path']); ?>" alt="<?php echo htmlspecialchars($ranking['title']); ?>" class="img-fluid">
-                                        <!-- โอเวอร์เลย์ที่แสดงไอคอนเมื่อ hover -->
-                                        <div class="ranking-overlay">
-                                            <i class="fas fa-award"></i>
-                                        </div>
-                                    </div>
-                                    <!-- ส่วนแสดงเนื้อหา -->
-                                    <div class="ranking-content">
-                                        <h5 class="ranking-title"><?php echo htmlspecialchars($ranking['title']); ?></h5>
-                                        <p class="ranking-description"><?php echo htmlspecialchars($ranking['description']); ?></p>
                                     </div>
                                 </a>
                             </div>
                         </div>
+                        <?php endforeach; ?>
+                        
+                        <?php 
+                        // Fill empty slots if group has less than 2 items
+                        $empty_slots = 2 - count($group);
+                        for ($i = 0; $i < $empty_slots; $i++): ?>
+                        <div class="col-12 col-md-6">
+                            <div class="ranking-block empty"></div>
+                        </div>
+                        <?php endfor; ?>
                     </div>
                 </div>
                 <?php endforeach; ?>
@@ -91,7 +85,7 @@ $rankings = $result->fetch_all(MYSQLI_ASSOC);
             
             <!-- ตัวบ่งชี้ด้านล่าง (Indicators) -->
             <div class="carousel-indicators rankings-indicators">
-                <?php foreach ($rankings as $index => $ranking): ?>
+                <?php foreach ($grouped_rankings as $index => $group): ?>
                 <button type="button" data-bs-target="#rankingsCarousel" data-bs-slide-to="<?php echo $index; ?>" <?php echo $index === 0 ? 'class="active" aria-current="true"' : ''; ?> aria-label="Slide <?php echo $index + 1; ?>"></button>
                 <?php endforeach; ?>
             </div>
@@ -99,5 +93,179 @@ $rankings = $result->fetch_all(MYSQLI_ASSOC);
     </div>
 </section>
 
-<?php include_once __DIR__ . '/styles.php'; ?>
-<?php include_once __DIR__ . '/scripts.php'; ?>
+<style>
+/* ส่วนพื้นหลังของเซคชั่นการจัดอันดับ */
+.rankings-section {
+    width: 100%;
+    padding: 0 !important;
+    margin: 0;
+    overflow: hidden;
+    background-color: transparent;
+}
+
+/* คอนเทนเนอร์สำหรับสไลด์ */
+#rankingsCarousel {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.carousel-inner {
+    width: 100%;
+}
+
+.carousel-item {
+    width: 100%;
+}
+
+/* แถวสำหรับรูปภาพ */
+.carousel-item .row {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+/* คอลัมน์สำหรับรูปภาพ */
+.carousel-item .col-6 {
+    padding: 0;
+    margin: 0;
+}
+
+/* บล็อกการจัดอันดับ */
+.ranking-block {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    margin: 0;
+    background-color: #000;
+}
+
+/* ลิงก์ */
+.ranking-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* คอนเทนเนอร์สำหรับรูปภาพ */
+.ranking-image-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #000;
+}
+
+/* รูปภาพ */
+.ranking-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    transition: transform 0.5s ease;
+    margin: 0;
+    padding: 0;
+    display: block;
+}
+
+/* ปุ่มควบคุมสไลด์ซ้าย-ขวา */
+.rankings-control-prev,
+.rankings-control-next {
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+}
+
+/* เอฟเฟกต์เมื่อ hover ปุ่มควบคุม */
+.rankings-control-prev:hover,
+.rankings-control-next:hover {
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 1;
+}
+
+/* ไอคอนในปุ่มควบคุม */
+.control-icon {
+    color: white;
+    font-size: 16px;
+}
+
+/* จุดบอกตำแหน่งสไลด์ด้านล่าง */
+.rankings-indicators {
+    bottom: 0;
+    margin: 0;
+}
+
+/* ปุ่มจุดบอกตำแหน่งสไลด์ */
+.rankings-indicators button {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    margin: 0 3px;
+    transition: all 0.3s ease;
+    padding: 0;
+}
+
+/* ปุ่มจุดบอกตำแหน่งสไลด์ที่กำลังแสดงอยู่ */
+.rankings-indicators button.active {
+    width: 16px;
+    border-radius: 8px;
+    background: white;
+}
+
+/* การปรับขนาดตามหน้าจอ */
+@media (min-width: 992px) {
+    .rankings-control-prev,
+    .rankings-control-next {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .control-icon {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .rankings-control-prev,
+    .rankings-control-next {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .control-icon {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 576px) {
+    .rankings-control-prev,
+    .rankings-control-next {
+        width: 25px;
+        height: 25px;
+    }
+    
+    .control-icon {
+        font-size: 12px;
+    }
+    
+    .rankings-indicators button {
+        width: 6px;
+        height: 6px;
+        margin: 0 2px;
+    }
+    
+    .rankings-indicators button.active {
+        width: 12px;
+    }
+}
+</style>

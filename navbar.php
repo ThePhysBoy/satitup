@@ -60,7 +60,7 @@
             <ul class="navbar-nav w-100 d-flex justify-content-between">
                 <!-- สาธิตประถม - วมว. -->
                 <li class="nav-item">
-                    <a class="nav-link text-white" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '../' : ''; ?>academic_programs.php">
+                    <a class="nav-link text-white" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '../' : ''; ?>index.php">
                       หน้าหลัก
                     </a>
                 </li>
