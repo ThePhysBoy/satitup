@@ -116,6 +116,22 @@ if (!empty($latest)) {
         $news_items[] = $item;
     }
 }
+
+$procurements = [];
+if ($conn && !$conn->connect_error) {
+    $table_check = $conn->query("SHOW TABLES LIKE 'procurement_announcements'");
+    if ($table_check && $table_check->num_rows > 0) {
+        $sql = "SELECT id, title, reference_number, procurement_method, department, published_date, closing_date, document_pdf, status
+                FROM procurement_announcements
+                WHERE status IN ('published','closed')
+                ORDER BY published_date DESC
+                LIMIT 5";
+        $result = $conn->query($sql);
+        if ($result) {
+            $procurements = $result->fetch_all(MYSQLI_ASSOC);
+        }
+    }
+}
 ?>
 
 <!-- เริ่มต้นส่วนข่าวสารและประกาศ -->
@@ -1244,10 +1260,43 @@ if (!empty($latest)) {
             
             <!-- แท็บอื่นๆ -->
             <div class="tab-pane fade" id="procurement" role="tabpanel">
-                <div class="text-center p-5">
-                    <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
-                    <h4>การจัดซื้อจัดจ้าง</h4>
-                    <p class="text-muted">ส่วนนี้กำลังพัฒนา</p>
+                <div class="announcement-list">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-shopping-cart me-2"></i>ประกาศจัดซื้อจัดจ้างล่าสุด</h5>
+                            <a href="procurements/index.php" class="btn btn-sm btn-outline-primary">ดูทั้งหมด</a>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <?php if (!empty($procurements)): ?>
+                                <?php foreach ($procurements as $item): ?>
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="mb-1">
+                                                <a href="procurements/view.php?id=<?php echo $item['id']; ?>" class="text-decoration-none">
+                                                    <?php echo htmlspecialchars($item['title']); ?>
+                                                </a>
+                                            </h6>
+                                            <div class="text-muted">
+                                                <small><i class="fas fa-hashtag me-1"></i>เลขที่อ้างอิง: <?php echo htmlspecialchars($item['reference_number'] ?? '-'); ?></small>
+                                                <small class="ms-3"><i class="fas fa-building me-1"></i><?php echo htmlspecialchars($item['department'] ?? ''); ?></small>
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <div><span class="badge bg-<?php echo ($item['status'] === 'closed') ? 'secondary' : 'success'; ?>"><?php echo ($item['status'] === 'closed') ? 'สิ้นสุดแล้ว' : 'เปิดรับเสนอราคา'; ?></span></div>
+                                            <small class="text-muted d-block">ประกาศ: <?php echo date('d/m/Y', strtotime($item['published_date'])); ?></small>
+                                            <small class="text-muted d-block">หมดเขต: <?php echo date('d/m/Y', strtotime($item['closing_date'])); ?></small>
+                                        </div>
+                                    </div>
+                                </li>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <li class="list-group-item text-center text-muted py-4">
+                                    <i class="fas fa-info-circle me-2"></i>ยังไม่มีประกาศจัดซื้อจัดจ้างในขณะนี้
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
                 </div>
             </div>
             

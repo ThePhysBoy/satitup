@@ -1,6 +1,6 @@
 <?php
 $currentDir = basename(dirname($_SERVER['SCRIPT_FILENAME']));
-$basePath = in_array($currentDir, ['curriculum', 'admin', 'staff', 'rankings']) ? '../' : '';
+$basePath = in_array($currentDir, ['curriculum', 'admin', 'staff', 'rankings', 'procurements']) ? '../' : '';
 ?>
 <!DOCTYPE html>
 <html lang="th">
