@@ -1353,7 +1353,7 @@ if ($conn && !$conn->connect_error) {
             <div class="tab-pane fade" id="recruitment" role="tabpanel">
                 <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
                     <?php if (!empty($recruitments)): ?>
-                        <?php foreach (array_slice($recruitments, 0, 15) as $item): ?>
+                        <?php foreach ($recruitments as $item): ?>
                         <div class="col">
                             <div class="card h-100 hall-of-fame-card">
                                 <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
@@ -1397,7 +1397,7 @@ if ($conn && !$conn->connect_error) {
             <div class="tab-pane fade" id="training" role="tabpanel">
                 <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
                     <?php if (!empty($trainings)): ?>
-                        <?php foreach (array_slice($trainings, 0, 15) as $item): ?>
+                        <?php foreach ($trainings as $item): ?>
                         <div class="col">
                             <div class="card h-100 hall-of-fame-card">
                                 <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
@@ -1762,9 +1762,9 @@ if ($conn && !$conn->connect_error) {
                         <?php endforeach; ?>
                     <?php else: ?>
                         <div class="col-12 text-center p-4">
-                            <i class="fas fa-globe fa-3x text-muted mb-3"></i>
+                    <i class="fas fa-globe fa-3x text-muted mb-3"></i>
                             <p class="text-muted">ยังไม่มีข้อมูลการไปต่างประเทศ</p>
-                        </div>
+                </div>
                     <?php endif; ?>
                 </div>
                 <div class="text-center mt-3">
