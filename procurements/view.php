@@ -1,7 +1,4 @@
 <?php
-require_once '../header.php';
-require_once '../navbar.php';
-
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     header('Location: index.php');
     exit;
@@ -17,9 +14,13 @@ $stmt->execute();
 $result = $stmt->get_result();
 $announcement = $result->fetch_assoc();
 
+require_once '../header.php';
+require_once '../navbar.php';
+
 if (!$announcement) {
+    echo '<section class="py-5"><div class="container text-center"><h2 class="text-danger">ไม่พบประกาศนี้</h2><p class="text-muted">กรุณาตรวจสอบอีกครั้ง หรือกลับไปยังหน้ารายการประกาศ</p><a href="index.php" class="btn btn-primary mt-3"><i class="fas fa-arrow-left me-2"></i>กลับหน้ารายการ</a></div></section>';
     include '../footer.php';
-    exit('<section class="py-5"><div class="container text-center"><h2 class="text-danger">ไม่พบประกาศนี้</h2><p class="text-muted">กรุณาตรวจสอบอีกครั้ง หรือกลับไปยังหน้ารายการประกาศ</p><a href="index.php" class="btn btn-primary mt-3"><i class="fas fa-arrow-left me-2"></i>กลับหน้ารายการ</a></div></section>');
+    exit;
 }
 
 $documentRelative = ltrim($announcement['document_pdf'] ?? '', '/');
