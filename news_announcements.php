@@ -148,6 +148,22 @@ if ($conn && !$conn->connect_error) {
         }
     }
 }
+
+$trainings = [];
+if ($conn && !$conn->connect_error) {
+    $table_check = $conn->query("SHOW TABLES LIKE 'training_announcements'");
+    if ($table_check && $table_check->num_rows > 0) {
+        $sql = "SELECT id, title, training_topic, reference_number, host_department, training_type, published_date, registration_deadline, status
+                FROM training_announcements
+                WHERE status IN ('open','closed')
+                ORDER BY published_date DESC
+                LIMIT 5";
+        $result = $conn->query($sql);
+        if ($result) {
+            $trainings = $result->fetch_all(MYSQLI_ASSOC);
+        }
+    }
+}
 ?>
 
 <!-- เริ่มต้นส่วนข่าวสารและประกาศ -->
@@ -1367,10 +1383,54 @@ if ($conn && !$conn->connect_error) {
             </div>
             
             <div class="tab-pane fade" id="training" role="tabpanel">
-                <div class="text-center p-5">
-                    <i class="fas fa-chalkboard-teacher fa-3x text-muted mb-3"></i>
-                    <h4>การอบรม</h4>
-                    <p class="text-muted">ส่วนนี้กำลังพัฒนา</p>
+                <div class="announcement-list">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-chalkboard-teacher me-2"></i>ประกาศอบรมล่าสุด</h5>
+                            <a href="trainings/index.php" class="btn btn-sm btn-outline-primary">ดูทั้งหมด</a>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <?php if (!empty($trainings)): ?>
+                                <?php foreach ($trainings as $item): ?>
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="mb-1">
+                                                <a href="trainings/view.php?id=<?php echo $item['id']; ?>" class="text-decoration-none">
+                                                    <?php echo htmlspecialchars($item['title']); ?>
+                                                </a>
+                                            </h6>
+                                            <div class="text-muted">
+                                                <small><i class="fas fa-book-open me-1"></i><?php echo htmlspecialchars($item['training_topic'] ?? '-'); ?></small>
+                                                <small class="ms-3"><i class="fas fa-building me-1"></i><?php echo htmlspecialchars($item['host_department'] ?? ''); ?></small>
+                                                <small class="ms-3"><i class="fas fa-id-card me-1"></i>เลขอ้างอิง: <?php echo htmlspecialchars($item['reference_number'] ?? '-'); ?></small>
+                                            </div>
+                                            <?php if (!empty($item['training_type'])): ?>
+                                            <div><small class="badge bg-secondary">รูปแบบอบรม: <?php echo htmlspecialchars($item['training_type']); ?></small></div>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="text-end">
+                                            <?php
+                                            $status = $item['status'];
+                                            $labelClass = $status === 'open' ? 'success' : 'secondary';
+                                            $labelText = $status === 'open' ? 'เปิดรับสมัคร' : 'สิ้นสุดการสมัคร';
+                                            ?>
+                                            <span class="badge bg-<?php echo $labelClass; ?>"><?php echo $labelText; ?></span>
+                                            <small class="text-muted d-block">ประกาศ: <?php echo date('d/m/Y', strtotime($item['published_date'])); ?></small>
+                                            <?php if (!empty($item['registration_deadline'])): ?>
+                                            <small class="text-muted d-block">ปิดรับ: <?php echo date('d/m/Y', strtotime($item['registration_deadline'])); ?></small>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </li>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <li class="list-group-item text-center text-muted py-4">
+                                    <i class="fas fa-info-circle me-2"></i>ยังไม่มีประกาศอบรมในขณะนี้
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
                 </div>
             </div>
             

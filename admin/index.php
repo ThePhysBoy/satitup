@@ -113,6 +113,15 @@ if (isAdmin() || isPrOfficer()) {
     $result = $stmt->get_result();
     $recruitment_count = $result->fetch_assoc()['count'];
 }
+
+// Get training announcements count
+$training_count = 0;
+if (isAdmin() || isPrOfficer()) {
+    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM training_announcements");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $training_count = $result->fetch_assoc()['count'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="th">
@@ -725,6 +734,21 @@ if (isAdmin() || isPrOfficer()) {
                             </div>
                         </div>
                     </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-warning shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">ประกาศอบรม</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $training_count; ?> รายการ</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-chalkboard-teacher fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <?php endif; ?>
                 </div>
                 
@@ -890,6 +914,11 @@ if (isAdmin() || isPrOfficer()) {
                                     <div class="col-lg-3 col-md-6 mb-3">
                                         <a href="recruitments/index.php" class="btn btn-lg btn-info text-white w-100 shadow-sm" target="_blank" rel="noopener">
                                             <i class="fas fa-user-tie me-2"></i> จัดการประกาศรับสมัครงาน
+                                        </a>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6 mb-3">
+                                        <a href="trainings/index.php" class="btn btn-lg btn-warning text-white w-100 shadow-sm" target="_blank" rel="noopener">
+                                            <i class="fas fa-chalkboard-teacher me-2"></i> จัดการประกาศอบรม
                                         </a>
                                     </div>
                                     <div class="col-lg-3 col-md-6 mb-3">
