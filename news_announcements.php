@@ -132,6 +132,22 @@ if ($conn && !$conn->connect_error) {
         }
     }
 }
+
+$recruitments = [];
+if ($conn && !$conn->connect_error) {
+    $table_check = $conn->query("SHOW TABLES LIKE 'recruitment_announcements'");
+    if ($table_check && $table_check->num_rows > 0) {
+        $sql = "SELECT id, title, position_title, reference_number, department, employment_type, published_date, application_deadline, status
+                FROM recruitment_announcements
+                WHERE status IN ('open','closed')
+                ORDER BY published_date DESC
+                LIMIT 5";
+        $result = $conn->query($sql);
+        if ($result) {
+            $recruitments = $result->fetch_all(MYSQLI_ASSOC);
+        }
+    }
+}
 ?>
 
 <!-- เริ่มต้นส่วนข่าวสารและประกาศ -->
@@ -1301,10 +1317,52 @@ if ($conn && !$conn->connect_error) {
             </div>
             
             <div class="tab-pane fade" id="recruitment" role="tabpanel">
-                <div class="text-center p-5">
-                    <i class="fas fa-user-tie fa-3x text-muted mb-3"></i>
-                    <h4>การรับสมัครงาน</h4>
-                    <p class="text-muted">ส่วนนี้กำลังพัฒนา</p>
+                <div class="announcement-list">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-user-tie me-2"></i>ประกาศรับสมัครงานล่าสุด</h5>
+                            <a href="recruitments/index.php" class="btn btn-sm btn-outline-primary">ดูทั้งหมด</a>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <?php if (!empty($recruitments)): ?>
+                                <?php foreach ($recruitments as $item): ?>
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="mb-1">
+                                                <a href="recruitments/view.php?id=<?php echo $item['id']; ?>" class="text-decoration-none">
+                                                    <?php echo htmlspecialchars($item['title']); ?>
+                                                </a>
+                                            </h6>
+                                            <div class="text-muted">
+                                                <small><i class="fas fa-briefcase me-1"></i><?php echo htmlspecialchars($item['position_title'] ?? '-'); ?></small>
+                                                <small class="ms-3"><i class="fas fa-building me-1"></i><?php echo htmlspecialchars($item['department'] ?? ''); ?></small>
+                                                <small class="ms-3"><i class="fas fa-id-card me-1"></i>เลขอ้างอิง: <?php echo htmlspecialchars($item['reference_number'] ?? '-'); ?></small>
+                                            </div>
+                                            <?php if (!empty($item['employment_type'])): ?>
+                                            <div><small class="badge bg-secondary">รูปแบบงาน: <?php echo htmlspecialchars($item['employment_type']); ?></small></div>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="text-end">
+                                            <?php
+                                            $status = $item['status'];
+                                            $labelClass = $status === 'open' ? 'success' : 'secondary';
+                                            $labelText = $status === 'open' ? 'เปิดรับสมัคร' : 'ปิดรับสมัคร';
+                                            ?>
+                                            <span class="badge bg-<?php echo $labelClass; ?>"><?php echo $labelText; ?></span>
+                                            <small class="text-muted d-block">ประกาศ: <?php echo date('d/m/Y', strtotime($item['published_date'])); ?></small>
+                                            <small class="text-muted d-block">ปิดรับ: <?php echo date('d/m/Y', strtotime($item['application_deadline'])); ?></small>
+                                        </div>
+                                    </div>
+                                </li>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <li class="list-group-item text-center text-muted py-4">
+                                    <i class="fas fa-info-circle me-2"></i>ยังไม่มีประกาศรับสมัครงานในขณะนี้
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
                 </div>
             </div>
             

@@ -95,6 +95,24 @@ if (isAdmin() || isPrOfficer()) {
 $user_type = $_SESSION['user_type'] ?? 'general';
 $full_name = $_SESSION['full_name'] ?? $_SESSION['username'];
 $position = $_SESSION['position'] ?? '';
+
+// Get procurement announcements count (for PR/Admin maybe)
+$procurement_count = 0;
+if (isAdmin() || isPrOfficer()) {
+    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM procurement_announcements");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $procurement_count = $result->fetch_assoc()['count'];
+}
+
+// Get recruitment announcements count
+$recruitment_count = 0;
+if (isAdmin() || isPrOfficer()) {
+    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM recruitment_announcements");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $recruitment_count = $result->fetch_assoc()['count'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="th">
@@ -675,6 +693,39 @@ $position = $_SESSION['position'] ?? '';
                         </div>
                     </div>
                     <?php endif; ?>
+
+                    <?php if (isPrOfficer() || isAdmin()): ?>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">ประกาศจัดซื้อจัดจ้าง</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $procurement_count; ?> รายการ</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-info shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">ประกาศรับสมัครงาน</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $recruitment_count; ?> รายการ</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-user-tie fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                 </div>
                 
                 <div class="row">
@@ -834,6 +885,11 @@ $position = $_SESSION['position'] ?? '';
                                     <div class="col-lg-3 col-md-6 mb-3">
                                         <a href="procurements/index.php" class="btn btn-lg btn-success text-white w-100 shadow-sm" target="_blank" rel="noopener">
                                             <i class="fas fa-shopping-cart me-2"></i> จัดการประกาศจัดซื้อจัดจ้าง
+                                        </a>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6 mb-3">
+                                        <a href="recruitments/index.php" class="btn btn-lg btn-info text-white w-100 shadow-sm" target="_blank" rel="noopener">
+                                            <i class="fas fa-user-tie me-2"></i> จัดการประกาศรับสมัครงาน
                                         </a>
                                     </div>
                                     <div class="col-lg-3 col-md-6 mb-3">
