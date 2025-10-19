@@ -125,7 +125,7 @@ if ($conn && !$conn->connect_error) {
                 FROM procurement_announcements
                 WHERE status IN ('published','closed')
                 ORDER BY published_date DESC
-                LIMIT 5";
+                LIMIT 15";
         $result = $conn->query($sql);
         if ($result) {
             $procurements = $result->fetch_all(MYSQLI_ASSOC);
@@ -141,7 +141,7 @@ if ($conn && !$conn->connect_error) {
                 FROM recruitment_announcements
                 WHERE status IN ('open','closed')
                 ORDER BY published_date DESC
-                LIMIT 5";
+                LIMIT 15";
         $result = $conn->query($sql);
         if ($result) {
             $recruitments = $result->fetch_all(MYSQLI_ASSOC);
@@ -157,7 +157,7 @@ if ($conn && !$conn->connect_error) {
                 FROM training_announcements
                 WHERE status IN ('open','closed')
                 ORDER BY published_date DESC
-                LIMIT 5";
+                LIMIT 15";
         $result = $conn->query($sql);
         if ($result) {
             $trainings = $result->fetch_all(MYSQLI_ASSOC);
@@ -173,7 +173,7 @@ if ($conn && !$conn->connect_error) {
                 FROM international_assignments
                 WHERE status = 'published'
                 ORDER BY published_date DESC
-                LIMIT 5";
+                LIMIT 15";
         $result = $conn->query($sql);
         if ($result) {
             $international_assignments = $result->fetch_all(MYSQLI_ASSOC);
@@ -1308,145 +1308,136 @@ if ($conn && !$conn->connect_error) {
             
             <!-- แท็บอื่นๆ -->
             <div class="tab-pane fade" id="procurement" role="tabpanel">
-                <div class="announcement-list">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0"><i class="fas fa-shopping-cart me-2"></i>ประกาศจัดซื้อจัดจ้างล่าสุด</h5>
-                            <a href="procurements/index.php" class="btn btn-sm btn-outline-primary">ดูทั้งหมด</a>
-                        </div>
-                        <ul class="list-group list-group-flush">
-                            <?php if (!empty($procurements)): ?>
-                                <?php foreach ($procurements as $item): ?>
-                                <li class="list-group-item">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <h6 class="mb-1">
-                                                <a href="procurements/view.php?id=<?php echo $item['id']; ?>" class="text-decoration-none">
-                                                    <?php echo htmlspecialchars($item['title']); ?>
-                                                </a>
-                                            </h6>
-                                            <div class="text-muted">
-                                                <small><i class="fas fa-hashtag me-1"></i>เลขที่อ้างอิง: <?php echo htmlspecialchars($item['reference_number'] ?? '-'); ?></small>
-                                                <small class="ms-3"><i class="fas fa-building me-1"></i><?php echo htmlspecialchars($item['department'] ?? ''); ?></small>
-                                            </div>
-                                        </div>
-                                        <div class="text-end">
-                                            <div><span class="badge bg-<?php echo ($item['status'] === 'closed') ? 'secondary' : 'success'; ?>"><?php echo ($item['status'] === 'closed') ? 'สิ้นสุดแล้ว' : 'เปิดรับเสนอราคา'; ?></span></div>
-                                            <small class="text-muted d-block">ประกาศ: <?php echo date('d/m/Y', strtotime($item['published_date'])); ?></small>
-                                            <small class="text-muted d-block">หมดเขต: <?php echo date('d/m/Y', strtotime($item['closing_date'])); ?></small>
-                                        </div>
+                <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
+                    <?php if (!empty($procurements)): ?>
+                        <?php foreach ($procurements as $index => $item): ?>
+                        <?php if ($index >= 15) break; ?>
+                        <div class="col">
+                            <div class="card h-100 hall-of-fame-card">
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                    <i class="fas fa-shopping-cart fa-2x text-muted"></i>
+                                </div>
+                                <div class="card-body p-2 d-flex flex-column">
+                                    <h6 class="card-title small" style="font-size: 0.9rem; line-height: 1.2; height: 2.4em; overflow: hidden;">
+                                        <?php echo htmlspecialchars(mb_strimwidth($item['title'], 0, 60, '...')); ?>
+                                    </h6>
+                                    <p class="card-text mb-2">
+                                        <small class="text-muted" style="font-size: 0.75rem;">
+                                            <i class="fas fa-hashtag"></i> <?php echo htmlspecialchars($item['reference_number'] ?? '-'); ?><br>
+                                            <i class="fas fa-building"></i> <?php echo htmlspecialchars($item['department'] ?? '-'); ?>
+                                        </small>
+                                    </p>
+                                    <div class="mt-auto">
+                                        <span class="badge bg-<?php echo ($item['status'] === 'closed') ? 'secondary' : 'success'; ?> mb-2">
+                                            <?php echo ($item['status'] === 'closed') ? 'สิ้นสุดแล้ว' : 'เปิดรับเสนอราคา'; ?>
+                                        </span>
+                                        <a href="procurements/view.php?id=<?php echo $item['id']; ?>" class="btn btn-sm btn-primary w-100" style="font-size: 0.8rem;" target="_blank" rel="noopener">
+                                            <i class="fas fa-eye"></i> ดูรายละเอียด
+                                        </a>
                                     </div>
-                                </li>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <li class="list-group-item text-center text-muted py-4">
-                                    <i class="fas fa-info-circle me-2"></i>ยังไม่มีประกาศจัดซื้อจัดจ้างในขณะนี้
-                                </li>
-                            <?php endif; ?>
-                        </ul>
-                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="col-12 text-center p-4">
+                            <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">ยังไม่มีประกาศจัดซื้อจัดจ้างในขณะนี้</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="procurements/index.php" class="btn btn-outline-primary" target="_blank" rel="noopener">ดูทั้งหมด</a>
                 </div>
             </div>
             
             <div class="tab-pane fade" id="recruitment" role="tabpanel">
-                <div class="announcement-list">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0"><i class="fas fa-user-tie me-2"></i>ประกาศรับสมัครงานล่าสุด</h5>
-                            <a href="recruitments/index.php" class="btn btn-sm btn-outline-primary">ดูทั้งหมด</a>
-                        </div>
-                        <ul class="list-group list-group-flush">
-                            <?php if (!empty($recruitments)): ?>
-                                <?php foreach ($recruitments as $item): ?>
-                                <li class="list-group-item">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <h6 class="mb-1">
-                                                <a href="recruitments/view.php?id=<?php echo $item['id']; ?>" class="text-decoration-none">
-                                                    <?php echo htmlspecialchars($item['title']); ?>
-                                                </a>
-                                            </h6>
-                                            <div class="text-muted">
-                                                <small><i class="fas fa-briefcase me-1"></i><?php echo htmlspecialchars($item['position_title'] ?? '-'); ?></small>
-                                                <small class="ms-3"><i class="fas fa-building me-1"></i><?php echo htmlspecialchars($item['department'] ?? ''); ?></small>
-                                                <small class="ms-3"><i class="fas fa-id-card me-1"></i>เลขอ้างอิง: <?php echo htmlspecialchars($item['reference_number'] ?? '-'); ?></small>
-                                            </div>
-                                            <?php if (!empty($item['employment_type'])): ?>
-                                            <div><small class="badge bg-secondary">รูปแบบงาน: <?php echo htmlspecialchars($item['employment_type']); ?></small></div>
-                                            <?php endif; ?>
-                                        </div>
-                                        <div class="text-end">
-                                            <?php
-                                            $status = $item['status'];
-                                            $labelClass = $status === 'open' ? 'success' : 'secondary';
-                                            $labelText = $status === 'open' ? 'เปิดรับสมัคร' : 'ปิดรับสมัคร';
-                                            ?>
-                                            <span class="badge bg-<?php echo $labelClass; ?>"><?php echo $labelText; ?></span>
-                                            <small class="text-muted d-block">ประกาศ: <?php echo date('d/m/Y', strtotime($item['published_date'])); ?></small>
-                                            <small class="text-muted d-block">ปิดรับ: <?php echo date('d/m/Y', strtotime($item['application_deadline'])); ?></small>
-                                        </div>
+                <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
+                    <?php if (!empty($recruitments)): ?>
+                        <?php foreach ($recruitments as $index => $item): ?>
+                        <?php if ($index >= 15) break; ?>
+                        <div class="col">
+                            <div class="card h-100 hall-of-fame-card">
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                    <i class="fas fa-user-tie fa-2x text-muted"></i>
+                                </div>
+                                <div class="card-body p-2 d-flex flex-column">
+                                    <h6 class="card-title small" style="font-size: 0.9rem; line-height: 1.2; height: 2.4em; overflow: hidden;">
+                                        <?php echo htmlspecialchars(mb_strimwidth($item['title'], 0, 60, '...')); ?>
+                                    </h6>
+                                    <p class="card-text mb-2">
+                                        <small class="text-muted" style="font-size: 0.75rem;">
+                                            <i class="fas fa-briefcase"></i> <?php echo htmlspecialchars($item['position_title'] ?? '-'); ?><br>
+                                            <i class="fas fa-building"></i> <?php echo htmlspecialchars($item['department'] ?? '-'); ?><br>
+                                            <i class="fas fa-id-card"></i> <?php echo htmlspecialchars($item['reference_number'] ?? '-'); ?>
+                                        </small>
+                                    </p>
+                                    <div class="mt-auto">
+                                        <span class="badge bg-<?php echo ($item['status'] === 'open') ? 'success' : 'secondary'; ?> mb-2">
+                                            <?php echo ($item['status'] === 'open') ? 'เปิดรับสมัคร' : 'ปิดรับสมัคร'; ?>
+                                        </span>
+                                        <a href="recruitments/view.php?id=<?php echo $item['id']; ?>" class="btn btn-sm btn-primary w-100" style="font-size: 0.8rem;" target="_blank" rel="noopener">
+                                            <i class="fas fa-eye"></i> ดูรายละเอียด
+                                        </a>
                                     </div>
-                                </li>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <li class="list-group-item text-center text-muted py-4">
-                                    <i class="fas fa-info-circle me-2"></i>ยังไม่มีประกาศรับสมัครงานในขณะนี้
-                                </li>
-                            <?php endif; ?>
-                        </ul>
-                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="col-12 text-center p-4">
+                            <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">ยังไม่มีประกาศรับสมัครงานในขณะนี้</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="recruitments/index.php" class="btn btn-outline-primary" target="_blank" rel="noopener">ดูทั้งหมด</a>
                 </div>
             </div>
             
             <div class="tab-pane fade" id="training" role="tabpanel">
-                <div class="announcement-list">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0"><i class="fas fa-chalkboard-teacher me-2"></i>ประกาศอบรมล่าสุด</h5>
-                            <a href="trainings/index.php" class="btn btn-sm btn-outline-primary">ดูทั้งหมด</a>
-                        </div>
-                        <ul class="list-group list-group-flush">
-                            <?php if (!empty($trainings)): ?>
-                                <?php foreach ($trainings as $item): ?>
-                                <li class="list-group-item">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <h6 class="mb-1">
-                                                <a href="trainings/view.php?id=<?php echo $item['id']; ?>" class="text-decoration-none">
-                                                    <?php echo htmlspecialchars($item['title']); ?>
-                                                </a>
-                                            </h6>
-                                            <div class="text-muted">
-                                                <small><i class="fas fa-book-open me-1"></i><?php echo htmlspecialchars($item['training_topic'] ?? '-'); ?></small>
-                                                <small class="ms-3"><i class="fas fa-building me-1"></i><?php echo htmlspecialchars($item['host_department'] ?? ''); ?></small>
-                                                <small class="ms-3"><i class="fas fa-id-card me-1"></i>เลขอ้างอิง: <?php echo htmlspecialchars($item['reference_number'] ?? '-'); ?></small>
-                                            </div>
-                                            <?php if (!empty($item['training_type'])): ?>
-                                            <div><small class="badge bg-secondary">รูปแบบอบรม: <?php echo htmlspecialchars($item['training_type']); ?></small></div>
-                                            <?php endif; ?>
-                                        </div>
-                                        <div class="text-end">
-                                            <?php
-                                            $status = $item['status'];
-                                            $labelClass = $status === 'open' ? 'success' : 'secondary';
-                                            $labelText = $status === 'open' ? 'เปิดรับสมัคร' : 'สิ้นสุดการสมัคร';
-                                            ?>
-                                            <span class="badge bg-<?php echo $labelClass; ?>"><?php echo $labelText; ?></span>
-                                            <small class="text-muted d-block">ประกาศ: <?php echo date('d/m/Y', strtotime($item['published_date'])); ?></small>
-                                            <?php if (!empty($item['registration_deadline'])): ?>
-                                            <small class="text-muted d-block">ปิดรับ: <?php echo date('d/m/Y', strtotime($item['registration_deadline'])); ?></small>
-                                            <?php endif; ?>
-                                        </div>
+                <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
+                    <?php if (!empty($trainings)): ?>
+                        <?php foreach ($trainings as $index => $item): ?>
+                        <?php if ($index >= 15) break; ?>
+                        <div class="col">
+                            <div class="card h-100 hall-of-fame-card">
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                    <i class="fas fa-chalkboard-teacher fa-2x text-muted"></i>
+                                </div>
+                                <div class="card-body p-2 d-flex flex-column">
+                                    <h6 class="card-title small" style="font-size: 0.9rem; line-height: 1.2; height: 2.4em; overflow: hidden;">
+                                        <?php echo htmlspecialchars(mb_strimwidth($item['title'], 0, 60, '...')); ?>
+                                    </h6>
+                                    <p class="card-text mb-2">
+                                        <small class="text-muted" style="font-size: 0.75rem;">
+                                            <i class="fas fa-book-open"></i> <?php echo htmlspecialchars($item['training_topic'] ?? '-'); ?><br>
+                                            <i class="fas fa-building"></i> <?php echo htmlspecialchars($item['host_department'] ?? '-'); ?><br>
+                                            <i class="fas fa-id-card"></i> <?php echo htmlspecialchars($item['reference_number'] ?? '-'); ?>
+                                        </small>
+                                    </p>
+                                    <div class="mt-auto">
+                                        <?php
+                                        $status = $item['status'];
+                                        $badge = $status === 'open' ? 'success' : ($status === 'closed' ? 'secondary' : 'warning');
+                                        $label = $status === 'open' ? 'เปิดรับสมัคร' : ($status === 'closed' ? 'สิ้นสุดการรับสมัคร' : 'รอดำเนินการ');
+                                        ?>
+                                        <span class="badge bg-<?php echo $badge; ?> mb-2"><?php echo $label; ?></span>
+                                        <a href="trainings/view.php?id=<?php echo $item['id']; ?>" class="btn btn-sm btn-primary w-100" style="font-size: 0.8rem;" target="_blank" rel="noopener">
+                                            <i class="fas fa-eye"></i> ดูรายละเอียด
+                                        </a>
                                     </div>
-                                </li>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <li class="list-group-item text-center text-muted py-4">
-                                    <i class="fas fa-info-circle me-2"></i>ยังไม่มีประกาศอบรมในขณะนี้
-                                </li>
-                            <?php endif; ?>
-                        </ul>
-                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="col-12 text-center p-4">
+                            <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">ยังไม่มีประกาศอบรมในขณะนี้</p>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
             
@@ -1732,12 +1723,16 @@ if ($conn && !$conn->connect_error) {
                         <i class="fas fa-trophy me-2"></i> ดูหอเกียรติยศทั้งหมด
                     </a>
                 </div>
+                <div class="text-center mt-3">
+                    <a href="trainings/index.php" class="btn btn-outline-primary" target="_blank" rel="noopener">ดูทั้งหมด</a>
+                </div>
             </div>
             
             <div class="tab-pane fade" id="international" role="tabpanel">
                 <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
                     <?php if (!empty($international_assignments)): ?>
-                        <?php foreach ($international_assignments as $assignment): ?>
+                        <?php foreach ($international_assignments as $index => $assignment): ?>
+                        <?php if ($index >= 15) break; ?>
                         <div class="col">
                             <div class="card h-100 hall-of-fame-card">
                                 <?php if (!empty($assignment['cover_image'])): ?>
@@ -1762,7 +1757,7 @@ if ($conn && !$conn->connect_error) {
                                             <i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($assignment['city'] ? $assignment['city'] . ', ' : '') . htmlspecialchars($assignment['country']); ?>
                                         </small>
                                     </p>
-                                    <a href="international/view.php?id=<?php echo $assignment['id']; ?>" class="btn btn-sm btn-primary w-100" style="font-size: 0.8rem;">
+                                        <a href="international/view.php?id=<?php echo $assignment['id']; ?>" class="btn btn-sm btn-primary w-100" style="font-size: 0.8rem;" target="_blank" rel="noopener">
                                         <i class="fas fa-eye"></i> ดูรายละเอียด
                                     </a>
                                 </div>
@@ -1775,6 +1770,9 @@ if ($conn && !$conn->connect_error) {
                             <p class="text-muted">ยังไม่มีข้อมูลการไปต่างประเทศ</p>
                         </div>
                     <?php endif; ?>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="international/index.php" class="btn btn-outline-primary" target="_blank" rel="noopener">ดูทั้งหมด</a>
                 </div>
             </div>
         </div>
