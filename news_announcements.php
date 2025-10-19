@@ -164,6 +164,22 @@ if ($conn && !$conn->connect_error) {
         }
     }
 }
+
+$international_assignments = [];
+if ($conn && !$conn->connect_error) {
+    $table_check = $conn->query("SHOW TABLES LIKE 'international_assignments'");
+    if ($table_check && $table_check->num_rows > 0) {
+        $sql = "SELECT id, title, person_name, role, affiliation, country, city, start_date, end_date, cover_image
+                FROM international_assignments
+                WHERE status = 'published'
+                ORDER BY published_date DESC
+                LIMIT 5";
+        $result = $conn->query($sql);
+        if ($result) {
+            $international_assignments = $result->fetch_all(MYSQLI_ASSOC);
+        }
+    }
+}
 ?>
 
 <!-- เริ่มต้นส่วนข่าวสารและประกาศ -->
@@ -1719,10 +1735,46 @@ if ($conn && !$conn->connect_error) {
             </div>
             
             <div class="tab-pane fade" id="international" role="tabpanel">
-                <div class="text-center p-5">
-                    <i class="fas fa-globe fa-3x text-muted mb-3"></i>
-                    <h4>การไปต่างประเทศ</h4>
-                    <p class="text-muted">ส่วนนี้กำลังพัฒนา</p>
+                <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
+                    <?php if (!empty($international_assignments)): ?>
+                        <?php foreach ($international_assignments as $assignment): ?>
+                        <div class="col">
+                            <div class="card h-100 hall-of-fame-card">
+                                <?php if (!empty($assignment['cover_image'])): ?>
+                                <img src="<?php echo htmlspecialchars($assignment['cover_image']); ?>"
+                                     class="card-img-top" style="height: 150px; object-fit: cover;"
+                                     alt="<?php echo htmlspecialchars($assignment['person_name']); ?>">
+                                <?php else: ?>
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                    <i class="fas fa-globe fa-2x text-muted"></i>
+                                </div>
+                                <?php endif; ?>
+                                <div class="card-body p-2">
+                                    <h6 class="card-title small" style="font-size: 0.9rem; line-height: 1.2; height: 2.4em; overflow: hidden;">
+                                        <?php echo htmlspecialchars(mb_strimwidth($assignment['title'], 0, 60, '...')); ?>
+                                    </h6>
+                                    <p class="card-text mb-2">
+                                        <small class="text-muted" style="font-size: 0.8rem;">
+                                            <i class="fas fa-user"></i> <?php echo htmlspecialchars($assignment['person_name']); ?><br>
+                                            <?php if (!empty($assignment['role'])): ?>
+                                                <i class="fas fa-id-badge"></i> <?php echo htmlspecialchars($assignment['role']); ?><br>
+                                            <?php endif; ?>
+                                            <i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($assignment['city'] ? $assignment['city'] . ', ' : '') . htmlspecialchars($assignment['country']); ?>
+                                        </small>
+                                    </p>
+                                    <a href="international/view.php?id=<?php echo $assignment['id']; ?>" class="btn btn-sm btn-primary w-100" style="font-size: 0.8rem;">
+                                        <i class="fas fa-eye"></i> ดูรายละเอียด
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="col-12 text-center p-4">
+                            <i class="fas fa-globe fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">ยังไม่มีข้อมูลการไปต่างประเทศ</p>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
