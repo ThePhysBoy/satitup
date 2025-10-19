@@ -1310,7 +1310,7 @@ if ($conn && !$conn->connect_error) {
             <div class="tab-pane fade" id="procurement" role="tabpanel">
                 <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
                     <?php if (!empty($procurements)): ?>
-                        <?php foreach (array_slice($procurements, 0, 15) as $item): ?>
+                        <?php foreach ($procurements as $item): ?>
                         <div class="col">
                             <div class="card h-100 hall-of-fame-card">
                                 <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
