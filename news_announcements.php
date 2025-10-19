@@ -1310,8 +1310,7 @@ if ($conn && !$conn->connect_error) {
             <div class="tab-pane fade" id="procurement" role="tabpanel">
                 <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
                     <?php if (!empty($procurements)): ?>
-                        <?php foreach ($procurements as $index => $item): ?>
-                        <?php if ($index >= 15) break; ?>
+                        <?php foreach (array_slice($procurements, 0, 15) as $item): ?>
                         <div class="col">
                             <div class="card h-100 hall-of-fame-card">
                                 <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
@@ -1354,8 +1353,7 @@ if ($conn && !$conn->connect_error) {
             <div class="tab-pane fade" id="recruitment" role="tabpanel">
                 <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
                     <?php if (!empty($recruitments)): ?>
-                        <?php foreach ($recruitments as $index => $item): ?>
-                        <?php if ($index >= 15) break; ?>
+                        <?php foreach (array_slice($recruitments, 0, 15) as $item): ?>
                         <div class="col">
                             <div class="card h-100 hall-of-fame-card">
                                 <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
@@ -1399,8 +1397,7 @@ if ($conn && !$conn->connect_error) {
             <div class="tab-pane fade" id="training" role="tabpanel">
                 <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
                     <?php if (!empty($trainings)): ?>
-                        <?php foreach ($trainings as $index => $item): ?>
-                        <?php if ($index >= 15) break; ?>
+                        <?php foreach (array_slice($trainings, 0, 15) as $item): ?>
                         <div class="col">
                             <div class="card h-100 hall-of-fame-card">
                                 <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
@@ -1731,8 +1728,7 @@ if ($conn && !$conn->connect_error) {
             <div class="tab-pane fade" id="international" role="tabpanel">
                 <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
                     <?php if (!empty($international_assignments)): ?>
-                        <?php foreach ($international_assignments as $index => $assignment): ?>
-                        <?php if ($index >= 15) break; ?>
+                        <?php foreach (array_slice($international_assignments, 0, 15) as $assignment): ?>
                         <div class="col">
                             <div class="card h-100 hall-of-fame-card">
                                 <?php if (!empty($assignment['cover_image'])): ?>
