@@ -922,6 +922,11 @@ if (isAdmin() || isPrOfficer()) {
                                         </a>
                                     </div>
                                     <div class="col-lg-3 col-md-6 mb-3">
+                                        <a href="international/index.php" class="btn btn-lg btn-primary text-white w-100 shadow-sm" target="_blank" rel="noopener">
+                                            <i class="fas fa-globe me-2"></i> จัดการประกาศไปต่างประเทศ
+                                        </a>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6 mb-3">
                                         <a href="../index.php" target="_blank" class="btn btn-secondary btn-block d-flex align-items-center justify-content-center p-3">
                                             <i class="fas fa-globe me-2"></i> ดูหน้าเว็บไซต์
                                         </a>
