@@ -21,6 +21,19 @@ if (!$announcement) {
     include '../footer.php';
     exit('<section class="py-5"><div class="container text-center"><h2 class="text-danger">ไม่พบประกาศนี้</h2><p class="text-muted">กรุณาตรวจสอบอีกครั้ง หรือกลับไปยังหน้ารายการประกาศ</p><a href="index.php" class="btn btn-primary mt-3"><i class="fas fa-arrow-left me-2"></i>กลับหน้ารายการ</a></div></section>');
 }
+
+$documentRelative = ltrim($announcement['document_pdf'] ?? '', '/');
+$documentPath = __DIR__ . '/../' . $documentRelative;
+$documentUrl = '../' . $documentRelative;
+$pdfExists = !empty($documentRelative) && file_exists($documentPath);
+
+$additionalFiles = [];
+if (!empty($announcement['additional_files'])) {
+    $decoded = json_decode($announcement['additional_files'], true);
+    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+        $additionalFiles = $decoded;
+    }
+}
 ?>
 <section class="procurement-detail-section py-5">
     <div class="container">
@@ -32,7 +45,9 @@ if (!$announcement) {
                 <p class="text-muted"><i class="fas fa-building me-2"></i>หน่วยงาน: <?php echo htmlspecialchars($announcement['department'] ?? '-'); ?></p>
             </div>
             <div class="col-lg-4 text-lg-end">
-                <a href="../<?php echo htmlspecialchars($announcement['document_pdf']); ?>" class="btn btn-outline-primary" target="_blank" rel="noopener"><i class="fas fa-file-pdf me-2"></i>ดาวน์โหลดประกาศ (PDF)</a>
+                <?php if ($pdfExists): ?>
+                    <a href="<?php echo $documentUrl; ?>" class="btn btn-outline-primary" target="_blank" rel="noopener"><i class="fas fa-file-pdf me-2"></i>ดาวน์โหลดประกาศ (PDF)</a>
+                <?php endif; ?>
                 <a href="index.php" class="btn btn-light ms-lg-2 mt-2 mt-lg-0"><i class="fas fa-arrow-left me-2"></i>กลับหน้ารายการ</a>
             </div>
         </div>
@@ -46,6 +61,37 @@ if (!$announcement) {
                         <p><?php echo nl2br(htmlspecialchars($announcement['description'] ?? 'ไม่มีรายละเอียดเพิ่มเติม')); ?></p>
                         <?php if (!empty($announcement['notes'])): ?>
                             <div class="alert alert-info"><i class="fas fa-lightbulb me-2"></i><?php echo nl2br(htmlspecialchars($announcement['notes'])); ?></div>
+                        <?php endif; ?>
+
+                        <?php if ($pdfExists): ?>
+                            <div class="mt-4">
+                                <h6 class="fw-bold mb-3"><i class="fas fa-file-pdf me-2 text-danger"></i>เอกสารประกาศ</h6>
+                                <div class="ratio ratio-16x9">
+                                    <iframe src="<?php echo $documentUrl; ?>#view=FitH" title="ประกาศจัดซื้อจัดจ้าง" class="border rounded" allowfullscreen></iframe>
+                                </div>
+                                <small class="text-muted d-block mt-2">* หากไฟล์ไม่แสดงผล กรุณาคลิกปุ่มดาวน์โหลดเพื่อเปิดในหน้าต่างใหม่</small>
+                            </div>
+                        <?php else: ?>
+                            <div class="alert alert-warning mt-4"><i class="fas fa-exclamation-triangle me-2"></i>ไม่พบไฟล์ PDF ของประกาศนี้</div>
+                        <?php endif; ?>
+
+                        <?php if (!empty($additionalFiles)): ?>
+                            <div class="mt-4">
+                                <h6 class="fw-bold mb-2"><i class="fas fa-paperclip me-2"></i>ไฟล์แนบเพิ่มเติม</h6>
+                                <ul class="list-group list-group-flush">
+                                    <?php foreach ($additionalFiles as $label => $filePath): ?>
+                                        <?php
+                                        $fileRelative = ltrim($filePath, '/');
+                                        $fileUrl = '../' . $fileRelative;
+                                        ?>
+                                        <li class="list-group-item px-0">
+                                            <a href="<?php echo $fileUrl; ?>" target="_blank" rel="noopener" class="text-decoration-none">
+                                                <i class="fas fa-file-alt me-2"></i><?php echo htmlspecialchars($label); ?>
+                                            </a>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
                         <?php endif; ?>
                     </div>
                 </div>
