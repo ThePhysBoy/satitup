@@ -2089,9 +2089,7 @@ if ($conn && !$conn->connect_error) {
                         <i class="fas fa-trophy me-2"></i> ดูหอเกียรติยศทั้งหมด
                     </a>
                 </div>
-                <div class="text-center mt-3">
-                    <a href="trainings/index.php" class="btn btn-outline-primary" target="_blank" rel="noopener">ดูทั้งหมด</a>
-                </div>
+
             </div>
             
             <div class="tab-pane fade" id="international" role="tabpanel">

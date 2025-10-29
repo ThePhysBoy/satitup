@@ -48,7 +48,7 @@ $total_pages = ceil($total_records / $per_page);
 
 // ดึงข้อมูล
 $sql = "SELECT * FROM hall_of_fame" . $where_clause . 
-       " ORDER BY featured DESC, date_achieved DESC, created_at DESC
+       " ORDER BY created_at DESC, date_achieved DESC, featured DESC
         LIMIT $offset, $per_page";
 
 $result = $conn->query($sql);

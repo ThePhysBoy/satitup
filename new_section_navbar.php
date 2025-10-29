@@ -78,11 +78,11 @@
                     <!-- รายการเมนูย่อยในดรอปดาวน์ -->
                     <ul class="dropdown-menu" aria-labelledby="navPresentations">
                         <!-- ลิงก์ไปยังหน้าต่างๆ ของการนำเสนอผลงานและการแข่งขัน -->
-                        <li><a class="dropdown-item" href="presentation-ysc.php">YSC</a></li>
-                        <li><a class="dropdown-item" href="presentation-robot.php">การแข่งหุ่นยนต์</a></li>
-                        <li><a class="dropdown-item" href="presentation-drone.php">การแข่งโดรน</a></li>
-                        <li><a class="dropdown-item" href="presentation-wmw-japan.php">นำเสนอวมว ไปประเทศญี่ปุ่น</a></li>
-                        <li><a class="dropdown-item" href="presentation-wmw.php">นำเสนอ วมว</a></li>
+                        <li><a class="dropdown-item" href="presentation-ysc.php">Science and Technology</a></li>
+                        <li><a class="dropdown-item" href="presentation-robot.php">Culture, Art and Music</a></li>
+                        <li><a class="dropdown-item" href="presentation-drone.php">Sports</a></li>
+                        <li><a class="dropdown-item" href="presentation-wmw-japan.php">Social Science</a></li>
+                        <li><a class="dropdown-item" href="presentation-wmw.php">YSC, ISEF, Drone, Robots</a></li>
                     </ul>
                 </li>
                     

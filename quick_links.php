@@ -32,6 +32,36 @@
 .quick-link-hover {
     display: none !important;
 }
+
+.manual-text {
+    margin-top: 4px;
+    text-align: center;
+    --manual-color1: #667eea;
+    --manual-color2: #764ba2;
+    --manual-shadow: rgba(102, 126, 234, 0.35);
+}
+
+.manual-text-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--manual-color1), var(--manual-color2));
+    color: #fff;
+    font-size: 16px;
+    text-decoration: none;
+    box-shadow: 0 6px 14px var(--manual-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.manual-text-link:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 10px 22px var(--manual-shadow);
+    background: linear-gradient(135deg, var(--manual-color2), var(--manual-color1));
+    color: #fff;
+}
 </style>
 <section class="quick-links-section py-5">
     <div class="container">
@@ -55,8 +85,10 @@
                             <i class="fas fa-arrow-right"></i>
                         </div>
                     </a>
-                    <div class="manual-text">
-                        <a href="#" class="manual-text-link" data-manual="booking-room" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
+                    <div class="manual-text" style="--manual-color1:#6f3df4; --manual-color2:#a855f7; --manual-shadow:rgba(111, 61, 244, 0.35);">
+                        <a href="#" class="manual-text-link" data-manual="booking-room" title="คู่มือการใช้งาน" aria-label="คู่มือการใช้งาน">
+                            <i class="fas fa-book-open"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -75,8 +107,10 @@
                             <i class="fas fa-arrow-right"></i>
                         </div>
                     </a>
-                    <div class="manual-text">
-                        <a href="#" class="manual-text-link" data-manual="meeting-calendar" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
+                    <div class="manual-text" style="--manual-color1:#1d4ed8; --manual-color2:#3b82f6; --manual-shadow:rgba(59, 130, 246, 0.35);">
+                        <a href="#" class="manual-text-link" data-manual="meeting-calendar" title="คู่มือการใช้งาน" aria-label="คู่มือการใช้งาน">
+                            <i class="fas fa-book-open"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -95,8 +129,10 @@
                             <i class="fas fa-arrow-right"></i>
                         </div>
                     </a>
-                    <div class="manual-text">
-                        <a href="#" class="manual-text-link" data-manual="up-dms" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
+                    <div class="manual-text" style="--manual-color1:#0ea5e9; --manual-color2:#38bdf8; --manual-shadow:rgba(14, 165, 233, 0.35);">
+                        <a href="#" class="manual-text-link" data-manual="up-dms" title="คู่มือการใช้งาน" aria-label="คู่มือการใช้งาน">
+                            <i class="fas fa-book-open"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -115,8 +151,10 @@
                             <i class="fas fa-arrow-right"></i>
                         </div>
                     </a>
-                    <div class="manual-text">
-                        <a href="#" class="manual-text-link" data-manual="smart-hr" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
+                    <div class="manual-text" style="--manual-color1:#16a34a; --manual-color2:#22c55e; --manual-shadow:rgba(34, 197, 94, 0.35);">
+                        <a href="#" class="manual-text-link" data-manual="smart-hr" title="คู่มือการใช้งาน" aria-label="คู่มือการใช้งาน">
+                            <i class="fas fa-book-open"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -135,8 +173,10 @@
                             <i class="fas fa-arrow-right"></i>
                         </div>
                     </a>
-                    <div class="manual-text">
-                        <a href="#" class="manual-text-link" data-manual="finance-track" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
+                    <div class="manual-text" style="--manual-color1:#fb923c; --manual-color2:#f97316; --manual-shadow:rgba(249, 115, 22, 0.35);">
+                        <a href="#" class="manual-text-link" data-manual="finance-track" title="คู่มือการใช้งาน" aria-label="คู่มือการใช้งาน">
+                            <i class="fas fa-book-open"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -155,8 +195,10 @@
                             <i class="fas fa-arrow-right"></i>
                         </div>
                     </a>
-                    <div class="manual-text">
-                        <a href="#" class="manual-text-link" data-manual="ims" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
+                    <div class="manual-text" style="--manual-color1:#f87171; --manual-color2:#ef4444; --manual-shadow:rgba(239, 68, 68, 0.35);">
+                        <a href="#" class="manual-text-link" data-manual="ims" title="คู่มือการใช้งาน" aria-label="คู่มือการใช้งาน">
+                            <i class="fas fa-book-open"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -175,8 +217,10 @@
                             <i class="fas fa-arrow-right"></i>
                         </div>
                     </a>
-                    <div class="manual-text">
-                        <a href="#" class="manual-text-link" data-manual="upmail" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
+                    <div class="manual-text" style="--manual-color1:#a855f7; --manual-color2:#7c3aed; --manual-shadow:rgba(168, 85, 247, 0.35);">
+                        <a href="#" class="manual-text-link" data-manual="upmail" title="คู่มือการใช้งาน" aria-label="คู่มือการใช้งาน">
+                            <i class="fas fa-book-open"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -195,8 +239,10 @@
                             <i class="fas fa-arrow-right"></i>
                         </div>
                     </a>
-                    <div class="manual-text">
-                        <a href="#" class="manual-text-link" data-manual="ebudget" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
+                    <div class="manual-text" style="--manual-color1:#06b6d4; --manual-color2:#0ea5e9; --manual-shadow:rgba(6, 182, 212, 0.35);">
+                        <a href="#" class="manual-text-link" data-manual="ebudget" title="คู่มือการใช้งาน" aria-label="คู่มือการใช้งาน">
+                            <i class="fas fa-book-open"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -215,8 +261,10 @@
                             <i class="fas fa-arrow-right"></i>
                         </div>
                     </a>
-                    <div class="manual-text">
-                        <a href="#" class="manual-text-link" data-manual="payment" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
+                    <div class="manual-text" style="--manual-color1:#4ade80; --manual-color2:#22c55e; --manual-shadow:rgba(34, 197, 94, 0.35);">
+                        <a href="#" class="manual-text-link" data-manual="payment" title="คู่มือการใช้งาน" aria-label="คู่มือการใช้งาน">
+                            <i class="fas fa-book-open"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -235,8 +283,10 @@
                             <i class="fas fa-arrow-right"></i>
                         </div>
                     </a>
-                    <div class="manual-text">
-                        <a href="#" class="manual-text-link" data-manual="student-online" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
+                    <div class="manual-text" style="--manual-color1:#facc15; --manual-color2:#f97316; --manual-shadow:rgba(250, 204, 21, 0.35);">
+                        <a href="#" class="manual-text-link" data-manual="student-online" title="คู่มือการใช้งาน" aria-label="คู่มือการใช้งาน">
+                            <i class="fas fa-book-open"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -255,8 +305,10 @@
                             <i class="fas fa-arrow-right"></i>
                         </div>
                     </a>
-                    <div class="manual-text">
-                        <a href="#" class="manual-text-link" data-manual="science-lab" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
+                    <div class="manual-text" style="--manual-color1:#fb923c; --manual-color2:#f97316; --manual-shadow:rgba(249, 115, 22, 0.35);">
+                        <a href="#" class="manual-text-link" data-manual="science-lab" title="คู่มือการใช้งาน" aria-label="คู่มือการใช้งาน">
+                            <i class="fas fa-book-open"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -275,8 +327,10 @@
                             <i class="fas fa-arrow-right"></i>
                         </div>
                     </a>
-                    <div class="manual-text">
-                        <a href="#" class="manual-text-link" data-manual="academic-system" title="คู่มือการใช้งาน">คู่มือการใช้งาน</a>
+                    <div class="manual-text" style="--manual-color1:#f472b6; --manual-color2:#ec4899; --manual-shadow:rgba(244, 114, 182, 0.35);">
+                        <a href="#" class="manual-text-link" data-manual="academic-system" title="คู่มือการใช้งาน" aria-label="คู่มือการใช้งาน">
+                            <i class="fas fa-book-open"></i>
+                        </a>
                     </div>
                 </div>
             </div>
