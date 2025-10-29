@@ -2,7 +2,6 @@
 require_once __DIR__ . '/../admin/includes/db_config.php';
 require_once __DIR__ . '/../admin/news/news_functions.php';
 
-$category_id = isset($_GET['category']) ? (int)$_GET['category'] : 0;
 $search = isset($_GET['q']) ? trim($_GET['q']) : '';
 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -12,7 +11,6 @@ $offset = ($page - 1) * $per_page;
 $conditions = ["n.status='published'"];
 $params = [];
 $types = '';
-if ($category_id > 0) { $conditions[] = 'n.category_id=?'; $params[]=$category_id; $types.='i'; }
 if ($search !== '') { $conditions[] = '(n.title LIKE ? OR n.content LIKE ?)'; $params[]="%$search%"; $params[]="%$search%"; $types.='ss'; }
 $where = 'WHERE '.implode(' AND ', $conditions);
 
@@ -25,9 +23,8 @@ $total = $stmt->get_result()->fetch_assoc()['total'];
 $total_pages = max(1, ceil($total/$per_page));
 
 // list - เพิ่ม views, likes, sdg_goals
-$sql = "SELECT n.id, n.title, n.slug, n.excerpt, n.featured_image, n.published_at, n.views, n.likes, n.sdg_goals, c.name AS category_name 
+$sql = "SELECT n.id, n.title, n.slug, n.excerpt, n.featured_image, n.published_at, n.views, n.likes, n.sdg_goals
         FROM news n 
-        LEFT JOIN news_categories c ON c.id=n.category_id 
         $where 
         ORDER BY n.published_at DESC 
         LIMIT ? OFFSET ?";
@@ -36,8 +33,6 @@ if (!empty($params)) { $params2 = $params; $types2 = $types.'ii'; $params2[]=$pe
 else { $stmt->bind_param('ii', $per_page, $offset); }
 $stmt->execute();
 $items = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-$cats = $conn->query("SELECT * FROM news_categories ORDER BY name")->fetch_all(MYSQLI_ASSOC);
 
 $sdg_meta = [
     1 => ['color' => '#E5243B', 'name' => 'SDG 1: ขจัดความยากจน'],
@@ -309,16 +304,6 @@ $sdg_meta = [
 			100% { transform: scale(1); }
 		}
 		
-		.category-badge {
-			display: inline-block;
-			background: #f0f0f0;
-			color: #666;
-			font-size: 9.6px;
-			font-weight: 500;
-			padding: 4px 10px;
-			border-radius: 4px;
-			margin-bottom: 12px;
-		}
 		
 		.search-box {
 			background-color: white;
@@ -426,19 +411,11 @@ $sdg_meta = [
 	<div class="container pb-5">
 		<div class="search-box">
 			<form class="row g-3">
-				<div class="col-md-5">
+				<div class="col-md-9">
 					<div class="input-group">
 						<span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
 						<input class="form-control border-start-0" name="q" value="<?php echo htmlspecialchars($search); ?>" placeholder="ค้นหาข่าว...">
 					</div>
-				</div>
-				<div class="col-md-4">
-					<select class="form-select" name="category">
-						<option value="0">ทุกหมวดหมู่</option>
-						<?php foreach($cats as $c): ?>
-						<option value="<?php echo $c['id']; ?>" <?php echo $category_id==$c['id']?'selected':''; ?>><?php echo htmlspecialchars($c['name']); ?></option>
-						<?php endforeach; ?>
-					</select>
 				</div>
 				<div class="col-md-3 d-grid">
 					<button class="btn btn-primary search-btn">
@@ -487,11 +464,6 @@ $sdg_meta = [
 								<?php echo $n['published_at'] ? date('d/m/Y', strtotime($n['published_at'])) : date('d/m/Y'); ?>
 							</div>
 						</div>
-						<?php if (!empty($n['category_name'])): ?>
-						<div class="category-badge">
-							<?php echo htmlspecialchars($n['category_name']); ?>
-						</div>
-						<?php endif; ?>
 						<h3 class="news-activity-title">
 							<a class="news-detail-link" href="<?php echo htmlspecialchars($detailUrl); ?>" target="_blank" rel="noopener" data-item-type="news" data-item-id="<?php echo (int)$n['id']; ?>">
 								<?php echo htmlspecialchars($n['title']); ?>
@@ -537,33 +509,37 @@ $sdg_meta = [
 		</div>
 		<?php endif; ?>
 
-		<?php if ($total_pages>1): ?>
+		<?php if ($total_pages > 1) { ?>
 		<nav class="mt-5">
 			<ul class="pagination justify-content-center">
-				<?php if ($page > 1): ?>
+				<?php if ($page > 1) { ?>
 				<li class="page-item">
-					<a class="page-link" href="?page=<?php echo $page-1; ?>&category=<?php echo $category_id; ?>&q=<?php echo urlencode($search); ?>" aria-label="Previous">
+					<a class="page-link" href="?page=<?php echo $page-1; ?>&q=<?php echo urlencode($search); ?>" aria-label="Previous">
 						<span aria-hidden="true">&laquo;</span>
 					</a>
 				</li>
-				<?php endif; ?>
-				
-				<?php for($i=1;$i<=$total_pages;$i++): ?>
-				<li class="page-item <?php echo $i==$page?'active':''; ?>">
-					<a class="page-link" href="?page=<?php echo $i; ?>&category=<?php echo $category_id; ?>&q=<?php echo urlencode($search); ?>"><?php echo $i; ?></a>
+				<?php } ?>
+
+				<?php 
+				for ($i = 1; $i <= $total_pages; $i++) {
+				?>
+				<li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
+					<a class="page-link" href="?page=<?php echo $i; ?>&q=<?php echo urlencode($search); ?>"><?php echo $i; ?></a>
 				</li>
-				<?php endforeach; ?>
-				
-				<?php if ($page < $total_pages): ?>
+				<?php 
+				} 
+				?>
+
+				<?php if ($page < $total_pages) { ?>
 				<li class="page-item">
-					<a class="page-link" href="?page=<?php echo $page+1; ?>&category=<?php echo $category_id; ?>&q=<?php echo urlencode($search); ?>" aria-label="Next">
+					<a class="page-link" href="?page=<?php echo $page+1; ?>&q=<?php echo urlencode($search); ?>" aria-label="Next">
 						<span aria-hidden="true">&raquo;</span>
 					</a>
 				</li>
-				<?php endif; ?>
+				<?php } ?>
 			</ul>
 		</nav>
-		<?php endif; ?>
+		<?php } ?>
 	</div>
 	
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
