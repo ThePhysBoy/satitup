@@ -1201,10 +1201,13 @@ if ($conn && !$conn->connect_error) {
                                                 if ($rawExcerpt === '') {
                                                     echo '';
                                                 } else {
-                                                    $words = preg_split('/\s+/u', $rawExcerpt);
+                                                    // แยกคำด้วย regex ที่รองรับภาษาไทย
+                                                    $words = preg_split('/[\s\u{200B}]+/u', $rawExcerpt, -1, PREG_SPLIT_NO_EMPTY);
                                                     if (count($words) > 15) {
                                                         $words = array_slice($words, 0, 15);
                                                         $rawExcerpt = implode(' ', $words) . '...';
+                                                    } else {
+                                                        $rawExcerpt = implode(' ', $words);
                                                     }
                                                     echo htmlspecialchars($rawExcerpt);
                                                 }
