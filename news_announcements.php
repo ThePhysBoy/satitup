@@ -1198,19 +1198,17 @@ if ($conn && !$conn->connect_error) {
                                         <div class="news-excerpt" title="<?php echo htmlspecialchars(strip_tags($item['excerpt'])); ?>">
                                             <?php
                                                 $rawExcerpt = trim(strip_tags($item['excerpt']));
-                                                if ($rawExcerpt === '') {
-                                                    echo '';
-                                                } else {
-                                                    // แยกคำด้วย regex ที่รองรับภาษาไทย
-                                                    $words = preg_split('/[\s\u{200B}]+/u', $rawExcerpt, -1, PREG_SPLIT_NO_EMPTY);
-                                                    if (count($words) > 15) {
-                                                        $words = array_slice($words, 0, 15);
-                                                        $rawExcerpt = implode(' ', $words) . '...';
-                                                    } else {
-                                                        $rawExcerpt = implode(' ', $words);
+                                                $maxChars = 150;
+                                                if (mb_strlen($rawExcerpt, 'UTF-8') > $maxChars) {
+                                                    $truncated = mb_substr($rawExcerpt, 0, $maxChars, 'UTF-8');
+                                                    // ตัดคำให้จบที่วรรคเพื่อไม่ให้ขาดกลางคำภาษาอังกฤษ
+                                                    $lastSpace = mb_strrpos($truncated, ' ', 0, 'UTF-8');
+                                                    if ($lastSpace !== false) {
+                                                        $truncated = mb_substr($truncated, 0, $lastSpace, 'UTF-8');
                                                     }
-                                                    echo htmlspecialchars($rawExcerpt);
+                                                    $rawExcerpt = rtrim($truncated, ",.;-") . '...';
                                                 }
+                                                echo htmlspecialchars($rawExcerpt);
                                             ?>
                                         </div>
                                         <?php endif; ?>
