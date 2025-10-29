@@ -586,17 +586,20 @@ if ($conn && !$conn->connect_error) {
         .news-portfolio .portfolio-image::before {
             content: "";
             display: block;
-            padding-top: 66.6667%; /* 3:2 aspect ratio */
+            padding-top: 130%; /* รองรับภาพแนวตั้งได้มากขึ้น */
             width: 100%;
         }
 
         .news-portfolio .portfolio-image img {
             position: absolute;
             inset: 0;
-            width: 100%;
-            height: 100%;
+            margin: auto;
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
             display: block;
-            object-fit: cover;
+            object-fit: contain;
             object-position: center;
             border-top-left-radius: 12px;
             border-top-right-radius: 12px;
