@@ -25,7 +25,7 @@ if (!isset($latest_news) || empty($latest_news)) {
     } else {
         $latest_news = [];
         if ($conn && !$conn->connect_error) {
-            $stmt = $conn->prepare("SELECT n.id, n.title, n.slug, n.excerpt, n.published_at, n.created_at, n.featured_image, n.views as view_count, u.full_name, u.username
+            $stmt = $conn->prepare("SELECT n.id, n.title, n.slug, n.excerpt, n.published_at, n.created_at, n.featured_image, n.views as view_count, n.likes, n.sdg_goals, u.full_name, u.username
                                     FROM news n
                                     LEFT JOIN users u ON n.author_id = u.id
                                     WHERE n.status = 'published'
@@ -107,12 +107,13 @@ if (!empty($latest)) {
 
         // ดึงข้อมูลยอดวิวและไลค์
         $views = $item['view_count'] ?? $item['views'] ?? 0;
-        $likes = 0; // กำหนดค่าเริ่มต้นเป็น 0 ชั่วคราวจนกว่าจะเพิ่มฟิลด์ likes ในฐานข้อมูล
+        $likes = $item['likes'] ?? 0;
 
         $item['cover_image'] = $cover;
         $item['display_date'] = $displayDate;
         $item['views'] = $views;
         $item['likes'] = $likes;
+        $item['sdg_goals'] = $item['sdg_goals'] ?? '';
         $news_items[] = $item;
     }
 }
@@ -1032,8 +1033,8 @@ if ($conn && !$conn->connect_error) {
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="international-tab" data-bs-toggle="tab" data-bs-target="#international" type="button" role="tab">
                         <i class="fas fa-globe"></i>
-                        <span class="d-none d-lg-inline">ไปต่างประเทศ
-                        <span class="d-lg-none">ไปต่างประเทศ</span>
+                        <span class="d-none d-lg-inline">กิจกรรมต่างประเทศ  
+                        <span class="d-lg-none">กิจกรรมต่างประเทศ</span>
                     </button>
                 </li>
             </ul>

@@ -40,7 +40,7 @@ function getLatestNews($conn, $limit = 6, $category_id = 0) {
     
     $query = "SELECT n.id, n.title, n.slug, n.excerpt, COALESCE(n.published_at, n.created_at) AS display_date,
                      n.featured_image, (SELECT image_path FROM news_images WHERE news_id = n.id ORDER BY id ASC LIMIT 1) AS gallery_image,
-                     n.views as view_count, u.full_name, u.username
+                     n.views as view_count, n.likes, n.sdg_goals, u.full_name, u.username
               FROM news n
               LEFT JOIN users u ON n.author_id = u.id
               WHERE n.status = 'published' $category_condition
