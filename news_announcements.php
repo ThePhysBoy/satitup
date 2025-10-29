@@ -468,12 +468,13 @@ if ($conn && !$conn->connect_error) {
         
         .news-excerpt {
             display: none;
-            font-size: 9.6px;
+            font-size: 4.8px;
             color: #666;
             line-height: 1.4;
             margin-top: 8px;
             opacity: 0;
             transition: opacity 0.3s ease;
+            font-weight: 200;
         }
 
         .portfolio-content:hover .news-excerpt {
@@ -498,7 +499,7 @@ if ($conn && !$conn->connect_error) {
 
         .news-stats .news-views i,
         .news-stats .news-like-button i {
-            font-size: 8px;
+            font-size: 10.4px;
         }
 
         .news-like-button {
@@ -705,7 +706,8 @@ if ($conn && !$conn->connect_error) {
             }
 
             .news-excerpt {
-                font-size: 8.8px;
+                font-size: 4.4px;
+                font-weight: 200;
             }
 
             .news-stats {
@@ -720,7 +722,7 @@ if ($conn && !$conn->connect_error) {
 
             .news-stats .news-views i,
             .news-stats .news-like-button i {
-                font-size: 7.2px;
+                font-size: 9.4px;
             }
 
             .news-portfolio .portfolio-filters li {
@@ -1195,7 +1197,19 @@ if ($conn && !$conn->connect_error) {
                                         </h3>
                                         <?php if (!empty($item['excerpt'])): ?>
                                         <div class="news-excerpt" title="<?php echo htmlspecialchars(strip_tags($item['excerpt'])); ?>">
-                                            <?php echo htmlspecialchars(mb_substr(strip_tags($item['excerpt']), 0, 80) . (mb_strlen(strip_tags($item['excerpt'])) > 80 ? '...' : '')); ?>
+                                            <?php
+                                                $rawExcerpt = trim(strip_tags($item['excerpt']));
+                                                if ($rawExcerpt === '') {
+                                                    echo '';
+                                                } else {
+                                                    $words = preg_split('/\s+/u', $rawExcerpt);
+                                                    if (count($words) > 80) {
+                                                        $words = array_slice($words, 0, 80);
+                                                        $rawExcerpt = implode(' ', $words) . '...';
+                                                    }
+                                                    echo htmlspecialchars($rawExcerpt);
+                                                }
+                                            ?>
                                         </div>
                                         <?php endif; ?>
                                         <!-- แสดงยอดวิวและไลค์ -->
