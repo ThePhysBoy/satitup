@@ -188,8 +188,11 @@ if (!function_exists('satitup_prepare_hall_meta_lines')) {
         if (!empty($item['student_name'])) {
             $lines[] = '<i class="fas fa-user-graduate"></i> ' . htmlspecialchars($item['student_name'], ENT_QUOTES, 'UTF-8');
         }
-        if (!empty($item['class_name'])) {
-            $lines[] = '<i class="fas fa-school"></i> ' . htmlspecialchars($item['class_name'], ENT_QUOTES, 'UTF-8');
+        if (!empty($item['class'])) {
+            $lines[] = '<i class="fas fa-school"></i> ' . htmlspecialchars($item['class'], ENT_QUOTES, 'UTF-8');
+        }
+        if (!empty($item['year'])) {
+            $lines[] = '<i class="fas fa-calendar-alt"></i> ปีการศึกษา ' . htmlspecialchars($item['year'], ENT_QUOTES, 'UTF-8');
         }
         return $lines;
     }
@@ -1960,7 +1963,7 @@ if ($conn && !$conn->connect_error) {
                     $hall_data = [];
                     
                     foreach (array_keys($hall_categories) as $category) {
-                        $hall_sql = "SELECT id, title, student_name, class_name, achievement, description, image_path, 
+                        $hall_sql = "SELECT id, title, student_name, class, year, achievement, description, image_path, 
                                             date_achieved, category, featured, status, views, likes, sdg_goals, created_at, updated_at
                                      FROM hall_of_fame 
                                      WHERE category = '$category' AND status = 'active' 
