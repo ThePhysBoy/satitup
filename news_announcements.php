@@ -583,16 +583,17 @@ if ($conn && !$conn->connect_error) {
             border-top-left-radius: 12px;
             border-top-right-radius: 12px;
             width: 100%;
-            min-height: 200px;
+            height: 210px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         
         .portfolio-image img {
-            width: 100%;
+            width: auto;
+            max-width: 100%;
+            max-height: 100%;
             height: auto;
-            max-height: 300px;
             display: block;
             object-fit: contain;
             object-position: center;
