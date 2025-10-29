@@ -1217,7 +1217,7 @@ if ($conn && !$conn->connect_error) {
                                         <div class="news-stats mt-2">
                                             <span class="news-views" title="จำนวนผู้เข้าชม">
                                                 <i class="fas fa-eye"></i>
-                                                <span class="news-views-count" data-count="<?php echo (int)$item['views']; ?>"><?php echo number_format($item['views']); ?></span>
+                                                <span class="news-views-count" data-count="<?php echo isset($item['view_count']) ? (int)$item['view_count'] : (isset($item['views']) ? (int)$item['views'] : 0); ?>"><?php echo number_format(isset($item['view_count']) ? (int)$item['view_count'] : (isset($item['views']) ? (int)$item['views'] : 0)); ?></span>
                                             </span>
                                             <button class="news-like-button" type="button" data-news-id="<?php echo $item['id']; ?>" title="ถูกใจ" aria-label="ถูกใจข่าวนี้ (จำนวน <?php echo number_format($item['likes']); ?> ครั้ง)">
                                                 <i class="far fa-thumbs-up"></i>
@@ -2275,6 +2275,20 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!url) return;
 
         const openDetail = function () {
+            // Optimistically increase views count in UI
+            try {
+                const viewsEl = card.querySelector('.news-views-count');
+                if (viewsEl) {
+                    const raw = (viewsEl.dataset.count || viewsEl.textContent || '0').toString();
+                    const prev = parseInt(raw.replace(/[^0-9-]/g, ''), 10) || 0;
+                    const next = prev + 1;
+                    viewsEl.dataset.count = next;
+                    const nf = (typeof Intl !== 'undefined') ? new Intl.NumberFormat('th-TH') : null;
+                    viewsEl.textContent = nf ? nf.format(next) : String(next);
+                }
+            } catch (e) {
+                // no-op
+            }
             window.open(url, '_blank', 'noopener');
         };
 
