@@ -1195,21 +1195,22 @@ if ($conn && !$conn->connect_error) {
                                             </a>
                                         </h3>
                                         <?php if (!empty($item['excerpt'])): ?>
-                                        <div class="news-excerpt" title="<?php echo htmlspecialchars(strip_tags($item['excerpt'])); ?>">
-                                            <?php
-                                                $rawExcerpt = trim(strip_tags($item['excerpt']));
-                                                $maxChars = 150;
-                                                if (mb_strlen($rawExcerpt, 'UTF-8') > $maxChars) {
-                                                    $truncated = mb_substr($rawExcerpt, 0, $maxChars, 'UTF-8');
-                                                    // ตัดคำให้จบที่วรรคเพื่อไม่ให้ขาดกลางคำภาษาอังกฤษ
-                                                    $lastSpace = mb_strrpos($truncated, ' ', 0, 'UTF-8');
-                                                    if ($lastSpace !== false) {
-                                                        $truncated = mb_substr($truncated, 0, $lastSpace, 'UTF-8');
-                                                    }
-                                                    $rawExcerpt = rtrim($truncated, ",.;-") . '...';
+                                        <?php
+                                            $rawExcerpt = trim(strip_tags($item['excerpt']));
+                                            $maxChars = 100;
+                                            if (mb_strlen($rawExcerpt, 'UTF-8') > $maxChars) {
+                                                $truncated = mb_substr($rawExcerpt, 0, $maxChars, 'UTF-8');
+                                                // ตัดคำให้จบที่วรรคเพื่อไม่ให้ขาดกลางคำภาษาอังกฤษ
+                                                $lastSpace = mb_strrpos($truncated, ' ', 0, 'UTF-8');
+                                                if ($lastSpace !== false) {
+                                                    $truncated = mb_substr($truncated, 0, $lastSpace, 'UTF-8');
                                                 }
-                                                echo htmlspecialchars($rawExcerpt);
-                                            ?>
+                                                $rawExcerpt = rtrim($truncated, ",.;-") . '...';
+                                            }
+                                            $displayExcerpt = $rawExcerpt;
+                                        ?>
+                                        <div class="news-excerpt" title="<?php echo htmlspecialchars($displayExcerpt); ?>">
+                                            <?php echo htmlspecialchars($displayExcerpt); ?>
                                         </div>
                                         <?php endif; ?>
                                         <!-- แสดงยอดวิวและไลค์ -->
