@@ -272,6 +272,15 @@ if ($conn && !$conn->connect_error) {
             border: 1px solid #e0e0e0;
             cursor: pointer;
         }
+
+        .portfolio-content[data-detail-url] {
+            cursor: pointer;
+        }
+
+        .portfolio-content[data-detail-url]:focus {
+            outline: 3px solid rgba(139, 122, 168, 0.6);
+            outline-offset: 4px;
+        }
         
         .news-portfolio .portfolio-content:hover {
             transform: translateY(-8px);
@@ -332,15 +341,17 @@ if ($conn && !$conn->connect_error) {
         .news-meta-top {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 8px;
             margin-bottom: 8px;
+            width: 100%;
         }
 
         .sdg-badges {
             display: flex;
             flex-wrap: wrap;
             gap: 4px;
-            max-width: calc(100% - 120px);
+            justify-content: flex-start;
         }
 
         .sdg-badges:empty {
@@ -1175,8 +1186,13 @@ if ($conn && !$conn->connect_error) {
 
                         <div class="isotope-container custom-news-grid">
 <?php foreach ($news_items as $item): ?>
+<?php
+    $detailUrl = !empty($item['slug'])
+        ? 'news/detail.php?slug=' . urlencode($item['slug'])
+        : 'news/detail.php?id=' . $item['id'];
+?>
                             <div class="portfolio-item isotope-item">
-                                <div class="portfolio-content h-100">
+                                <div class="portfolio-content h-100" data-detail-url="<?php echo htmlspecialchars($detailUrl); ?>" role="link" tabindex="0">
                                     <div class="portfolio-image">
                                         <img src="<?php echo htmlspecialchars($item['cover_image']); ?>" class="img-fluid" alt="<?php echo htmlspecialchars($item['title']); ?>" onerror="this.src='images/comingsoon.png'">
                                     </div>
@@ -1225,11 +1241,9 @@ if ($conn && !$conn->connect_error) {
                                             </div>
                                         </div>
                                         <h3 class="news-activity-title">
-                                            <?php if (!empty($item['slug'])): ?>
-                                            <a href="news/detail.php?slug=<?php echo urlencode($item['slug']); ?>"><?php echo htmlspecialchars($item['title']); ?></a>
-                                            <?php else: ?>
-                                            <a href="news/detail.php?id=<?php echo $item['id']; ?>"><?php echo htmlspecialchars($item['title']); ?></a>
-                                            <?php endif; ?>
+                                            <a class="news-detail-link" href="<?php echo htmlspecialchars($detailUrl); ?>" target="_blank" rel="noopener">
+                                                <?php echo htmlspecialchars($item['title']); ?>
+                                            </a>
                                         </h3>
                                         <?php if (!empty($item['excerpt'])): ?>
                                         <div class="news-excerpt" title="<?php echo htmlspecialchars(strip_tags($item['excerpt'])); ?>">
@@ -2224,6 +2238,10 @@ document.addEventListener('DOMContentLoaded', function () {
             button.dataset.liked = 'false';
         }
 
+        button.addEventListener('click', function (e) {
+            e.stopPropagation();
+        }, true);
+
         updateLikeAriaLabel(button, parseCount(countEl));
 
         if (localStorage.getItem(storageKey)) {
@@ -2281,6 +2299,42 @@ document.addEventListener('DOMContentLoaded', function () {
                 .finally(() => {
                     button.classList.remove('loading');
                 });
+        });
+    });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.portfolio-content[data-detail-url]').forEach(function (card) {
+        const url = card.dataset.detailUrl;
+        if (!url) return;
+
+        const openDetail = function () {
+            window.open(url, '_blank', 'noopener');
+        };
+
+        card.addEventListener('click', function (event) {
+            if (event.target.closest('.news-like-button') || event.target.closest('.news-detail-link') || event.target.tagName === 'A' || event.target.tagName === 'BUTTON') {
+                return;
+            }
+            openDetail();
+        });
+
+        card.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                if (event.target.closest('.news-like-button') || event.target.closest('.news-detail-link')) {
+                    return;
+                }
+                event.preventDefault();
+                openDetail();
+            }
+        });
+    });
+
+    document.querySelectorAll('.news-detail-link').forEach(function (link) {
+        link.addEventListener('click', function (event) {
+            event.stopPropagation();
         });
     });
 });
