@@ -196,7 +196,7 @@ $sdg_meta = [
 		}
 		
 		.news-activity-date {
-			font-size: 8.8px;
+			font-size: 11px;
 			color: #333;
 			font-weight: 500;
 			display: inline-flex;
@@ -206,13 +206,13 @@ $sdg_meta = [
 		}
 		
 		.news-activity-date i {
-			font-size: 8.8px;
+			font-size: 11px;
 			color: #666;
 		}
 		
 		.news-activity-title {
-			font-size: 6.8px;
-			font-weight: 300;
+			font-size: 14px;
+			font-weight: 400;
 			margin-bottom: 15px;
 			line-height: 1.5;
 			overflow: hidden;
@@ -225,7 +225,7 @@ $sdg_meta = [
 		.news-activity-title::before {
 			content: "📢 ";
 			margin-right: 4px;
-			font-size: 6.4px;
+			font-size: 13px;
 		}
 		
 		.news-activity-title a {
@@ -240,7 +240,7 @@ $sdg_meta = [
 		
 		.news-excerpt {
 			display: block;
-			font-size: 6px;
+			font-size: 12px;
 			font-weight: 300;
 			color: #666;
 			line-height: 1.4;
@@ -252,7 +252,7 @@ $sdg_meta = [
 			display: flex;
 			align-items: center;
 			gap: 8px;
-			font-size: 8.8px;
+			font-size: 13px;
 			color: #666;
 			margin-top: auto;
 			padding-top: 10px;
@@ -281,7 +281,7 @@ $sdg_meta = [
 			color: #888;
 			cursor: pointer;
 			transition: color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
-			font-size: 8.8px;
+			font-size: 13px;
 		}
 		
 		.news-like-button:hover {
