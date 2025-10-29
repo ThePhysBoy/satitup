@@ -77,7 +77,6 @@
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '../' : ''; ?>about-history.php">แนะนำโรงเรียน/ประวัติโรงเรียน</a></li>
                                 <li><a class="dropdown-item" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '../' : ''; ?>about-vision.php">วิสัยทัศน์ / พันธกิจ</a></li>
-                                <li><a class="dropdown-item" href="#">นโยบาย-เอกลักษณ์</a></li>
                                 <li><a class="dropdown-item" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '../' : ''; ?>org-structure.php" target="_blank">โครงสร้างของโรงเรียน</a></li>
                                 <li><a class="dropdown-item" href="#">รายงานประจำปี</a></li>
                             </ul>

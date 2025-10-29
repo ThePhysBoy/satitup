@@ -348,63 +348,58 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
     .admin-links {
         display: flex;
         justify-content: center;
-        gap: 15px;
-        margin-top: 15px;
+        gap: 12px;
+        margin-top: 20px;
         padding-top: 15px;
         border-top: 1px solid rgba(52, 73, 94, 0.1);
     }
-    
+
     .btn-link {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 40px;
+        min-width: 70px;
         height: 40px;
-        border-radius: 50%;
+        border-radius: 6px;
         text-decoration: none;
         transition: all 0.3s ease;
-        font-size: 18px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        padding: 6px 20px;
+        border: none;
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
     }
-    
+
     .btn-link:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
     }
-    
-    .scholar-link {
-        background: linear-gradient(135deg, #4285f4, #1a73e8);
+
+    .btn-link.email-link {
+        background: #FDB813;
+        color: #333;
+    }
+
+    .btn-link.scholar-link {
+        background: #FDB813;
+        color: #333;
+    }
+
+    .btn-link.cv-link {
+        background: #FDB813;
+        color: #333;
+    }
+
+    .btn-link.view-link {
+        background: #4CAF50;
         color: white;
     }
-    
-    .scholar-link:hover {
-        background: linear-gradient(135deg, #1a73e8, #0d5ec8);
-        color: white;
-    }
-    
-    .cv-link {
-        background: linear-gradient(135deg, #dc3545, #c82333);
-        color: white;
-    }
-    
-    .cv-link:hover {
-        background: linear-gradient(135deg, #c82333, #a71e2a);
-        color: white;
-    }
-    
-    .email-link {
-        background: linear-gradient(135deg, #17a2b8, #138496);
-        color: white;
-    }
-    
-    .email-link:hover {
-        background: linear-gradient(135deg, #138496, #117a8b);
-        color: white;
-    }
-    
+
     .director-card .admin-links {
         margin-top: 10px;
         padding-top: 10px;
-        border-top: 2px solid rgba(52, 73, 94, 0.1);
+        border-top: 2px solid rgba(255, 255, 255, 0.2);
     }
 </style>
 
@@ -490,22 +485,31 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
             </div>
             <div class="director-name"><?php echo htmlspecialchars($chairman['title'].' '.$chairman['first_name'].' '.$chairman['last_name']); ?></div>
             <div class="director-position"><?php echo nl2br(htmlspecialchars($chairman['management_position'])); ?></div>
+            <?php $chairmanViewLink = 'admin/management/view.php?id=' . $chairman['id']; ?>
             <div class="admin-links">
-                <?php if (!empty($chairman['email'])): ?>
-                <a href="mailto:<?php echo htmlspecialchars($chairman['email']); ?>" class="btn-link email-link" title="Send Email" onclick="event.stopPropagation();">
-                    <i class="fas fa-envelope"></i>
-                </a>
-                <?php endif; ?>
-                <?php if (!empty($chairman['google_scholar_link'])): ?>
-                <a href="<?php echo htmlspecialchars($chairman['google_scholar_link']); ?>" target="_blank" class="btn-link scholar-link" title="Google Scholar" onclick="event.stopPropagation();">
-                    <i class="fas fa-graduation-cap"></i>
-                </a>
-                <?php endif; ?>
                 <?php if (!empty($chairman['cv_path'])): ?>
-                <a href="<?php echo htmlspecialchars($chairman['cv_path']); ?>" target="_blank" class="btn-link cv-link" title="Download CV" onclick="event.stopPropagation();">
-                    <i class="fas fa-file-pdf"></i>
-                </a>
+                    <a href="<?php echo htmlspecialchars($chairman['cv_path']); ?>" target="_blank" class="btn-link cv-link" title="Download CV" onclick="event.stopPropagation();">
+                        CV
+                    </a>
+                <?php else: ?>
+                    <a href="<?php echo $chairmanViewLink; ?>" class="btn-link cv-link" title="รายละเอียดเพิ่มเติม" onclick="event.stopPropagation();">
+                        CV
+                    </a>
                 <?php endif; ?>
+
+                <?php if (!empty($chairman['google_scholar_link'])): ?>
+                    <a href="<?php echo htmlspecialchars($chairman['google_scholar_link']); ?>" target="_blank" class="btn-link scholar-link" title="Google Scholar" onclick="event.stopPropagation();">
+                        LINK
+                    </a>
+                <?php else: ?>
+                    <a href="<?php echo $chairmanViewLink; ?>" class="btn-link scholar-link" title="รายละเอียดเพิ่มเติม" onclick="event.stopPropagation();">
+                        LINK
+                    </a>
+                <?php endif; ?>
+
+                <a href="<?php echo $chairmanViewLink; ?>" class="btn-link view-link" title="ดูข้อมูลเพิ่มเติม" onclick="event.stopPropagation();">
+                    Expert
+                </a>
             </div>
         </div>
     </div>
@@ -535,22 +539,31 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
                         </div>
                         <div class="director-name"><?php echo htmlspecialchars($m['title'].' '.$m['first_name'].' '.$m['last_name']); ?></div>
                         <div class="director-position"><?php echo nl2br(htmlspecialchars($m['management_position'])); ?></div>
+                        <?php $directorViewLink = 'admin/management/view.php?id=' . $m['id']; ?>
                         <div class="admin-links">
-                            <?php if (!empty($m['email'])): ?>
-                            <a href="mailto:<?php echo htmlspecialchars($m['email']); ?>" class="btn-link email-link" title="Send Email" onclick="event.stopPropagation();">
-                                <i class="fas fa-envelope"></i>
-                            </a>
-                            <?php endif; ?>
-                            <?php if (!empty($m['google_scholar_link'])): ?>
-                            <a href="<?php echo htmlspecialchars($m['google_scholar_link']); ?>" target="_blank" class="btn-link scholar-link" title="Google Scholar" onclick="event.stopPropagation();">
-                                <i class="fas fa-graduation-cap"></i>
-                            </a>
-                            <?php endif; ?>
                             <?php if (!empty($m['cv_path'])): ?>
-                            <a href="<?php echo htmlspecialchars($m['cv_path']); ?>" target="_blank" class="btn-link cv-link" title="Download CV" onclick="event.stopPropagation();">
-                                <i class="fas fa-file-pdf"></i>
-                            </a>
+                                <a href="<?php echo htmlspecialchars($m['cv_path']); ?>" target="_blank" class="btn-link cv-link" title="Download CV" onclick="event.stopPropagation();">
+                                    CV
+                                </a>
+                            <?php else: ?>
+                                <a href="<?php echo $directorViewLink; ?>" class="btn-link cv-link" title="รายละเอียดเพิ่มเติม" onclick="event.stopPropagation();">
+                                    CV
+                                </a>
                             <?php endif; ?>
+
+                            <?php if (!empty($m['google_scholar_link'])): ?>
+                                <a href="<?php echo htmlspecialchars($m['google_scholar_link']); ?>" target="_blank" class="btn-link scholar-link" title="Google Scholar" onclick="event.stopPropagation();">
+                                    LINK
+                                </a>
+                            <?php else: ?>
+                                <a href="<?php echo $directorViewLink; ?>" class="btn-link scholar-link" title="รายละเอียดเพิ่มเติม" onclick="event.stopPropagation();">
+                                    LINK
+                                </a>
+                            <?php endif; ?>
+
+                            <a href="<?php echo $directorViewLink; ?>" class="btn-link view-link" title="ดูข้อมูลเพิ่มเติม" onclick="event.stopPropagation();">
+                                Expert
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -573,22 +586,31 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
                     </div>
                     <div class="admin-name"><?php echo htmlspecialchars($m['title'].' '.$m['first_name'].' '.$m['last_name']); ?></div>
                     <div class="admin-position"><?php echo nl2br(htmlspecialchars($m['management_position'])); ?></div>
+                    <?php $managementViewLink = 'admin/management/view.php?id=' . $m['id']; ?>
                     <div class="admin-links">
-                        <?php if (!empty($m['email'])): ?>
-                        <a href="mailto:<?php echo htmlspecialchars($m['email']); ?>" class="btn-link email-link" title="Send Email" onclick="event.stopPropagation();">
-                            <i class="fas fa-envelope"></i>
-                        </a>
-                        <?php endif; ?>
-                        <?php if (!empty($m['google_scholar_link'])): ?>
-                        <a href="<?php echo htmlspecialchars($m['google_scholar_link']); ?>" target="_blank" class="btn-link scholar-link" title="Google Scholar" onclick="event.stopPropagation();">
-                            <i class="fas fa-graduation-cap"></i>
-                        </a>
-                        <?php endif; ?>
                         <?php if (!empty($m['cv_path'])): ?>
-                        <a href="<?php echo htmlspecialchars($m['cv_path']); ?>" target="_blank" class="btn-link cv-link" title="Download CV" onclick="event.stopPropagation();">
-                            <i class="fas fa-file-pdf"></i>
-                        </a>
+                            <a href="<?php echo htmlspecialchars($m['cv_path']); ?>" target="_blank" class="btn-link cv-link" title="Download CV" onclick="event.stopPropagation();">
+                                CV
+                            </a>
+                        <?php else: ?>
+                            <a href="<?php echo $managementViewLink; ?>" class="btn-link cv-link" title="รายละเอียดเพิ่มเติม" onclick="event.stopPropagation();">
+                                CV
+                            </a>
                         <?php endif; ?>
+
+                        <?php if (!empty($m['google_scholar_link'])): ?>
+                            <a href="<?php echo htmlspecialchars($m['google_scholar_link']); ?>" target="_blank" class="btn-link scholar-link" title="Google Scholar" onclick="event.stopPropagation();">
+                                LINK
+                            </a>
+                        <?php else: ?>
+                            <a href="<?php echo $managementViewLink; ?>" class="btn-link scholar-link" title="รายละเอียดเพิ่มเติม" onclick="event.stopPropagation();">
+                                LINK
+                            </a>
+                        <?php endif; ?>
+
+                        <a href="<?php echo $managementViewLink; ?>" class="btn-link view-link" title="ดูข้อมูลเพิ่มเติม" onclick="event.stopPropagation();">
+                            Expert
+                        </a>
                     </div>
                 </div>
                 <?php endif; ?>

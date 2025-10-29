@@ -77,6 +77,22 @@ $slides = $result->fetch_all(MYSQLI_ASSOC);
         filter: invert(0.5) sepia(1) saturate(5) hue-rotate(175deg);
     }
     
+    /* ทำให้ทั้งสไลด์คลิกได้เมื่อมีลิงก์ */
+    .carousel-item {
+        position: relative;
+    }
+
+    .carousel-item .slide-link-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 5;
+    }
+
+    .carousel-caption {
+        position: relative;
+        z-index: 10;
+    }
+
     /* ปรับแต่งจุดบอกตำแหน่งสไลด์ด้านล่าง */
     .carousel-indicators {
         bottom: 20px;
@@ -167,14 +183,11 @@ $slides = $result->fetch_all(MYSQLI_ASSOC);
                             </p>
                         <?php endif; ?>
                         
-                        <?php if (!empty($slide['link'])): ?>
-                            <!-- ปุ่มพร้อมแอนิเมชันและหน่วงเวลา 2 วินาที -->
-                            <a href="<?php echo htmlspecialchars($slide['link']); ?>" class="btn btn-primary btn-lg rounded-pill px-4 animate__animated animate__fadeInUp animate__delay-2s">
-                                เรียนรู้เพิ่มเติม <i class="fas fa-arrow-right ms-2"></i>
-                            </a>
-                        <?php endif; ?>
                     </div>
                 </div>
+                <?php if (!empty($slide['link'])): ?>
+                    <a href="<?php echo htmlspecialchars($slide['link']); ?>" class="slide-link-overlay" aria-label="<?php echo htmlspecialchars($slide['title']); ?>"></a>
+                <?php endif; ?>
             </div>
         <?php endforeach; ?>
     </div>

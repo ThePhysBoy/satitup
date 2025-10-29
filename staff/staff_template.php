@@ -367,7 +367,7 @@ include_once '../header.php';
                                     
                                     <a href="public_view.php?id=<?php echo $staff['id']; ?>" 
                                        class="btn-staff btn-view">
-                                        VIEW
+                                        Expert
                                     </a>
                                 </div>
                             </div>

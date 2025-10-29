@@ -14,6 +14,9 @@ if (!canManageSlideshow()) {
     exit;
 }
 
+$warning_message = null;
+$warning_details = [];
+
 // Delete slideshow item if requested
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $id = $_GET['delete'];
@@ -42,6 +45,83 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         } else {
             $error_message = "เกิดข้อผิดพลาดในการลบสไลด์";
         }
+    }
+}
+
+// Handle display order update
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST'
+    && isset($_POST['display_order'])
+    && is_array($_POST['display_order'])
+) {
+    $orders = $_POST['display_order'];
+    $stmt = $conn->prepare("UPDATE slideshow SET display_order = ? WHERE id = ?");
+
+    if ($stmt) {
+        $update_error = false;
+        foreach ($orders as $slide_id => $order_value) {
+            if (!ctype_digit((string) $slide_id)) {
+                continue;
+            }
+
+            $display_order = is_numeric($order_value) ? (int) $order_value : 0;
+            $slide_id_int = (int) $slide_id;
+
+            $stmt->bind_param("ii", $display_order, $slide_id_int);
+            if (!$stmt->execute()) {
+                $update_error = true;
+                $error_text = 'เกิดข้อผิดพลาดในการบันทึกลำดับสไลด์ ID ' . $slide_id_int . ': ' . $stmt->error;
+                if (isset($error_message)) {
+                    $error_message .= '<br>' . $error_text;
+                } else {
+                    $error_message = $error_text;
+                }
+            }
+        }
+        $stmt->close();
+
+        if (!$update_error) {
+            $success_text = "บันทึกลำดับสไลด์เรียบร้อยแล้ว";
+            header('Location: index.php?updated_order=1');
+            exit;
+        }
+    } else {
+        $error_text = 'ไม่สามารถเตรียมคำสั่งอัปเดตลำดับสไลด์ได้: ' . $conn->error;
+        if (isset($error_message)) {
+            $error_message .= '<br>' . $error_text;
+        } else {
+            $error_message = $error_text;
+        }
+    }
+}
+
+// Handle import result messages
+if (isset($_GET['imported'])) {
+    $inserted = isset($_GET['inserted']) ? (int)$_GET['inserted'] : 0;
+    $skipped = isset($_GET['skipped']) ? (int)$_GET['skipped'] : 0;
+    $missing = isset($_GET['missing']) ? (int)$_GET['missing'] : 0;
+    $success_text = "นำเข้ารูปสไลด์สำเร็จ: เพิ่ม {$inserted} รายการ, ข้าม {$skipped} รายการ";
+    if (isset($success_message)) {
+        $success_message .= '<br>' . $success_text;
+    } else {
+        $success_message = $success_text;
+    }
+    if ($missing > 0 && !empty($_GET['missing_files'])) {
+        $decoded = json_decode(base64_decode($_GET['missing_files']), true);
+        if (is_array($decoded)) {
+            $warning_details = $decoded;
+        }
+        $warning_message = "ไม่พบไฟล์รูปจำนวน {$missing} ไฟล์ จึงไม่ได้เพิ่มเข้าสู่ระบบ";
+    }
+}
+
+// Display order update success message
+if (isset($_GET['updated_order'])) {
+    $success_text = "บันทึกลำดับสไลด์เรียบร้อยแล้ว";
+    if (isset($success_message)) {
+        $success_message .= '<br>' . $success_text;
+    } else {
+        $success_message = $success_text;
     }
 }
 
@@ -289,6 +369,9 @@ $slides = $result->fetch_all(MYSQLI_ASSOC);
                         <a href="fix_images.php" class="btn btn-warning me-2">
                             <i class="fas fa-wrench me-1"></i> แก้ไขปัญหารูปภาพ
                         </a>
+                        <a href="import_from_static.php" class="btn btn-info me-2">
+                            <i class="fas fa-file-import me-1"></i> นำเข้าจากสไลด์เดิม
+                        </a>
                         <a href="create.php" class="btn btn-primary">
                             <i class="fas fa-plus me-1"></i> เพิ่มสไลด์ใหม่
                         </a>
@@ -348,6 +431,23 @@ $slides = $result->fetch_all(MYSQLI_ASSOC);
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 <?php endif; ?>
+
+                <?php if (!empty($warning_message)): ?>
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <strong>คำเตือน:</strong> <?php echo htmlspecialchars($warning_message); ?>
+                        <?php if (!empty($warning_details)): ?>
+                            <details class="mt-2">
+                                <summary>ดูรายชื่อไฟล์ที่ไม่พบ</summary>
+                                <ul class="mb-0">
+                                    <?php foreach ($warning_details as $missing_file): ?>
+                                        <li><?php echo htmlspecialchars($missing_file); ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </details>
+                        <?php endif; ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <?php endif; ?>
                 
                 <?php if (isset($error_message)): ?>
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -362,71 +462,87 @@ $slides = $result->fetch_all(MYSQLI_ASSOC);
                         <h6><i class="fas fa-images me-2"></i> รายการสไลด์ทั้งหมด</h6>
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover" width="100%" cellspacing="0">
-                                <thead>
-                                    <tr>
-                                        <th width="5%">ลำดับ</th>
-                                        <th width="15%">รูปภาพ</th>
-                                        <th width="25%">หัวข้อ</th>
-                                        <th width="25%">คำอธิบาย</th>
-                                        <th width="10%">สถานะ</th>
-                                        <th width="20%">จัดการ</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if (empty($slides)): ?>
+                        <form method="post">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle" width="100%" cellspacing="0">
+                                    <thead>
                                         <tr>
-                                            <td colspan="6" class="text-center">ไม่พบข้อมูลสไลด์</td>
+                                            <th width="5%">ลำดับ</th>
+                                            <th width="15%">รูปภาพ</th>
+                                            <th width="25%">หัวข้อ</th>
+                                            <th width="15%">คำอธิบาย</th>
+                                            <th width="10%">ลำดับแสดงผล</th>
+                                            <th width="10%">สถานะ</th>
+                                            <th width="20%">จัดการ</th>
                                         </tr>
-                                    <?php else: ?>
-                                        <?php foreach ($slides as $index => $slide): ?>
+                                    </thead>
+                                    <tbody>
+                                        <?php if (empty($slides)): ?>
                                             <tr>
-                                                <td><?php echo $index + 1; ?></td>
-                                                <td>
-                                                    <?php
-                                                    $image_path = $slide['image_path'];
-                                                    $full_path = '../../' . $image_path;
-                                                    $image_exists = file_exists($full_path);
-                                                    
-                                                    if ($image_exists): ?>
-                                                        <img src="<?php echo htmlspecialchars('../../' . $image_path); ?>" alt="<?php echo htmlspecialchars($slide['title']); ?>" class="slide-image-preview">
-                                                    <?php else: ?>
-                                                        <div class="text-center p-3 bg-light rounded">
-                                                            <i class="fas fa-image text-secondary fa-2x mb-2"></i>
-                                                            <p class="small text-muted mb-0">ไม่พบรูปภาพ</p>
-                                                            <small class="text-danger"><?php echo htmlspecialchars($image_path); ?></small>
-                                                        </div>
-                                                    <?php endif; ?>
-                                                </td>
-                                                <td><?php echo htmlspecialchars($slide['title']); ?></td>
-                                                <td><?php echo htmlspecialchars(substr($slide['description'], 0, 100)) . (strlen($slide['description']) > 100 ? '...' : ''); ?></td>
-                                                <td>
-                                                    <?php if ($slide['active']): ?>
-                                                        <span class="badge bg-success">แสดง</span>
-                                                    <?php else: ?>
-                                                        <span class="badge bg-secondary">ซ่อน</span>
-                                                    <?php endif; ?>
-                                                </td>
-                                                <td>
-                                                    <div class="d-flex gap-2">
-                                                        <a href="edit.php?id=<?php echo $slide['id']; ?>" class="btn btn-sm btn-primary">
-                                                            <i class="fas fa-edit"></i> แก้ไข
-                                                        </a>
-                                                        <a href="preview.php?id=<?php echo $slide['id']; ?>" class="btn btn-sm btn-info" title="ดูตัวอย่าง">
-                                                            <i class="fas fa-eye"></i>
-                                                        </a>
-                                                        <a href="index.php?delete=<?php echo $slide['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('คุณต้องการลบสไลด์นี้ใช่หรือไม่?')">
-                                                            <i class="fas fa-trash"></i> ลบ
-                                                        </a>
-                                                    </div>
-                                                </td>
+                                                <td colspan="7" class="text-center">ไม่พบข้อมูลสไลด์</td>
                                             </tr>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
+                                        <?php else: ?>
+                                            <?php foreach ($slides as $index => $slide): ?>
+                                                <tr>
+                                                    <td><?php echo $index + 1; ?></td>
+                                                    <td>
+                                                        <?php
+                                                        $image_path = $slide['image_path'];
+                                                        $full_path = '../../' . $image_path;
+                                                        $image_exists = file_exists($full_path);
+                                                        
+                                                        if ($image_exists): ?>
+                                                            <img src="<?php echo htmlspecialchars('../../' . $image_path); ?>" alt="<?php echo htmlspecialchars($slide['title']); ?>" class="slide-image-preview">
+                                                        <?php else: ?>
+                                                            <div class="text-center p-3 bg-light rounded">
+                                                                <i class="fas fa-image text-secondary fa-2x mb-2"></i>
+                                                                <p class="small text-muted mb-0">ไม่พบรูปภาพ</p>
+                                                                <small class="text-danger"><?php echo htmlspecialchars($image_path); ?></small>
+                                                            </div>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td><?php echo htmlspecialchars($slide['title']); ?></td>
+                                                    <td><?php echo htmlspecialchars(substr($slide['description'], 0, 80)) . (strlen($slide['description']) > 80 ? '...' : ''); ?></td>
+                                                    <td style="min-width:120px;">
+                                                        <div class="input-group input-group-sm">
+                                                            <input type="number" class="form-control" name="display_order[<?php echo $slide['id']; ?>]" value="<?php echo (int)$slide['display_order']; ?>" min="0">
+                                                            <span class="input-group-text"><i class="fas fa-sort-numeric-down"></i></span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <?php if ($slide['active']): ?>
+                                                            <span class="badge bg-success">แสดง</span>
+                                                        <?php else: ?>
+                                                            <span class="badge bg-secondary">ซ่อน</span>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex flex-wrap gap-2">
+                                                            <a href="edit.php?id=<?php echo $slide['id']; ?>" class="btn btn-sm btn-primary">
+                                                                <i class="fas fa-edit"></i> แก้ไข
+                                                            </a>
+                                                            <a href="preview.php?id=<?php echo $slide['id']; ?>" class="btn btn-sm btn-info" title="ดูตัวอย่าง">
+                                                                <i class="fas fa-eye"></i>
+                                                            </a>
+                                                            <a href="index.php?delete=<?php echo $slide['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('คุณต้องการลบสไลด์นี้ใช่หรือไม่?')">
+                                                                <i class="fas fa-trash"></i> ลบ
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <?php if (!empty($slides)): ?>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-success mt-3">
+                                        <i class="fas fa-save me-1"></i> บันทึกลำดับการแสดงผล
+                                    </button>
+                                </div>
+                            <?php endif; ?>
+                        </form>
                     </div>
                 </div>
             </main>
