@@ -581,23 +581,19 @@ if ($conn && !$conn->connect_error) {
             background: #f5f5f5;
             border-top-left-radius: 12px;
             border-top-right-radius: 12px;
-        }
-
-        .news-portfolio .portfolio-image::before {
-            content: "";
-            display: block;
-            padding-top: 56.25%; /* 16:9 aspect ratio */
             width: 100%;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .news-portfolio .portfolio-image img {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
-            height: 100%;
+            height: auto;
+            max-height: 300px;
             display: block;
-            object-fit: cover;
+            object-fit: contain;
             object-position: center;
             border-top-left-radius: 12px;
             border-top-right-radius: 12px;
