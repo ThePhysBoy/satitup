@@ -316,25 +316,23 @@ if ($conn && !$conn->connect_error) {
         }
         
         .news-activity-date {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 0;
+            position: static;
             background: transparent;
             color: #333;
+            padding: 0;
             border-radius: 0;
-            font-size: 11px;
             font-weight: 500;
-            box-shadow: none;
+            font-size: 8.8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
             margin-top: 8px;
             margin-left: auto;
-            float: none;
-            white-space: nowrap;
         }
 
         .news-activity-date i {
-            font-size: 11px;
             color: #666;
+            font-size: 8.8px;
         }
         
         /* SDG Badges Styles */
@@ -366,13 +364,13 @@ if ($conn && !$conn->connect_error) {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 24px;
-            height: 24px;
-            border-radius: 6px;
+            width: 19px;
+            height: 19px;
+            border-radius: 5px;
             color: white;
             font-weight: bold;
-            font-size: 13px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            font-size: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
             transition: all 0.3s ease;
             opacity: 0.6;
             position: relative;
@@ -393,9 +391,9 @@ if ($conn && !$conn->connect_error) {
             transform: translate(-50%, -6px);
             background: rgba(33, 33, 33, 0.92);
             color: #fff;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 11px;
+            padding: 3px 6px;
+            border-radius: 5px;
+            font-size: 9px;
             white-space: nowrap;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
             opacity: 0;
@@ -428,15 +426,15 @@ if ($conn && !$conn->connect_error) {
             display: inline-block;
             background: #f0f0f0;
             color: #666;
-            font-size: 12px;
+            font-size: 9.6px;
             font-weight: 500;
-            padding: 5px 12px;
+            padding: 4px 10px;
             border-radius: 4px;
             margin-bottom: 12px;
         }
         
         .news-activity-title {
-            font-size: 17px;
+            font-size: 13.6px;
             font-weight: 500;
             margin-bottom: 15px;
             line-height: 1.5;
@@ -445,20 +443,23 @@ if ($conn && !$conn->connect_error) {
             -webkit-line-clamp: 3;
             line-clamp: 3;
             -webkit-box-orient: vertical;
-            min-height: 76px;
+            min-height: 60.8px;
             color: #333;
         }
         
         .news-activity-title::before {
             content: "📢 ";
-            margin-right: 5px;
-            font-size: 16px;
+            margin-right: 4px;
+            font-size: 12.8px;
         }
         
         .news-activity-title a {
-            color: #333;
+            color: inherit;
             text-decoration: none;
             transition: color 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
         
         .news-activity-title a:hover {
@@ -467,7 +468,7 @@ if ($conn && !$conn->connect_error) {
         
         .news-excerpt {
             display: none;
-            font-size: 12px;
+            font-size: 9.6px;
             color: #666;
             line-height: 1.4;
             margin-top: 8px;
@@ -483,8 +484,8 @@ if ($conn && !$conn->connect_error) {
         .news-stats {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 11px;
+            gap: 8px;
+            font-size: 8.8px;
             color: #666;
         }
 
@@ -492,12 +493,12 @@ if ($conn && !$conn->connect_error) {
         .news-stats .news-like-button {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 3.2px;
         }
 
         .news-stats .news-views i,
         .news-stats .news-like-button i {
-            font-size: 10px;
+            font-size: 8px;
         }
 
         .news-like-button {
@@ -507,7 +508,7 @@ if ($conn && !$conn->connect_error) {
             color: #888;
             cursor: pointer;
             transition: color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
-            font-size: 11px;
+            font-size: 8.8px;
         }
 
         .news-like-button:hover {
@@ -530,7 +531,7 @@ if ($conn && !$conn->connect_error) {
 
         .news-like-count,
         .news-views-count {
-            min-width: 12px;
+            min-width: 9.6px;
         }
         
 .portfolio-meta {
@@ -694,46 +695,46 @@ if ($conn && !$conn->connect_error) {
             }
 
             .news-activity-title {
-                font-size: 14px;
-                min-height: 60px;
+                font-size: 11.2px;
+                min-height: 48px;
             }
 
             .portfolio-meta {
-                padding: 12px;
-                min-height: 90px;
+                padding: 10px;
+                min-height: 72px;
             }
 
-        .news-excerpt {
-            font-size: 11px;
-        }
+            .news-excerpt {
+                font-size: 8.8px;
+            }
 
-        .news-stats {
-            font-size: 10px;
-            gap: 8px;
-        }
+            .news-stats {
+                font-size: 8px;
+                gap: 6px;
+            }
 
-        .news-stats .news-views,
-        .news-stats .news-like-button {
-            gap: 3px;
-        }
+            .news-stats .news-views,
+            .news-stats .news-like-button {
+                gap: 2.6px;
+            }
 
-        .news-stats .news-views i,
-        .news-stats .news-like-button i {
-            font-size: 9px;
-        }
+            .news-stats .news-views i,
+            .news-stats .news-like-button i {
+                font-size: 7.2px;
+            }
 
-        .news-portfolio .portfolio-filters li {
-                font-size: 13px;
-                padding: 7px 12px;
+            .news-portfolio .portfolio-filters li {
+                font-size: 10.4px;
+                padding: 6px 10px;
             }
             
             .news-activity-date {
-                font-size: 11px;
+                font-size: 8.8px;
                 padding: 0;
             }
             .news-meta-top {
                 flex-wrap: wrap;
-                gap: 6px;
+                gap: 5px;
             }
             .news-meta-top .sdg-badges {
                 flex-basis: 100%;
@@ -743,61 +744,8 @@ if ($conn && !$conn->connect_error) {
             }
             
             .news-category-badge {
-                font-size: 11px;
-                padding: 4px 10px;
-            }
-            
-            .announcement-submenu .nav-link {
-                margin: 2px;
-                padding: 5px 8px;
-                font-size: 0.85rem;
-            }
-            
-            .announcement-submenu .nav-link i {
-                font-size: 0.9rem;
-            }
-            
-            /* สีเฉพาะสำหรับแต่ละประเภท */
-            #regulations.tab-pane .list-group-item:hover {
-                border-left-color: #8B7AA8 !important;
-            }
-            
-            #rules.tab-pane .list-group-item:hover {
-                border-left-color: #9b59b6 !important;
-            }
-            
-            #announcement.tab-pane .list-group-item:hover {
-                border-left-color: #27ae60 !important;
-            }
-            
-            #order.tab-pane .list-group-item:hover {
-                border-left-color: #e67e22 !important;
-            }
-            
-            /* Animation */
-            @keyframes slideIn {
-                from {
-                    opacity: 0;
-                    transform: translateX(-20px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateX(0);
-                }
-            }
-            
-            .tab-pane.active .list-group-item {
-                animation: slideIn 0.5s ease-out;
-                animation-fill-mode: both;
-            }
-            
-            .d-flex.justify-content-between {
-                flex-direction: column;
-                align-items: flex-start !important;
-            }
-            
-            .announcement-author {
-                margin-top: 5px;
+                font-size: 8.8px;
+                padding: 3px 8px;
             }
         }
 
@@ -2042,17 +1990,17 @@ if ($conn && !$conn->connect_error) {
     padding: 0;
     border-radius: 0;
     font-weight: 500;
-    font-size: 11px;
+    font-size: 8.8px;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
     margin-top: 8px;
     margin-left: auto;
 }
 
 .news-activity-date i {
     color: #666;
-    font-size: 11px;
+    font-size: 8.8px;
 }
 
 .news-activity-content {
