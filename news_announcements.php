@@ -290,15 +290,22 @@ if ($conn && !$conn->connect_error) {
         
         .news-portfolio .portfolio-image {
             position: relative;
-            overflow: visible;
-            height: 200px;
+            overflow: hidden;
             background: #f5f5f5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+
+        .news-portfolio .portfolio-image::before {
+            content: "";
+            display: block;
+            padding-top: 56.25%; /* 16:9 อัตโนมัติ */
         }
         
         .news-portfolio .portfolio-image img {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -1141,7 +1148,7 @@ if ($conn && !$conn->connect_error) {
         : 'news/detail.php?id=' . $item['id'];
 ?>
                             <div class="portfolio-item isotope-item">
-                                <div class="portfolio-content h-100" data-detail-url="<?php echo htmlspecialchars($detailUrl); ?>" role="link" tabindex="0">
+                                <div class="portfolio-content h-100" data-detail-url="<?php echo htmlspecialchars($detailUrl); ?>" data-news-id="<?php echo (int)$item['id']; ?>" role="link" tabindex="0">
                                     <div class="portfolio-image">
                                         <img src="<?php echo htmlspecialchars($item['cover_image']); ?>" class="img-fluid" alt="<?php echo htmlspecialchars($item['title']); ?>" onerror="this.src='images/comingsoon.png'">
                                     </div>
@@ -1190,7 +1197,7 @@ if ($conn && !$conn->connect_error) {
                                             </div>
                                         </div>
                                         <h3 class="news-activity-title">
-                                            <a class="news-detail-link" href="<?php echo htmlspecialchars($detailUrl); ?>" target="_blank" rel="noopener">
+                                            <a class="news-detail-link" href="<?php echo htmlspecialchars($detailUrl); ?>" data-news-id="<?php echo (int)$item['id']; ?>" target="_blank" rel="noopener">
                                                 <?php echo htmlspecialchars($item['title']); ?>
                                             </a>
                                         </h3>
@@ -2157,10 +2164,48 @@ document.addEventListener('DOMContentLoaded', function () {
         ? numberFormatter.format(value)
         : value.toString();
 
+    const incrementNewsView = (newsId) => {
+        const parsedId = parseInt(newsId, 10);
+        if (!parsedId) {
+            return;
+        }
+
+        const payload = JSON.stringify({ news_id: parsedId });
+
+        if (navigator.sendBeacon) {
+            try {
+                const blob = new Blob([payload], { type: 'application/json' });
+                navigator.sendBeacon('news/increment_view.php', blob);
+                return;
+            } catch (error) {
+                // fallback สู่ fetch
+            }
+        }
+
+        fetch('news/increment_view.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: payload,
+            keepalive: true
+        }).catch(() => {});
+    };
+
     const parseCount = (element) => {
         const raw = element.dataset.count || element.textContent || '0';
         const numeric = parseInt(raw.toString().replace(/[^0-9-]/g, ''), 10);
         return Number.isNaN(numeric) ? 0 : numeric;
+    };
+
+    const bumpViewCount = (card) => {
+        if (!card) return;
+        const viewsEl = card.querySelector('.news-views-count');
+        if (!viewsEl) return;
+        const prev = parseCount(viewsEl);
+        const next = prev + 1;
+        viewsEl.dataset.count = next;
+        viewsEl.textContent = formatNumber(next);
     };
 
     const setLikedState = (button, iconEl, liked) => {
@@ -2265,30 +2310,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
         });
     });
-});
-</script>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.portfolio-content[data-detail-url]').forEach(function (card) {
         const url = card.dataset.detailUrl;
         if (!url) return;
 
+        const newsId = card.dataset.newsId;
+
         const openDetail = function () {
-            // Optimistically increase views count in UI
-            try {
-                const viewsEl = card.querySelector('.news-views-count');
-                if (viewsEl) {
-                    const raw = (viewsEl.dataset.count || viewsEl.textContent || '0').toString();
-                    const prev = parseInt(raw.replace(/[^0-9-]/g, ''), 10) || 0;
-                    const next = prev + 1;
-                    viewsEl.dataset.count = next;
-                    const nf = (typeof Intl !== 'undefined') ? new Intl.NumberFormat('th-TH') : null;
-                    viewsEl.textContent = nf ? nf.format(next) : String(next);
-                }
-            } catch (e) {
-                // no-op
+            if (newsId) {
+                incrementNewsView(newsId);
             }
+            bumpViewCount(card);
             window.open(url, '_blank', 'noopener');
         };
 
@@ -2313,6 +2346,13 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.news-detail-link').forEach(function (link) {
         link.addEventListener('click', function (event) {
             event.stopPropagation();
+            const card = link.closest('.portfolio-content');
+            if (!card) return;
+            bumpViewCount(card);
+            const relatedNewsId = link.dataset.newsId || card.dataset.newsId;
+            if (relatedNewsId) {
+                incrementNewsView(relatedNewsId);
+            }
         });
     });
 });
