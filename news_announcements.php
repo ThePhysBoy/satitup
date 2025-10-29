@@ -467,19 +467,13 @@ if ($conn && !$conn->connect_error) {
         }
         
         .news-excerpt {
-            display: none;
-            font-size: 2.4px; /* ลดลง 50% จาก 4.8px */
+            display: block;
+            font-size: 12px; /* ปรับขนาดให้อ่านได้ */
             color: #666;
             line-height: 1.4;
             margin-top: 8px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            font-weight: 100; /* ลดความหนาลง 50% จาก 200 */
-        }
-
-        .portfolio-content:hover .news-excerpt {
-            display: block;
             opacity: 1;
+            font-weight: 300; /* ความหนาปานกลาง */
         }
 
         .news-stats {
@@ -711,8 +705,8 @@ if ($conn && !$conn->connect_error) {
             }
 
         .news-excerpt {
-            font-size: 2.2px; /* ลดลง 50% จาก 4.4px */
-            font-weight: 100; /* ลดความหนาลง 50% */
+            font-size: 11px; /* ปรับขนาดให้เหมาะสมกับมือถือ */
+            font-weight: 300; /* ความหนาปานกลาง */
         }
 
         .news-stats {
@@ -1208,8 +1202,8 @@ if ($conn && !$conn->connect_error) {
                                                     echo '';
                                                 } else {
                                                     $words = preg_split('/\s+/u', $rawExcerpt);
-                                                    if (count($words) > 30) {
-                                                        $words = array_slice($words, 0, 30);
+                                                    if (count($words) > 15) {
+                                                        $words = array_slice($words, 0, 15);
                                                         $rawExcerpt = implode(' ', $words) . '...';
                                                     }
                                                     echo htmlspecialchars($rawExcerpt);
@@ -2046,10 +2040,10 @@ if ($conn && !$conn->connect_error) {
 
 .news-excerpt {
     color: var(--text-medium, #666);
-    font-size: 0.475rem; /* ลดลง 50% จาก 0.95rem */
+    font-size: 0.85rem; /* ขนาดที่อ่านได้ */
     line-height: 1.6;
     margin-bottom: 15px;
-    font-weight: 100; /* ลดความหนาลง 50% */
+    font-weight: 300; /* ความหนาปานกลาง */
 }
 
 .news-activity-meta {
