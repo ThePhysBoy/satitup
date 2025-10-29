@@ -617,7 +617,7 @@ if ($conn && !$conn->connect_error) {
             padding: 0;
             border-radius: 0;
             font-weight: 500;
-            font-size: 8.8px;
+            font-size: 11px;
             display: inline-flex;
             align-items: center;
             gap: 3px;
@@ -627,7 +627,7 @@ if ($conn && !$conn->connect_error) {
 
         .news-activity-date i {
             color: #666;
-            font-size: 8.8px;
+            font-size: 11px;
         }
         
         /* SDG Badges Styles */
@@ -729,8 +729,8 @@ if ($conn && !$conn->connect_error) {
         }
         
         .news-activity-title {
-            font-size: 6.8px; /* ลดครึ่งหนึ่งจาก 13.6px */
-            font-weight: 300; /* ตัวบาง */
+            font-size: 14px;
+            font-weight: 400;
             margin-bottom: 15px;
             line-height: 1.5;
             overflow: hidden;
@@ -745,7 +745,7 @@ if ($conn && !$conn->connect_error) {
         .news-activity-title::before {
             content: "📢 ";
             margin-right: 4px;
-            font-size: 12.8px;
+            font-size: 13px;
         }
         
         .news-activity-title a {
@@ -763,19 +763,18 @@ if ($conn && !$conn->connect_error) {
         
         .news-excerpt {
             display: block;
-            font-size: 6px; /* ลดครึ่งหนึ่งจาก 12px */
-            font-weight: 300; /* ตัวบาง */
+            font-size: 12px;
+            font-weight: 300;
             color: #666;
             line-height: 1.4;
             margin-top: 8px;
             opacity: 1;
-            font-weight: 300; /* ความหนาปานกลาง */
         }
 
         .news-meta-extra {
             margin-top: 8px;
-            font-size: 4.8px; /* ลดครึ่งหนึ่งจาก 9.6px */
-            font-weight: 300; /* ตัวบาง */
+            font-size: 11px;
+            font-weight: 300;
             color: #555;
             line-height: 1.5;
         }
@@ -788,13 +787,13 @@ if ($conn && !$conn->connect_error) {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 8.8px;
+            font-size: 13px;
             color: #666;
         }
         
-        /* เพิ่มขนาดไอคอนดวงตาและไลค์เป็น 2 เท่า */
+        /* ปรับขนาดไอคอนดวงตาและไลค์ */
         .news-stats .news-views i {
-            font-size: 35px !important; /* เพิ่มเป็น 2 เท่าจาก 17.5px */
+            font-size: 17.5px !important;
         }
 
         .news-stats .news-views,
@@ -806,7 +805,7 @@ if ($conn && !$conn->connect_error) {
 
         .news-stats .news-views i,
         .news-stats .news-like-button i {
-            font-size: 27px; /* เพิ่มเป็น 2 เท่าจาก 13.5px */
+            font-size: 13.5px;
         }
 
         .news-like-button {
@@ -816,7 +815,7 @@ if ($conn && !$conn->connect_error) {
             color: #888;
             cursor: pointer;
             transition: color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
-            font-size: 8.8px;
+            font-size: 13px;
         }
 
         .news-like-button:hover {
@@ -999,8 +998,8 @@ if ($conn && !$conn->connect_error) {
         /* ปรับการแสดงผลบนอุปกรณ์มือถือ */
         @media (max-width: 767px) {
             .news-activity-title {
-                font-size: 5.6px; /* ลดครึ่งหนึ่งจาก 11.2px */
-                font-weight: 300; /* ตัวบาง */
+                font-size: 12px;
+                font-weight: 400;
                 min-height: 48px;
             }
 
@@ -1010,12 +1009,12 @@ if ($conn && !$conn->connect_error) {
             }
 
         .news-excerpt {
-            font-size: 5.5px; /* ลดครึ่งหนึ่งจาก 11px */
-            font-weight: 300; /* ตัวบาง */
+            font-size: 11px;
+            font-weight: 300;
         }
 
         .news-stats {
-                font-size: 8px;
+                font-size: 12px;
                 gap: 6px;
             }
 
@@ -1026,7 +1025,7 @@ if ($conn && !$conn->connect_error) {
 
             .news-stats .news-views i,
             .news-stats .news-like-button i {
-                font-size: 24.4px; /* เพิ่มเป็น 2 เท่าจาก 12.2px */
+                font-size: 12.2px;
         }
 
         .news-portfolio .portfolio-filters li {
@@ -1035,7 +1034,7 @@ if ($conn && !$conn->connect_error) {
             }
             
             .news-activity-date {
-                font-size: 8.8px;
+                font-size: 11px;
                 padding: 0;
             }
             .news-meta-top {
@@ -2105,9 +2104,6 @@ if ($conn && !$conn->connect_error) {
                             <p class="text-muted">ยังไม่มีข้อมูลการไปต่างประเทศ</p>
                 </div>
                             <?php endif; ?>
-                        </div>
-                <div class="text-center mt-3">
-                    <a href="international/index.php" class="btn btn-outline-primary" target="_blank" rel="noopener">ดูทั้งหมด</a>
                 </div>
             </div>
         </div>
@@ -2155,7 +2151,7 @@ if ($conn && !$conn->connect_error) {
     padding: 0;
     border-radius: 0;
     font-weight: 500;
-    font-size: 8.8px;
+    font-size: 11px;
     display: inline-flex;
     align-items: center;
     gap: 3px;
@@ -2165,7 +2161,7 @@ if ($conn && !$conn->connect_error) {
 
 .news-activity-date i {
     color: #666;
-    font-size: 8.8px;
+    font-size: 11px;
 }
 
 .news-activity-content {
