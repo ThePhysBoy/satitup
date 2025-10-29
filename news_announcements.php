@@ -261,7 +261,7 @@ if ($conn && !$conn->connect_error) {
         
         .news-portfolio .portfolio-content {
             position: relative;
-            overflow: hidden;
+            overflow: visible;
             border-radius: 12px;
             background: #fff;
             transition: all 0.3s ease;
@@ -281,7 +281,7 @@ if ($conn && !$conn->connect_error) {
         
         .news-portfolio .portfolio-image {
             position: relative;
-            overflow: hidden;
+            overflow: visible;
             height: 200px;
             background: #f5f5f5;
             display: flex;
@@ -309,27 +309,27 @@ if ($conn && !$conn->connect_error) {
         .news-activity-date {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 6px 14px;
-            background: rgba(107, 70, 193, 0.9);
-            color: #fff;
+            gap: 4px;
+            padding: 4px 8px;
+            background: transparent;
+            color: #333;
             border-radius: 999px;
-            font-size: 12px;
-            font-weight: 600;
-            box-shadow: 0 2px 8px rgba(107, 70, 193, 0.25);
-            margin-top: 10px;
+            font-size: 11px;
+            font-weight: 100;
+            box-shadow: none;
+            margin-top: 90px;
             float: right;
         }
         
         /* SDG Badges Styles */
         .sdg-badges {
             position: absolute;
-            top: 10px;
-            left: 10px;
+            top: 8px;
+            left: 8px;
             display: flex;
-            gap: 5px;
+            gap: 4px;
             flex-wrap: wrap;
-            max-width: calc(100% - 20px);
+            max-width: calc(100% - 16px);
             z-index: 10;
         }
         
@@ -337,19 +337,62 @@ if ($conn && !$conn->connect_error) {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
             color: white;
             font-weight: bold;
-            font-size: 16px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            font-size: 13px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
             transition: all 0.3s ease;
+            opacity: 0.6;
+            position: relative;
+            cursor: pointer;
         }
         
         .sdg-badge:hover {
             transform: scale(1.1);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            opacity: 0.9;
+        }
+
+        .sdg-badge::after {
+            content: attr(data-sdg-name);
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 50%;
+            transform: translate(-50%, -6px);
+            background: rgba(33, 33, 33, 0.92);
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 20;
+        }
+
+        .sdg-badge::before {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translate(-50%, -4px);
+            border-width: 6px 6px 0 6px;
+            border-style: solid;
+            border-color: rgba(33, 33, 33, 0.92) transparent transparent transparent;
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 19;
+        }
+
+        .sdg-badge:hover::after,
+        .sdg-badge:hover::before {
+            opacity: 1;
+            transform: translate(-50%, 0);
         }
         
         .news-category-badge {
@@ -406,6 +449,59 @@ if ($conn && !$conn->connect_error) {
         .portfolio-content:hover .news-excerpt {
             display: block;
             opacity: 1;
+        }
+
+        .news-stats {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11px;
+            color: #666;
+        }
+
+        .news-stats .news-views,
+        .news-stats .news-like-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .news-stats .news-views i,
+        .news-stats .news-like-button i {
+            font-size: 10px;
+        }
+
+        .news-like-button {
+            border: none;
+            background: transparent;
+            padding: 0;
+            color: #888;
+            cursor: pointer;
+            transition: color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+            font-size: 11px;
+        }
+
+        .news-like-button:hover {
+            color: #e6397f;
+            transform: translateY(-1px);
+        }
+
+        .news-like-button.liked {
+            color: #e6397f;
+        }
+
+        .news-like-button.liked i {
+            font-weight: 900;
+        }
+
+        .news-like-button.loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .news-like-count,
+        .news-views-count {
+            min-width: 12px;
         }
         
 .portfolio-meta {
@@ -583,18 +679,18 @@ if ($conn && !$conn->connect_error) {
         }
 
         .news-stats {
-            font-size: 12px;
-            color: #666;
+            font-size: 10px;
+            gap: 8px;
         }
 
-        .news-views, .news-likes {
-            display: inline-flex;
-            align-items: center;
+        .news-stats .news-views,
+        .news-stats .news-like-button {
+            gap: 3px;
         }
 
-        .news-views i, .news-likes i {
-            margin-right: 4px;
-            font-size: 11px;
+        .news-stats .news-views i,
+        .news-stats .news-like-button i {
+            font-size: 9px;
         }
 
         .news-portfolio .portfolio-filters li {
@@ -1057,25 +1153,39 @@ if ($conn && !$conn->connect_error) {
                                         <img src="<?php echo htmlspecialchars($item['cover_image']); ?>" class="img-fluid" alt="<?php echo htmlspecialchars($item['title']); ?>" onerror="this.src='images/comingsoon.png'">
                                         <?php if (!empty($item['sdg_goals'])): ?>
                                         <div class="sdg-badges">
-                                            <?php
-                                            $sdg_colors = [
-                                                1 => '#E5243B', 2 => '#DDA63A', 3 => '#4C9F38', 4 => '#C5192D',
-                                                5 => '#FF3A21', 6 => '#26BDE2', 7 => '#FCC30B', 8 => '#A21942',
-                                                9 => '#FD6925', 10 => '#DD1367', 11 => '#FD9D24', 12 => '#BF8B2E',
-                                                13 => '#3F7E44', 14 => '#0A97D9', 15 => '#56C02B', 16 => '#00689D',
-                                                17 => '#19486A'
-                                            ];
-                                            $sdgs = explode(',', $item['sdg_goals']);
-                                            foreach ($sdgs as $sdg):
-                                                if (isset($sdg_colors[$sdg])):
-                                            ?>
-                                            <span class="sdg-badge" style="background-color: <?php echo $sdg_colors[$sdg]; ?>">
-                                                <?php echo $sdg; ?>
-                                            </span>
-                                            <?php
-                                                endif;
-                                            endforeach;
-                                            ?>
+                                        <?php
+                                        $sdg_meta = [
+                                            1 => ['color' => '#E5243B', 'name' => 'SDG 1: ขจัดความยากจน'],
+                                            2 => ['color' => '#DDA63A', 'name' => 'SDG 2: ขจัดความหิวโหย'],
+                                            3 => ['color' => '#4C9F38', 'name' => 'SDG 3: สุขภาพและความเป็นอยู่ที่ดี'],
+                                            4 => ['color' => '#C5192D', 'name' => 'SDG 4: การศึกษาที่มีคุณภาพ'],
+                                            5 => ['color' => '#FF3A21', 'name' => 'SDG 5: ความเท่าเทียมทางเพศ'],
+                                            6 => ['color' => '#26BDE2', 'name' => 'SDG 6: น้ำสะอาดและสุขาภิบาล'],
+                                            7 => ['color' => '#FCC30B', 'name' => 'SDG 7: พลังงานสะอาดที่เข้าถึงได้'],
+                                            8 => ['color' => '#A21942', 'name' => 'SDG 8: งานที่มีคุณค่าและการเติบโตทางเศรษฐกิจ'],
+                                            9 => ['color' => '#FD6925', 'name' => 'SDG 9: อุตสาหกรรม นวัตกรรม และโครงสร้างพื้นฐาน'],
+                                            10 => ['color' => '#DD1367', 'name' => 'SDG 10: ลดความเหลื่อมล้ำ'],
+                                            11 => ['color' => '#FD9D24', 'name' => 'SDG 11: เมืองและชุมชนที่ยั่งยืน'],
+                                            12 => ['color' => '#BF8B2E', 'name' => 'SDG 12: การบริโภคและการผลิตที่ยั่งยืน'],
+                                            13 => ['color' => '#3F7E44', 'name' => 'SDG 13: การดำเนินการด้านสภาพภูมิอากาศ'],
+                                            14 => ['color' => '#0A97D9', 'name' => 'SDG 14: ชีวิตใต้น้ำ'],
+                                            15 => ['color' => '#56C02B', 'name' => 'SDG 15: ชีวิตบนบก'],
+                                            16 => ['color' => '#00689D', 'name' => 'SDG 16: สันติภาพ ความยุติธรรม และสถาบันที่เข้มแข็ง'],
+                                            17 => ['color' => '#19486A', 'name' => 'SDG 17: ความร่วมมือเพื่อบรรลุเป้าหมาย'],
+                                        ];
+                                        $sdgs = explode(',', $item['sdg_goals']);
+                                        foreach ($sdgs as $sdg):
+                                            $sdg = trim($sdg);
+                                            if (isset($sdg_meta[$sdg])):
+                                                $meta = $sdg_meta[$sdg];
+                                        ?>
+                                        <span class="sdg-badge" style="background-color: <?php echo $meta['color']; ?>" data-sdg-name="<?php echo htmlspecialchars($meta['name']); ?>">
+                                            <?php echo $sdg; ?>
+                                        </span>
+                                        <?php
+                                            endif;
+                                        endforeach;
+                                        ?>
                                         </div>
                                         <?php endif; ?>
                                     </div>
@@ -1094,12 +1204,14 @@ if ($conn && !$conn->connect_error) {
                                         <?php endif; ?>
                                         <!-- แสดงยอดวิวและไลค์ -->
                                         <div class="news-stats mt-2">
-                                            <span class="news-views me-3">
-                                                <i class="fas fa-eye"></i> <?php echo number_format($item['views']); ?>
+                                            <span class="news-views" title="จำนวนผู้เข้าชม">
+                                                <i class="fas fa-eye"></i>
+                                                <span class="news-views-count"><?php echo number_format($item['views']); ?></span>
                                             </span>
-                                            <span class="news-likes">
-                                                <i class="fas fa-heart"></i> <?php echo number_format($item['likes']); ?>
-                                            </span>
+                                            <button class="news-like-button" type="button" data-news-id="<?php echo $item['id']; ?>" title="ถูกใจ" aria-label="ถูกใจข่าวนี้ (จำนวน <?php echo number_format($item['likes']); ?> ครั้ง)">
+                                                <i class="far fa-heart"></i>
+                                                <span class="news-like-count"><?php echo number_format($item['likes']); ?></span>
+                                            </button>
                                         </div>
                                         <div class="news-activity-date">
                                             <i class="fas fa-calendar-alt"></i>
@@ -2015,6 +2127,76 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.classList.add('filter-active');
                 iso.arrange({ filter: this.getAttribute('data-filter') });
             });
+        });
+    });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const numberFormatter = (typeof Intl !== 'undefined')
+        ? new Intl.NumberFormat('th-TH')
+        : null;
+
+    document.querySelectorAll('.news-like-button').forEach(function (button) {
+        const newsId = button.dataset.newsId;
+        const storageKey = `news_like_${newsId}`;
+        const iconEl = button.querySelector('i');
+        const countEl = button.querySelector('.news-like-count');
+
+        if (localStorage.getItem(storageKey)) {
+            button.classList.add('liked');
+            button.dataset.liked = 'true';
+            if (iconEl.classList.contains('far')) {
+                iconEl.classList.remove('far');
+                iconEl.classList.add('fas');
+            }
+        }
+
+        button.addEventListener('click', function () {
+            if (button.classList.contains('loading') || button.dataset.liked === 'true') {
+                return;
+            }
+
+            button.classList.add('loading');
+
+            fetch('news/like.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ news_id: newsId })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success) {
+                        button.classList.add('liked');
+                        button.dataset.liked = 'true';
+                        if (iconEl.classList.contains('far')) {
+                            iconEl.classList.remove('far');
+                            iconEl.classList.add('fas');
+                        }
+
+                        if (typeof data.likes !== 'undefined') {
+                            const likesValue = parseInt(data.likes, 10) || 0;
+                            countEl.textContent = numberFormatter
+                                ? numberFormatter.format(likesValue)
+                                : likesValue.toString();
+                        }
+
+                        try {
+                            localStorage.setItem(storageKey, '1');
+                        } catch (error) {
+                            console.warn('ไม่สามารถบันทึกสถานะการกดถูกใจในเครื่องได้', error);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('ไม่สามารถบันทึกการกดถูกใจได้', error);
+                })
+                .finally(() => {
+                    button.classList.remove('loading');
+                });
         });
     });
 });
