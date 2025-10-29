@@ -244,6 +244,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>แก้ไขประกาศการไปต่างประเทศ</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .sdg-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .sdg-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid #e5e5e5;
+            background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+            transition: all 0.2s ease;
+        }
+
+        .sdg-option:hover {
+            border-color: var(--sdg-color, #7b3b95);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        .sdg-option input[type="checkbox"] {
+            accent-color: var(--sdg-color, #7b3b95);
+            transform: scale(1.05);
+        }
+
+        .sdg-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: var(--sdg-color, #7b3b95);
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .sdg-name {
+            font-size: 0.85rem;
+            color: #555;
+            line-height: 1.3;
+        }
+    </style>
 </head>
 <body>
 <div class="container py-4">
