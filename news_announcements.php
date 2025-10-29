@@ -489,6 +489,11 @@ if ($conn && !$conn->connect_error) {
             font-size: 8.8px;
             color: #666;
         }
+        
+        /* เพิ่มขนาดไอคอนดวงตา */
+        .news-stats .news-views i {
+            font-size: 17.5px !important; /* เพิ่มขึ้น 30% จากเดิมและใช้ !important เพื่อให้แน่ใจว่าจะทำงาน */
+        }
 
         .news-stats .news-views,
         .news-stats .news-like-button {
@@ -2041,9 +2046,10 @@ if ($conn && !$conn->connect_error) {
 
 .news-excerpt {
     color: var(--text-medium, #666);
-    font-size: 0.95rem;
+    font-size: 0.475rem; /* ลดลง 50% จาก 0.95rem */
     line-height: 1.6;
     margin-bottom: 15px;
+    font-weight: 100; /* ลดความหนาลง 50% */
 }
 
 .news-activity-meta {
