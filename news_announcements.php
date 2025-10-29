@@ -575,7 +575,8 @@ if ($conn && !$conn->connect_error) {
             border-color: #0066cc;
         }
         
-        .news-portfolio .portfolio-image {
+        /* ใช้สำหรับทุกส่วน: ข่าว, หอเกียรติยศ, กิจกรรมต่างประเทศ */
+        .portfolio-image {
             position: relative;
             overflow: hidden;
             background: #f5f5f5;
@@ -588,7 +589,7 @@ if ($conn && !$conn->connect_error) {
             justify-content: center;
         }
         
-        .news-portfolio .portfolio-image img {
+        .portfolio-image img {
             width: 100%;
             height: auto;
             max-height: 300px;
@@ -600,7 +601,7 @@ if ($conn && !$conn->connect_error) {
             transition: transform 0.4s ease;
         }
         
-        .news-portfolio .portfolio-content:hover .portfolio-image img {
+        .portfolio-content:hover .portfolio-image img {
             transform: scale(1.08);
         }
         
