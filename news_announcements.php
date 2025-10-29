@@ -729,8 +729,8 @@ if ($conn && !$conn->connect_error) {
         }
         
         .news-activity-title {
-            font-size: 13.6px;
-            font-weight: 500;
+            font-size: 6.8px; /* ลดครึ่งหนึ่งจาก 13.6px */
+            font-weight: 300; /* ตัวบาง */
             margin-bottom: 15px;
             line-height: 1.5;
             overflow: hidden;
@@ -763,7 +763,8 @@ if ($conn && !$conn->connect_error) {
         
         .news-excerpt {
             display: block;
-            font-size: 12px; /* ปรับขนาดให้อ่านได้ */
+            font-size: 6px; /* ลดครึ่งหนึ่งจาก 12px */
+            font-weight: 300; /* ตัวบาง */
             color: #666;
             line-height: 1.4;
             margin-top: 8px;
@@ -773,7 +774,8 @@ if ($conn && !$conn->connect_error) {
 
         .news-meta-extra {
             margin-top: 8px;
-            font-size: 9.6px;
+            font-size: 4.8px; /* ลดครึ่งหนึ่งจาก 9.6px */
+            font-weight: 300; /* ตัวบาง */
             color: #555;
             line-height: 1.5;
         }
@@ -790,9 +792,9 @@ if ($conn && !$conn->connect_error) {
             color: #666;
         }
         
-        /* เพิ่มขนาดไอคอนดวงตา */
+        /* เพิ่มขนาดไอคอนดวงตาและไลค์เป็น 2 เท่า */
         .news-stats .news-views i {
-            font-size: 17.5px !important; /* เพิ่มขึ้น 30% จากเดิมและใช้ !important เพื่อให้แน่ใจว่าจะทำงาน */
+            font-size: 35px !important; /* เพิ่มเป็น 2 เท่าจาก 17.5px */
         }
 
         .news-stats .news-views,
@@ -804,7 +806,7 @@ if ($conn && !$conn->connect_error) {
 
         .news-stats .news-views i,
         .news-stats .news-like-button i {
-            font-size: 13.5px; /* เพิ่มขึ้น 30% จาก 10.4px */
+            font-size: 27px; /* เพิ่มเป็น 2 เท่าจาก 13.5px */
         }
 
         .news-like-button {
@@ -997,7 +999,8 @@ if ($conn && !$conn->connect_error) {
         /* ปรับการแสดงผลบนอุปกรณ์มือถือ */
         @media (max-width: 767px) {
             .news-activity-title {
-                font-size: 11.2px;
+                font-size: 5.6px; /* ลดครึ่งหนึ่งจาก 11.2px */
+                font-weight: 300; /* ตัวบาง */
                 min-height: 48px;
             }
 
@@ -1007,8 +1010,8 @@ if ($conn && !$conn->connect_error) {
             }
 
         .news-excerpt {
-            font-size: 11px; /* ปรับขนาดให้เหมาะสมกับมือถือ */
-            font-weight: 300; /* ความหนาปานกลาง */
+            font-size: 5.5px; /* ลดครึ่งหนึ่งจาก 11px */
+            font-weight: 300; /* ตัวบาง */
         }
 
         .news-stats {
@@ -1023,7 +1026,7 @@ if ($conn && !$conn->connect_error) {
 
             .news-stats .news-views i,
             .news-stats .news-like-button i {
-                font-size: 12.2px; /* เพิ่มขึ้น 30% จาก 9.4px */
+                font-size: 24.4px; /* เพิ่มเป็น 2 เท่าจาก 12.2px */
         }
 
         .news-portfolio .portfolio-filters li {
