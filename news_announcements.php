@@ -188,11 +188,8 @@ if (!function_exists('satitup_prepare_hall_meta_lines')) {
         if (!empty($item['student_name'])) {
             $lines[] = '<i class="fas fa-user-graduate"></i> ' . htmlspecialchars($item['student_name'], ENT_QUOTES, 'UTF-8');
         }
-        if (!empty($item['class'])) {
-            $lines[] = '<i class="fas fa-school"></i> ' . htmlspecialchars($item['class'], ENT_QUOTES, 'UTF-8');
-        }
-        if (!empty($item['year'])) {
-            $lines[] = '<i class="fas fa-calendar-alt"></i> ปีการศึกษา ' . htmlspecialchars($item['year'], ENT_QUOTES, 'UTF-8');
+        if (!empty($item['class_name'])) {
+            $lines[] = '<i class="fas fa-school"></i> ' . htmlspecialchars($item['class_name'], ENT_QUOTES, 'UTF-8');
         }
         return $lines;
     }
@@ -307,7 +304,7 @@ if (!function_exists('satitup_render_international_item')) {
 
 if (!isset($latest_news) || empty($latest_news)) {
     if (function_exists('getLatestNews')) {
-        $latest_news = getLatestNews($conn, 15, 0, false); // ดึงข่าวทั้งหมดโดยไม่สนใจหมวดหมู่
+        $latest_news = getLatestNews($conn, 15, 0); // ดึงข่าวทั้งหมดโดยไม่สนใจหมวดหมู่
     } else {
         $latest_news = [];
         if ($conn && !$conn->connect_error) {
