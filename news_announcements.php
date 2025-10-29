@@ -78,7 +78,12 @@ $global_sdg_meta = [
 if (!function_exists('satitup_render_portfolio_card')) {
     function satitup_render_portfolio_card(array $item, string $detailUrl, array $sdgMeta, string $type, string $title, string $imagePath, string $altText, string $dateText, string $excerpt = '', array $metaLines = []): void
     {
-        $imageSrc = '/' . ltrim($imagePath, '/');
+        // ถ้า path ไม่ขึ้นต้นด้วย http, https หรือ / แสดงว่าเป็น relative path
+        $imageSrc = $imagePath;
+        if (!preg_match('#^(https?://|/)#', $imagePath)) {
+            // ถ้าไม่มี / ข้างหน้าและไม่ใช่ URL สมบูรณ์ ให้ใช้แบบ relative จาก root
+            $imageSrc = $imagePath;
+        }
         $alt = htmlspecialchars($altText, ENT_QUOTES, 'UTF-8');
         $titleHtml = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
         $excerptHtml = htmlspecialchars($excerpt, ENT_QUOTES, 'UTF-8');
@@ -1958,10 +1963,12 @@ if ($conn && !$conn->connect_error) {
                     $hall_data = [];
                     
                     foreach (array_keys($hall_categories) as $category) {
-                        $hall_sql = "SELECT * FROM hall_of_fame 
-                                    WHERE category = '$category' AND status = 'active' 
-                                    ORDER BY featured DESC, date_achieved DESC, created_at DESC 
-                                    LIMIT 15";
+                        $hall_sql = "SELECT id, title, student_name, class_name, achievement, description, image_path, 
+                                            date_achieved, category, featured, status, views, likes, sdg_goals, created_at, updated_at
+                                     FROM hall_of_fame 
+                                     WHERE category = '$category' AND status = 'active' 
+                                     ORDER BY featured DESC, date_achieved DESC, created_at DESC 
+                                     LIMIT 15";
                         $hall_result = $conn->query($hall_sql);
                         $hall_data[$category] = [];
                         if ($hall_result) {
