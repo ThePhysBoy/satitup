@@ -259,7 +259,7 @@ $sdg_meta = [
 		}
 		
 		.news-stats .news-views i {
-			font-size: 35px !important;
+			font-size: 17.5px !important;
 		}
 		
 		.news-stats .news-views,
@@ -271,7 +271,7 @@ $sdg_meta = [
 		
 		.news-stats .news-views i,
 		.news-stats .news-like-button i {
-			font-size: 27px;
+			font-size: 13.5px;
 		}
 		
 		.news-like-button {
