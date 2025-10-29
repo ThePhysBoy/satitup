@@ -457,10 +457,10 @@ if ($conn && !$conn->connect_error) {
     $table_check = $conn->query("SHOW TABLES LIKE 'international_assignments'");
     if ($table_check && $table_check->num_rows > 0) {
         $sql = "SELECT id, title, person_name, role, affiliation, country, city, start_date, end_date, cover_image,
-                       views, likes, sdg_goals, purpose, achievement, description, published_date
+                       views, likes, sdg_goals, purpose, achievement, description, published_date, created_at
                 FROM international_assignments
                 WHERE status = 'published'
-                ORDER BY published_date DESC
+                ORDER BY created_at DESC, published_date DESC
                 LIMIT 15";
         $result = $conn->query($sql);
         if ($result) {
@@ -1977,7 +1977,7 @@ if ($conn && !$conn->connect_error) {
                                             date_achieved, category, featured, status, views, likes, sdg_goals, created_at, updated_at
                                      FROM hall_of_fame 
                                     WHERE category = '$category' AND status = 'active' 
-                                    ORDER BY featured DESC, date_achieved DESC, created_at DESC 
+                                    ORDER BY created_at DESC, updated_at DESC
                                     LIMIT 15";
                         $hall_result = $conn->query($hall_sql);
                         $hall_data[$category] = [];
