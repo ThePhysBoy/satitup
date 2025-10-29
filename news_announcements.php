@@ -294,23 +294,26 @@ if ($conn && !$conn->connect_error) {
             background: #f5f5f5;
             border-top-left-radius: 12px;
             border-top-right-radius: 12px;
+            width: 100%;
         }
 
         .news-portfolio .portfolio-image::before {
             content: "";
             display: block;
-            padding-top: 56.25%; /* 16:9 อัตโนมัติ */
+            padding-top: 56.25%; /* 16:9 */
         }
         
         .news-portfolio .portfolio-image img {
             position: absolute;
-            top: 0;
-            left: 0;
+            inset: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
             object-position: center;
             transition: transform 0.4s ease;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            display: block;
         }
         
         .news-portfolio .portfolio-content:hover .portfolio-image img {
@@ -697,8 +700,8 @@ if ($conn && !$conn->connect_error) {
 
         /* ปรับการแสดงผลบนอุปกรณ์มือถือ */
         @media (max-width: 767px) {
-            .news-portfolio .portfolio-image {
-                height: 160px;
+            .news-portfolio .portfolio-image::before {
+                padding-top: 65%;
             }
 
             .news-activity-title {
