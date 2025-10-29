@@ -212,7 +212,7 @@
         .external-link-card img {
             max-width: 100%;
             max-height: 120px;
-            margin-bottom: 20px;
+            margin-bottom: 8px;
             object-fit: contain;
             filter: grayscale(70%) brightness(1.1);
             opacity: 0.85;
@@ -253,14 +253,7 @@
         }
 
         .external-link-card p {
-            font-size: 0.95rem;
-            font-weight: 600;
-            margin: 0;
-            color: var(--text-dark);
-            line-height: 1.5;
-            transition: all 0.4s ease;
-            position: relative;
-            z-index: 1;
+            display: none;
         }
 
         .external-link-card:hover p {

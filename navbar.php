@@ -2,7 +2,7 @@
 <nav class="navbar navbar-expand-lg navbar-light main-navbar" style="background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1030;">
     <div class="container-fluid">
         <!-- Logo -->
-        <a class="navbar-brand d-flex align-items-center" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '../' : ''; ?>index.php">
+        <a class="navbar-brand d-flex align-items-center" href="<?php echo in_array(basename(dirname($_SERVER['SCRIPT_FILENAME'])), ['curriculum','admin','staff','rankings','procurements','recruitments','trainings','international']) ? '../' : ''; ?>index.php">
             <!-- <img src="images/logo@2x.png" alt="โรงเรียนสาธิตมหาวิทยาลัยพะเยา" height="60"> -->
             <div class="ms-3">
                 <div style="font-size: 1.1rem; font-weight: 700; color: var(--primary-color, #8B7AA8); line-height: 1.2;">
@@ -24,19 +24,19 @@
             <ul class="navbar-nav ms-auto">
                 <!-- สาธิตประถม - วมว. -->
                 <li class="nav-item">
-                    <a class="nav-link active" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '../' : ''; ?>academic_programs.php">
+                    <a class="nav-link active" href="<?php echo in_array(basename(dirname($_SERVER['SCRIPT_FILENAME'])), ['curriculum','admin','staff','rankings','procurements','recruitments','trainings','international']) ? '../' : ''; ?>academic_programs.php">
                         <i class="fas fa-graduation-cap"></i> สาธิตประถม
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link active" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '../' : ''; ?>academic_programs.php">
+                    <a class="nav-link active" href="<?php echo in_array(basename(dirname($_SERVER['SCRIPT_FILENAME'])), ['curriculum','admin','staff','rankings','procurements','recruitments','trainings','international']) ? '../' : ''; ?>academic_programs.php">
                         <i class="fas fa-graduation-cap"></i>โครงการ วมว.
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link active" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '../' : ''; ?>academic_programs.php">
+                    <a class="nav-link active" href="<?php echo in_array(basename(dirname($_SERVER['SCRIPT_FILENAME'])), ['curriculum','admin','staff','rankings','procurements','recruitments','trainings','international']) ? '../' : ''; ?>academic_programs.php">
                         <i class="fas fa-graduation-cap"></i>องค์การนักเรียน
                     </a>
                 </li>
@@ -60,7 +60,7 @@
             <ul class="navbar-nav w-100 d-flex justify-content-between">
                 <!-- สาธิตประถม - วมว. -->
                 <li class="nav-item">
-                    <a class="nav-link text-white" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '../' : ''; ?>index.php">
+                    <a class="nav-link text-white" href="<?php echo in_array(basename(dirname($_SERVER['SCRIPT_FILENAME'])), ['curriculum','admin','staff','rankings','procurements','recruitments','trainings','international']) ? '../' : ''; ?>index.php">
                       หน้าหลัก
                     </a>
                 </li>
@@ -75,9 +75,9 @@
                         <li class="dropdown-submenu">
                             <a class="dropdown-item dropdown-toggle" href="#">ข้อมูลทั่วไป</a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '../' : ''; ?>about-history.php">แนะนำโรงเรียน/ประวัติโรงเรียน</a></li>
-                                <li><a class="dropdown-item" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '../' : ''; ?>about-vision.php">วิสัยทัศน์ / พันธกิจ</a></li>
-                                <li><a class="dropdown-item" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '../' : ''; ?>org-structure.php" target="_blank">โครงสร้างของโรงเรียน</a></li>
+                                <li><a class="dropdown-item" href="<?php echo in_array(basename(dirname($_SERVER['SCRIPT_FILENAME'])), ['curriculum','admin','staff','rankings','procurements','recruitments','trainings','international']) ? '../' : ''; ?>about-history.php">แนะนำโรงเรียน/ประวัติโรงเรียน</a></li>
+                                <li><a class="dropdown-item" href="<?php echo in_array(basename(dirname($_SERVER['SCRIPT_FILENAME'])), ['curriculum','admin','staff','rankings','procurements','recruitments','trainings','international']) ? '../' : ''; ?>about-vision.php">วิสัยทัศน์ / พันธกิจ</a></li>
+                                <li><a class="dropdown-item" href="<?php echo in_array(basename(dirname($_SERVER['SCRIPT_FILENAME'])), ['curriculum','admin','staff','rankings','procurements','recruitments','trainings','international']) ? '../' : ''; ?>org-structure.php" target="_blank">โครงสร้างของโรงเรียน</a></li>
                                 <li><a class="dropdown-item" href="#">รายงานประจำปี</a></li>
                             </ul>
                         </li>
@@ -86,9 +86,9 @@
                         <li class="dropdown-submenu">
                             <a class="dropdown-item dropdown-toggle" href="#">ข้อมูลผู้บริหาร</a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '../' : ''; ?>steering_committee.php">คณะกรรมการอำนวยการ</a></li>
-                                <li><a class="dropdown-item" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '../' : ''; ?>about-management.php">คณะกรรมการบริหาร</a></li>
-                                <li><a class="dropdown-item" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '../' : ''; ?>org-structure.php" target="_blank">โครงสร้างของโรงเรียน</a></li>
+                                <li><a class="dropdown-item" href="<?php echo in_array(basename(dirname($_SERVER['SCRIPT_FILENAME'])), ['curriculum','admin','staff','rankings','procurements','recruitments','trainings','international']) ? '../' : ''; ?>steering_committee.php">คณะกรรมการอำนวยการ</a></li>
+                                <li><a class="dropdown-item" href="<?php echo in_array(basename(dirname($_SERVER['SCRIPT_FILENAME'])), ['curriculum','admin','staff','rankings','procurements','recruitments','trainings','international']) ? '../' : ''; ?>about-management.php">คณะกรรมการบริหาร</a></li>
+                                <li><a class="dropdown-item" href="<?php echo in_array(basename(dirname($_SERVER['SCRIPT_FILENAME'])), ['curriculum','admin','staff','rankings','procurements','recruitments','trainings','international']) ? '../' : ''; ?>org-structure.php" target="_blank">โครงสร้างของโรงเรียน</a></li>
                                 <li><a class="dropdown-item" href="#">อำนาจหน้าที่</a></li>
                                 <li><a class="dropdown-item" href="#">แผนยุทธศาสตร์</a></li>
                             </ul>
@@ -99,9 +99,9 @@
                             <a class="dropdown-item dropdown-toggle" href="#">ข้อมูลอื่น ๆ</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="#">คณะกรรมการของโรงเรียน</a></li>
-                                <li><a class="dropdown-item" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '../' : ''; ?>about-management.php">คณะกรรมการบริหาร</a></li>
-                                <li><a class="dropdown-item" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '../' : ''; ?>steering_committee.php">คณะกรรมการอำนวยการ</a></li>
-                                <li><a class="dropdown-item" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '../' : ''; ?>org-structure.php" target="_blank">โครงสร้างของโรงเรียน</a></li>
+                                <li><a class="dropdown-item" href="<?php echo in_array(basename(dirname($_SERVER['SCRIPT_FILENAME'])), ['curriculum','admin','staff','rankings','procurements','recruitments','trainings','international']) ? '../' : ''; ?>about-management.php">คณะกรรมการบริหาร</a></li>
+                                <li><a class="dropdown-item" href="<?php echo in_array(basename(dirname($_SERVER['SCRIPT_FILENAME'])), ['curriculum','admin','staff','rankings','procurements','recruitments','trainings','international']) ? '../' : ''; ?>steering_committee.php">คณะกรรมการอำนวยการ</a></li>
+                                <li><a class="dropdown-item" href="<?php echo in_array(basename(dirname($_SERVER['SCRIPT_FILENAME'])), ['curriculum','admin','staff','rankings','procurements','recruitments','trainings','international']) ? '../' : ''; ?>org-structure.php" target="_blank">โครงสร้างของโรงเรียน</a></li>
                                 <li><a class="dropdown-item" href="#">อำนาจหน้าที่</a></li>
                                 <li><a class="dropdown-item" href="#">แผนยุทธศาสตร์</a></li>
                             </ul>
@@ -132,7 +132,7 @@
                         <li class="dropdown-submenu">
                             <a class="dropdown-item dropdown-toggle" href="#">บุคลากรสายวิชาการ</a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '' : ((basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin') ? '../staff/' : 'staff/'); ?>academic_science.php" target="_blank">วิทยาศาสตร์และเทคโนโลยี</a></li>
+                                <li><a class="dropdown-item" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '' : (in_array(basename(dirname($_SERVER['SCRIPT_FILENAME'])), ['curriculum','admin','staff','rankings','procurements','recruitments','trainings','international']) ? '../staff/' : 'staff/'); ?>academic_science.php" target="_blank">วิทยาศาสตร์และเทคโนโลยี</a></li>
                                 <li><a class="dropdown-item" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '' : ((basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin') ? '../staff/' : 'staff/'); ?>academic_math.php" target="_blank">คณิตศาสตร์</a></li>
                                 <li><a class="dropdown-item" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '' : ((basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin') ? '../staff/' : 'staff/'); ?>academic_foreign.php" target="_blank">ภาษาต่างประเทศ</a></li>
                                 <li><a class="dropdown-item" href="<?php echo (basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'staff') ? '' : ((basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'curriculum' || basename(dirname($_SERVER['SCRIPT_FILENAME'])) == 'admin') ? '../staff/' : 'staff/'); ?>academic_thai.php" target="_blank">ภาษาไทย</a></li>
