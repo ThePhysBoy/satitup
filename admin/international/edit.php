@@ -3,6 +3,40 @@ require_once '../includes/db_config.php';
 require_once '../includes/auth_functions.php';
 requireRankingsAccess();
 
+if (!function_exists('international_ensure_column')) {
+    function international_ensure_column(mysqli $conn, string $column, string $definition): void
+    {
+        $check = $conn->query("SHOW COLUMNS FROM `international_assignments` LIKE '" . $conn->real_escape_string($column) . "'");
+        if ($check && $check->num_rows === 0) {
+            $conn->query("ALTER TABLE `international_assignments` ADD COLUMN `$column` $definition");
+        }
+    }
+}
+
+international_ensure_column($conn, 'sdg_goals', 'VARCHAR(255) DEFAULT NULL');
+international_ensure_column($conn, 'likes', 'INT UNSIGNED NOT NULL DEFAULT 0');
+international_ensure_column($conn, 'views', 'INT UNSIGNED NOT NULL DEFAULT 0');
+
+$sdg_options = [
+    1 => ['name' => 'ขจัดความยากจน', 'color' => '#E5243B'],
+    2 => ['name' => 'ขจัดความหิวโหย', 'color' => '#DDA63A'],
+    3 => ['name' => 'สุขภาพและความเป็นอยู่ที่ดี', 'color' => '#4C9F38'],
+    4 => ['name' => 'การศึกษาที่มีคุณภาพ', 'color' => '#C5192D'],
+    5 => ['name' => 'ความเท่าเทียมทางเพศ', 'color' => '#FF3A21'],
+    6 => ['name' => 'น้ำสะอาดและสุขาภิบาล', 'color' => '#26BDE2'],
+    7 => ['name' => 'พลังงานสะอาดที่เข้าถึงได้', 'color' => '#FCC30B'],
+    8 => ['name' => 'งานที่มีคุณค่าและการเติบโตทางเศรษฐกิจ', 'color' => '#A21942'],
+    9 => ['name' => 'อุตสาหกรรม นวัตกรรม และโครงสร้างพื้นฐาน', 'color' => '#FD6925'],
+    10 => ['name' => 'ลดความเหลื่อมล้ำ', 'color' => '#DD1367'],
+    11 => ['name' => 'เมืองและชุมชนที่ยั่งยืน', 'color' => '#FD9D24'],
+    12 => ['name' => 'การบริโภคและการผลิตที่ยั่งยืน', 'color' => '#BF8B2E'],
+    13 => ['name' => 'การดำเนินการด้านสภาพภูมิอากาศ', 'color' => '#3F7E44'],
+    14 => ['name' => 'ชีวิตใต้น้ำ', 'color' => '#0A97D9'],
+    15 => ['name' => 'ชีวิตบนบก', 'color' => '#56C02B'],
+    16 => ['name' => 'สันติภาพ ความยุติธรรม และสถาบันที่เข้มแข็ง', 'color' => '#00689D'],
+    17 => ['name' => 'ความร่วมมือเพื่อบรรลุเป้าหมาย', 'color' => '#19486A'],
+];
+
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     header('Location: index.php');
     exit;
@@ -41,6 +75,8 @@ $published_date = $assignment['published_date'];
 $current_cover = $assignment['cover_image'];
 $current_gallery = !empty($assignment['gallery_images']) ? json_decode($assignment['gallery_images'], true) : [];
 $current_document = $assignment['document_pdf'];
+$selected_sdgs = !empty($assignment['sdg_goals']) ? array_filter(array_map('trim', explode(',', $assignment['sdg_goals']))) : [];
+$sdg_values = array_map(static fn($value) => (string)(int)$value, $selected_sdgs);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = trim($_POST['title'] ?? '');
@@ -60,6 +96,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $status = $_POST['status'] ?? 'draft';
     $featured = isset($_POST['featured']) ? 1 : 0;
     $published_date = $_POST['published_date'] ?? $published_date;
+    $selected_sdgs = (isset($_POST['sdg_goals']) && is_array($_POST['sdg_goals'])) ? array_values(array_unique($_POST['sdg_goals'])) : [];
+    $sdg_values = array_map(static fn($value) => (string)(int)$value, $selected_sdgs);
+    $sdg_goals = !empty($sdg_values) ? implode(',', $sdg_values) : '';
 
     if ($title === '') {
         $errors[] = 'กรุณากรอกหัวข้อประกาศ';
@@ -155,7 +194,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
         $stmt = $conn->prepare("UPDATE international_assignments SET
             title = ?, person_name = ?, role = ?, affiliation = ?, country = ?, city = ?, purpose = ?, start_date = ?, end_date = ?, duration_text = ?,
-            event_name = ?, achievement = ?, description = ?, cover_image = ?, gallery_images = ?, document_pdf = ?, video_url = ?,
+            event_name = ?, achievement = ?, description = ?, cover_image = ?, gallery_images = ?, document_pdf = ?, video_url = ?, sdg_goals = ?,
             status = ?, featured = ?, published_date = ?, updated_by = ?
             WHERE id = ?");
 
@@ -163,7 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user_id = $_SESSION['user_id'] ?? null;
 
         $stmt->bind_param(
-            'ssssssssssssssssssiii',
+            'sssssssssssssssssssiii',
             $title,
             $person_name,
             $role,
@@ -181,6 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $galleryJson,
             $documentPath,
             $video_url,
+            $sdg_goals,
             $status,
             $featured,
             $published_date,
@@ -276,6 +316,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="col-md-12">
                     <label class="form-label">รายละเอียด</label>
                     <textarea name="description" class="form-control" rows="4"><?php echo htmlspecialchars($description); ?></textarea>
+                </div>
+
+                <div class="col-md-12">
+                    <label class="form-label">เป้าหมายการพัฒนาที่ยั่งยืน (SDGs)</label>
+                    <div class="sdg-grid">
+                        <?php foreach ($sdg_options as $sdgNumber => $sdg): 
+                            $isChecked = in_array((string)$sdgNumber, $sdg_values, true);
+                        ?>
+                        <label class="sdg-option" style="--sdg-color: <?php echo htmlspecialchars($sdg['color']); ?>;">
+                            <input type="checkbox" name="sdg_goals[]" value="<?php echo $sdgNumber; ?>" <?php echo $isChecked ? 'checked' : ''; ?>>
+                            <span class="sdg-number"><?php echo $sdgNumber; ?></span>
+                            <span class="sdg-name"><?php echo htmlspecialchars($sdg['name']); ?></span>
+                        </label>
+                        <?php endforeach; ?>
+                    </div>
+                    <small class="text-muted">เลือกหลายข้อได้ เพื่อสะท้อนผลของภารกิจต่อ SDGs</small>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">ลิงก์วิดีโอ (ถ้ามี)</label>

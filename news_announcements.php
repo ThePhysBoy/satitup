@@ -19,6 +19,287 @@ if (file_exists(__DIR__ . '/news/functions.php')) {
     require_once __DIR__ . '/news/functions.php';
 }
 
+if (!function_exists('satitup_table_exists')) {
+    function satitup_table_exists(mysqli $conn, string $table): bool
+    {
+        $table = $conn->real_escape_string($table);
+        $result = $conn->query("SHOW TABLES LIKE '$table'");
+        return $result && $result->num_rows > 0;
+    }
+}
+
+if (!function_exists('satitup_ensure_column')) {
+    function satitup_ensure_column(mysqli $conn, string $table, string $column, string $definition): void
+    {
+        if (!satitup_table_exists($conn, $table)) {
+            return;
+        }
+        $tableEsc = $conn->real_escape_string($table);
+        $columnEsc = $conn->real_escape_string($column);
+        $check = $conn->query("SHOW COLUMNS FROM `$tableEsc` LIKE '$columnEsc'");
+        if ($check && $check->num_rows === 0) {
+            $conn->query("ALTER TABLE `$tableEsc` ADD COLUMN `$columnEsc` $definition");
+        }
+    }
+}
+
+if ($conn && !$conn->connect_error) {
+    // Ensure hall_of_fame columns
+    satitup_ensure_column($conn, 'hall_of_fame', 'views', 'INT UNSIGNED NOT NULL DEFAULT 0');
+    satitup_ensure_column($conn, 'hall_of_fame', 'likes', 'INT UNSIGNED NOT NULL DEFAULT 0');
+    satitup_ensure_column($conn, 'hall_of_fame', 'sdg_goals', 'VARCHAR(255) DEFAULT NULL');
+
+    // Ensure international_assignments columns
+    satitup_ensure_column($conn, 'international_assignments', 'views', 'INT UNSIGNED NOT NULL DEFAULT 0');
+    satitup_ensure_column($conn, 'international_assignments', 'likes', 'INT UNSIGNED NOT NULL DEFAULT 0');
+    satitup_ensure_column($conn, 'international_assignments', 'sdg_goals', 'VARCHAR(255) DEFAULT NULL');
+}
+
+$global_sdg_meta = [
+    1 => ['color' => '#E5243B', 'name' => 'SDG 1: ขจัดความยากจน'],
+    2 => ['color' => '#DDA63A', 'name' => 'SDG 2: ขจัดความหิวโหย'],
+    3 => ['color' => '#4C9F38', 'name' => 'SDG 3: สุขภาพและความเป็นอยู่ที่ดี'],
+    4 => ['color' => '#C5192D', 'name' => 'SDG 4: การศึกษาที่มีคุณภาพ'],
+    5 => ['color' => '#FF3A21', 'name' => 'SDG 5: ความเท่าเทียมทางเพศ'],
+    6 => ['color' => '#26BDE2', 'name' => 'SDG 6: น้ำสะอาดและสุขาภิบาล'],
+    7 => ['color' => '#FCC30B', 'name' => 'SDG 7: พลังงานสะอาดที่เข้าถึงได้'],
+    8 => ['color' => '#A21942', 'name' => 'SDG 8: งานที่มีคุณค่าและการเติบโตทางเศรษฐกิจ'],
+    9 => ['color' => '#FD6925', 'name' => 'SDG 9: อุตสาหกรรม นวัตกรรม และโครงสร้างพื้นฐาน'],
+    10 => ['color' => '#DD1367', 'name' => 'SDG 10: ลดความเหลื่อมล้ำ'],
+    11 => ['color' => '#FD9D24', 'name' => 'SDG 11: เมืองและชุมชนที่ยั่งยืน'],
+    12 => ['color' => '#BF8B2E', 'name' => 'SDG 12: การบริโภคและการผลิตที่ยั่งยืน'],
+    13 => ['color' => '#3F7E44', 'name' => 'SDG 13: การดำเนินการด้านสภาพภูมิอากาศ'],
+    14 => ['color' => '#0A97D9', 'name' => 'SDG 14: ชีวิตใต้น้ำ'],
+    15 => ['color' => '#56C02B', 'name' => 'SDG 15: ชีวิตบนบก'],
+    16 => ['color' => '#00689D', 'name' => 'SDG 16: สันติภาพ ความยุติธรรม และสถาบันที่เข้มแข็ง'],
+    17 => ['color' => '#19486A', 'name' => 'SDG 17: ความร่วมมือเพื่อบรรลุเป้าหมาย'],
+];
+
+if (!function_exists('satitup_render_portfolio_card')) {
+    function satitup_render_portfolio_card(array $item, string $detailUrl, array $sdgMeta, string $type, string $title, string $imagePath, string $altText, string $dateText, string $excerpt = '', array $metaLines = []): void
+    {
+        $imageSrc = '/' . ltrim($imagePath, '/');
+        $alt = htmlspecialchars($altText, ENT_QUOTES, 'UTF-8');
+        $titleHtml = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
+        $excerptHtml = htmlspecialchars($excerpt, ENT_QUOTES, 'UTF-8');
+        $dateHtml = htmlspecialchars($dateText, ENT_QUOTES, 'UTF-8');
+        $itemId = (int)($item['id'] ?? 0);
+        $views = isset($item['view_count']) ? (int)$item['view_count'] : (int)($item['views'] ?? 0);
+        $likes = (int)($item['likes'] ?? 0);
+        $sdgBadgesHtml = '';
+        $sdgGoals = [];
+        if (!empty($item['sdg_goals'])) {
+            $sdgGoals = array_filter(array_map('trim', explode(',', $item['sdg_goals'])));
+        }
+        foreach ($sdgGoals as $sdg) {
+            if ($sdg === '') {
+                continue;
+            }
+            $sdgKey = (int)$sdg;
+            if (!isset($sdgMeta[$sdgKey])) {
+                continue;
+            }
+            $sdgInfo = $sdgMeta[$sdgKey];
+            $badgeColor = htmlspecialchars($sdgInfo['color'], ENT_QUOTES, 'UTF-8');
+            $badgeLabel = htmlspecialchars($sdgInfo['name'], ENT_QUOTES, 'UTF-8');
+            $sdgNumber = htmlspecialchars((string)$sdgKey, ENT_QUOTES, 'UTF-8');
+            $sdgBadgesHtml .= "<span class=\"sdg-badge\" style=\"background-color: {$badgeColor};\" data-sdg-name=\"{$badgeLabel}\">{$sdgNumber}</span>";
+        }
+
+        $metaLinesHtml = '';
+        if (!empty($metaLines)) {
+            $metaLinesHtml .= '<div class="news-meta-extra">';
+            foreach ($metaLines as $line) {
+                $metaLinesHtml .= '<div class="news-meta-extra-line">' . $line . '</div>';
+            }
+            $metaLinesHtml .= '</div>';
+        }
+
+        $viewsFormatted = number_format($views);
+        $likesFormatted = number_format($likes);
+        $detailUrlSafe = htmlspecialchars($detailUrl, ENT_QUOTES, 'UTF-8');
+        $itemTypeSafe = htmlspecialchars($type, ENT_QUOTES, 'UTF-8');
+
+        echo '<div class="portfolio-item isotope-item">';
+        echo '<div class="portfolio-content h-100" data-detail-url="' . $detailUrlSafe . '" data-item-type="' . $itemTypeSafe . '" data-item-id="' . $itemId . '" role="link" tabindex="0">';
+        echo '<div class="portfolio-image">';
+        echo '<img src="' . $imageSrc . '" alt="' . $alt . '" onerror="this.src=\'images/comingsoon.png\'">';
+        echo '</div>';
+        echo '<div class="portfolio-meta">';
+        echo '<div class="news-meta-top">';
+        if ($sdgBadgesHtml !== '') {
+            echo '<div class="sdg-badges">' . $sdgBadgesHtml . '</div>';
+        } else {
+            echo '<div class="sdg-badges"></div>';
+        }
+        echo '<div class="news-activity-date"><i class="fas fa-calendar-alt"></i>' . $dateHtml . '</div>';
+        echo '</div>';
+        echo '<h3 class="news-activity-title">';
+        echo '<a class="news-detail-link" href="' . $detailUrlSafe . '" target="_blank" rel="noopener" data-item-type="' . $itemTypeSafe . '" data-item-id="' . $itemId . '">' . $titleHtml . '</a>';
+        echo '</h3>';
+        if ($excerptHtml !== '') {
+            echo '<div class="news-excerpt" title="' . $excerptHtml . '">' . $excerptHtml . '</div>';
+        }
+        echo $metaLinesHtml;
+        echo '<div class="news-stats mt-2">';
+        echo '<span class="news-views" title="จำนวนผู้เข้าชม">';
+        echo '<i class="fas fa-eye"></i>';
+        echo '<span class="news-views-count" data-count="' . $views . '" data-item-type="' . $itemTypeSafe . '">' . $viewsFormatted . '</span>';
+        echo '</span>';
+        echo '<button class="news-like-button" type="button" data-item-id="' . $itemId . '" data-item-type="' . $itemTypeSafe . '" title="ถูกใจ" aria-label="ถูกใจข่าวนี้ (จำนวน ' . $likesFormatted . ' ครั้ง)">';
+        echo '<i class="far fa-thumbs-up"></i>';
+        echo '<span class="news-like-count" data-count="' . $likes . '">' . $likesFormatted . '</span>';
+        echo '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+}
+
+if (!function_exists('satitup_trim_text')) {
+    function satitup_trim_text(string $text, int $maxChars = 100): string
+    {
+        $clean = trim(strip_tags($text));
+        if ($clean === '') {
+            return '';
+        }
+        if (mb_strlen($clean, 'UTF-8') <= $maxChars) {
+            return $clean;
+        }
+        $truncated = mb_substr($clean, 0, $maxChars, 'UTF-8');
+        $lastSpace = mb_strrpos($truncated, ' ', 0, 'UTF-8');
+        if ($lastSpace !== false && $lastSpace > ($maxChars * 0.6)) {
+            $truncated = mb_substr($truncated, 0, $lastSpace, 'UTF-8');
+        }
+        return rtrim($truncated, ",.;- ") . '...';
+    }
+}
+
+if (!function_exists('satitup_prepare_hall_meta_lines')) {
+    function satitup_prepare_hall_meta_lines(array $item): array
+    {
+        $lines = [];
+        if (!empty($item['student_name'])) {
+            $lines[] = '<i class="fas fa-user-graduate"></i> ' . htmlspecialchars($item['student_name'], ENT_QUOTES, 'UTF-8');
+        }
+        if (!empty($item['class'])) {
+            $lines[] = '<i class="fas fa-school"></i> ' . htmlspecialchars($item['class'], ENT_QUOTES, 'UTF-8');
+        }
+        if (!empty($item['year'])) {
+            $lines[] = '<i class="fas fa-calendar-alt"></i> ปีการศึกษา ' . htmlspecialchars($item['year'], ENT_QUOTES, 'UTF-8');
+        }
+        return $lines;
+    }
+}
+
+if (!function_exists('satitup_prepare_international_meta_lines')) {
+    function satitup_prepare_international_meta_lines(array $assignment): array
+    {
+        $lines = [];
+        if (!empty($assignment['person_name'])) {
+            $lines[] = '<i class="fas fa-user"></i> ' . htmlspecialchars($assignment['person_name'], ENT_QUOTES, 'UTF-8');
+        }
+        if (!empty($assignment['role'])) {
+            $lines[] = '<i class="fas fa-id-badge"></i> ' . htmlspecialchars($assignment['role'], ENT_QUOTES, 'UTF-8');
+        }
+        if (!empty($assignment['country']) || !empty($assignment['city'])) {
+            $location = trim(($assignment['city'] ?? '') . (empty($assignment['city']) || empty($assignment['country']) ? '' : ', ') . ($assignment['country'] ?? ''));
+            if ($location !== '') {
+                $lines[] = '<i class="fas fa-map-marker-alt"></i> ' . htmlspecialchars($location, ENT_QUOTES, 'UTF-8');
+            }
+        }
+        if (!empty($assignment['purpose'])) {
+            $lines[] = '<i class="fas fa-lightbulb"></i> ' . htmlspecialchars(satitup_trim_text($assignment['purpose'], 80), ENT_QUOTES, 'UTF-8');
+        }
+        return $lines;
+    }
+}
+
+if (!function_exists('satitup_render_hall_item')) {
+    function satitup_render_hall_item(array $item, array $sdgMeta): void
+    {
+        $imagePath = !empty($item['image_path']) ? $item['image_path'] : 'images/comingsoon.png';
+        $alt = $item['student_name'] ?: $item['title'];
+        $dateText = '';
+        if (!empty($item['date_achieved'])) {
+            $timestamp = strtotime($item['date_achieved']);
+            if ($timestamp) {
+                $dateText = date('d/m/Y', $timestamp);
+            }
+        }
+        if ($dateText === '' && !empty($item['created_at'])) {
+            $timestamp = strtotime($item['created_at']);
+            if ($timestamp) {
+                $dateText = date('d/m/Y', $timestamp);
+            }
+        }
+        if ($dateText === '') {
+            $dateText = date('d/m/Y');
+        }
+
+        $excerptSource = $item['achievement'] ?? $item['description'] ?? '';
+        $excerpt = satitup_trim_text($excerptSource, 120);
+        $metaLines = satitup_prepare_hall_meta_lines($item);
+        $detailUrl = 'hall_of_fame/view.php?id=' . (int)($item['id'] ?? 0);
+
+        satitup_render_portfolio_card(
+            $item,
+            $detailUrl,
+            $sdgMeta,
+            'hall',
+            $item['title'] ?? '',
+            $imagePath,
+            $alt,
+            $dateText,
+            $excerpt,
+            $metaLines
+        );
+    }
+}
+
+if (!function_exists('satitup_render_international_item')) {
+    function satitup_render_international_item(array $assignment, array $sdgMeta): void
+    {
+        $imagePath = !empty($assignment['cover_image']) ? $assignment['cover_image'] : 'images/comingsoon.png';
+        $alt = $assignment['title'] ?? 'International Assignment';
+        $dateText = '';
+        if (!empty($assignment['start_date'])) {
+            $timestamp = strtotime($assignment['start_date']);
+            if ($timestamp) {
+                $dateText = date('d/m/Y', $timestamp);
+            }
+        }
+        if ($dateText === '' && !empty($assignment['published_date'])) {
+            $timestamp = strtotime($assignment['published_date']);
+            if ($timestamp) {
+                $dateText = date('d/m/Y', $timestamp);
+            }
+        }
+        if ($dateText === '') {
+            $dateText = date('d/m/Y');
+        }
+
+        $excerptSource = $assignment['achievement'] ?? $assignment['description'] ?? $assignment['purpose'] ?? '';
+        $excerpt = satitup_trim_text($excerptSource, 120);
+        $metaLines = satitup_prepare_international_meta_lines($assignment);
+        $detailUrl = 'international/view.php?id=' . (int)($assignment['id'] ?? 0);
+
+        satitup_render_portfolio_card(
+            $assignment,
+            $detailUrl,
+            $sdgMeta,
+            'international',
+            $assignment['title'] ?? '',
+            $imagePath,
+            $alt,
+            $dateText,
+            $excerpt,
+            $metaLines
+        );
+    }
+}
+
 if (!isset($latest_news) || empty($latest_news)) {
     if (function_exists('getLatestNews')) {
         $latest_news = getLatestNews($conn, 15, 0, false); // ดึงข่าวทั้งหมดโดยไม่สนใจหมวดหมู่
@@ -170,7 +451,8 @@ $international_assignments = [];
 if ($conn && !$conn->connect_error) {
     $table_check = $conn->query("SHOW TABLES LIKE 'international_assignments'");
     if ($table_check && $table_check->num_rows > 0) {
-        $sql = "SELECT id, title, person_name, role, affiliation, country, city, start_date, end_date, cover_image
+        $sql = "SELECT id, title, person_name, role, affiliation, country, city, start_date, end_date, cover_image,
+                       views, likes, sdg_goals, purpose, achievement, description, published_date
                 FROM international_assignments
                 WHERE status = 'published'
                 ORDER BY published_date DESC
@@ -295,7 +577,7 @@ if ($conn && !$conn->connect_error) {
             border-top-left-radius: 12px;
             border-top-right-radius: 12px;
         }
-
+        
         .news-portfolio .portfolio-image img {
             width: 100%;
             height: auto;
@@ -475,6 +757,17 @@ if ($conn && !$conn->connect_error) {
             margin-top: 8px;
             opacity: 1;
             font-weight: 300; /* ความหนาปานกลาง */
+        }
+
+        .news-meta-extra {
+            margin-top: 8px;
+            font-size: 9.6px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .news-meta-extra-line + .news-meta-extra-line {
+            margin-top: 4px;
         }
 
         .news-stats {
@@ -1138,7 +1431,7 @@ if ($conn && !$conn->connect_error) {
         : 'news/detail.php?id=' . $item['id'];
 ?>
                             <div class="portfolio-item isotope-item">
-                                <div class="portfolio-content h-100" data-detail-url="<?php echo htmlspecialchars($detailUrl); ?>" data-news-id="<?php echo (int)$item['id']; ?>" role="link" tabindex="0">
+                                <div class="portfolio-content h-100" data-detail-url="<?php echo htmlspecialchars($detailUrl); ?>" data-item-id="<?php echo (int)$item['id']; ?>" data-item-type="news" role="link" tabindex="0">
                                     <div class="portfolio-image">
                                         <img src="<?php echo htmlspecialchars($item['cover_image']); ?>" class="img-fluid" alt="<?php echo htmlspecialchars($item['title']); ?>" onerror="this.src='images/comingsoon.png'">
                                     </div>
@@ -1187,7 +1480,7 @@ if ($conn && !$conn->connect_error) {
                                             </div>
                                         </div>
                                         <h3 class="news-activity-title">
-                                            <a class="news-detail-link" href="<?php echo htmlspecialchars($detailUrl); ?>" data-news-id="<?php echo (int)$item['id']; ?>" target="_blank" rel="noopener">
+                                            <a class="news-detail-link" href="<?php echo htmlspecialchars($detailUrl); ?>" data-item-id="<?php echo (int)$item['id']; ?>" data-item-type="news" target="_blank" rel="noopener">
                                                 <?php echo htmlspecialchars($item['title']); ?>
                                             </a>
                                         </h3>
@@ -1214,9 +1507,9 @@ if ($conn && !$conn->connect_error) {
                                         <div class="news-stats mt-2">
                                             <span class="news-views" title="จำนวนผู้เข้าชม">
                                                 <i class="fas fa-eye"></i>
-                                                <span class="news-views-count" data-count="<?php echo isset($item['view_count']) ? (int)$item['view_count'] : (isset($item['views']) ? (int)$item['views'] : 0); ?>"><?php echo number_format(isset($item['view_count']) ? (int)$item['view_count'] : (isset($item['views']) ? (int)$item['views'] : 0)); ?></span>
+                                                <span class="news-views-count" data-count="<?php echo isset($item['view_count']) ? (int)$item['view_count'] : (isset($item['views']) ? (int)$item['views'] : 0); ?>" data-item-type="news"><?php echo number_format(isset($item['view_count']) ? (int)$item['view_count'] : (isset($item['views']) ? (int)$item['views'] : 0)); ?></span>
                                             </span>
-                                            <button class="news-like-button" type="button" data-news-id="<?php echo $item['id']; ?>" title="ถูกใจ" aria-label="ถูกใจข่าวนี้ (จำนวน <?php echo number_format($item['likes']); ?> ครั้ง)">
+                                            <button class="news-like-button" type="button" data-item-id="<?php echo $item['id']; ?>" data-item-type="news" title="ถูกใจ" aria-label="ถูกใจข่าวนี้ (จำนวน <?php echo number_format($item['likes']); ?> ครั้ง)">
                                                 <i class="far fa-thumbs-up"></i>
                                                 <span class="news-like-count" data-count="<?php echo (int)$item['likes']; ?>"><?php echo number_format($item['likes']); ?></span>
                                             </button>
@@ -1685,33 +1978,7 @@ if ($conn && !$conn->connect_error) {
                             <?php if (!empty($hall_data['academic'])): ?>
                                 <?php foreach ($hall_data['academic'] as $item): ?>
                                 <div class="col">
-                                    <div class="card h-100 hall-of-fame-card">
-                                        <?php if ($item['image_path']): ?>
-                                        <img src="<?php echo htmlspecialchars($item['image_path']); ?>" 
-                                             class="card-img-top" style="height: 150px; object-fit: cover;"
-                                             alt="<?php echo htmlspecialchars($item['student_name']); ?>">
-                                        <?php else: ?>
-                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
-                                            <i class="fas fa-graduation-cap fa-2x text-muted"></i>
-                                        </div>
-                                        <?php endif; ?>
-                                        <div class="card-body p-2">
-                                            <h6 class="card-title small" style="font-size: 0.9rem; line-height: 1.2; height: 2.4em; overflow: hidden;">
-                                                <?php echo mb_substr(htmlspecialchars($item['title']), 0, 50); ?>...
-                                            </h6>
-                                            <p class="card-text mb-2">
-                                                <small class="text-muted" style="font-size: 0.8rem;">
-                                                    <i class="fas fa-user"></i> <?php echo htmlspecialchars($item['student_name']); ?>
-                                                    <?php if ($item['class']): ?>
-                                                    <br><i class="fas fa-school"></i> <?php echo htmlspecialchars($item['class']); ?>
-                                                    <?php endif; ?>
-                                                </small>
-                                            </p>
-                                            <a href="hall_of_fame/view.php?id=<?php echo $item['id']; ?>" class="btn btn-sm btn-primary w-100" style="font-size: 0.8rem;">
-                                                <i class="fas fa-eye"></i> ดูรายละเอียด
-                                            </a>
-                                        </div>
-                                    </div>
+                                    <?php satitup_render_hall_item($item, $global_sdg_meta); ?>
                                 </div>
                                 <?php endforeach; ?>
                             <?php else: ?>
@@ -1729,33 +1996,7 @@ if ($conn && !$conn->connect_error) {
                             <?php if (!empty($hall_data['sports'])): ?>
                                 <?php foreach ($hall_data['sports'] as $item): ?>
                                 <div class="col">
-                                    <div class="card h-100 hall-of-fame-card">
-                                        <?php if ($item['image_path']): ?>
-                                        <img src="<?php echo htmlspecialchars($item['image_path']); ?>" 
-                                             class="card-img-top" style="height: 150px; object-fit: cover;"
-                                             alt="<?php echo htmlspecialchars($item['student_name']); ?>">
-                                        <?php else: ?>
-                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
-                                            <i class="fas fa-trophy fa-2x text-muted"></i>
-                                        </div>
-                                        <?php endif; ?>
-                                        <div class="card-body p-2">
-                                            <h6 class="card-title small" style="font-size: 0.9rem; line-height: 1.2; height: 2.4em; overflow: hidden;">
-                                                <?php echo mb_substr(htmlspecialchars($item['title']), 0, 50); ?>...
-                                            </h6>
-                                            <p class="card-text mb-2">
-                                                <small class="text-muted" style="font-size: 0.8rem;">
-                                                    <i class="fas fa-user"></i> <?php echo htmlspecialchars($item['student_name']); ?>
-                                                    <?php if ($item['class']): ?>
-                                                    <br><i class="fas fa-school"></i> <?php echo htmlspecialchars($item['class']); ?>
-                                                    <?php endif; ?>
-                                                </small>
-                                            </p>
-                                            <a href="hall_of_fame/view.php?id=<?php echo $item['id']; ?>" class="btn btn-sm btn-primary w-100" style="font-size: 0.8rem;">
-                                                <i class="fas fa-eye"></i> ดูรายละเอียด
-                                            </a>
-                                        </div>
-                                    </div>
+                                    <?php satitup_render_hall_item($item, $global_sdg_meta); ?>
                                 </div>
                                 <?php endforeach; ?>
                             <?php else: ?>
@@ -1773,33 +2014,7 @@ if ($conn && !$conn->connect_error) {
                             <?php if (!empty($hall_data['music'])): ?>
                                 <?php foreach ($hall_data['music'] as $item): ?>
                                 <div class="col">
-                                    <div class="card h-100 hall-of-fame-card">
-                                        <?php if ($item['image_path']): ?>
-                                        <img src="<?php echo htmlspecialchars($item['image_path']); ?>" 
-                                             class="card-img-top" style="height: 150px; object-fit: cover;"
-                                             alt="<?php echo htmlspecialchars($item['student_name']); ?>">
-                                        <?php else: ?>
-                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
-                                            <i class="fas fa-music fa-2x text-muted"></i>
-                                        </div>
-                                        <?php endif; ?>
-                                        <div class="card-body p-2">
-                                            <h6 class="card-title small" style="font-size: 0.9rem; line-height: 1.2; height: 2.4em; overflow: hidden;">
-                                                <?php echo mb_substr(htmlspecialchars($item['title']), 0, 50); ?>...
-                                            </h6>
-                                            <p class="card-text mb-2">
-                                                <small class="text-muted" style="font-size: 0.8rem;">
-                                                    <i class="fas fa-user"></i> <?php echo htmlspecialchars($item['student_name']); ?>
-                                                    <?php if ($item['class']): ?>
-                                                    <br><i class="fas fa-school"></i> <?php echo htmlspecialchars($item['class']); ?>
-                                                    <?php endif; ?>
-                                                </small>
-                                            </p>
-                                            <a href="hall_of_fame/view.php?id=<?php echo $item['id']; ?>" class="btn btn-sm btn-primary w-100" style="font-size: 0.8rem;">
-                                                <i class="fas fa-eye"></i> ดูรายละเอียด
-                                            </a>
-                                        </div>
-                                    </div>
+                                    <?php satitup_render_hall_item($item, $global_sdg_meta); ?>
                                 </div>
                                 <?php endforeach; ?>
                             <?php else: ?>
@@ -1817,33 +2032,7 @@ if ($conn && !$conn->connect_error) {
                             <?php if (!empty($hall_data['scholarship'])): ?>
                                 <?php foreach ($hall_data['scholarship'] as $item): ?>
                                 <div class="col">
-                                    <div class="card h-100 hall-of-fame-card">
-                                        <?php if ($item['image_path']): ?>
-                                        <img src="<?php echo htmlspecialchars($item['image_path']); ?>" 
-                                             class="card-img-top" style="height: 150px; object-fit: cover;"
-                                             alt="<?php echo htmlspecialchars($item['student_name']); ?>">
-                                        <?php else: ?>
-                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
-                                            <i class="fas fa-award fa-2x text-muted"></i>
-                                        </div>
-                                        <?php endif; ?>
-                                        <div class="card-body p-2">
-                                            <h6 class="card-title small" style="font-size: 0.9rem; line-height: 1.2; height: 2.4em; overflow: hidden;">
-                                                <?php echo mb_substr(htmlspecialchars($item['title']), 0, 50); ?>...
-                                            </h6>
-                                            <p class="card-text mb-2">
-                                                <small class="text-muted" style="font-size: 0.8rem;">
-                                                    <i class="fas fa-user"></i> <?php echo htmlspecialchars($item['student_name']); ?>
-                                                    <?php if ($item['class']): ?>
-                                                    <br><i class="fas fa-school"></i> <?php echo htmlspecialchars($item['class']); ?>
-                                                    <?php endif; ?>
-                                                </small>
-                                            </p>
-                                            <a href="hall_of_fame/view.php?id=<?php echo $item['id']; ?>" class="btn btn-sm btn-primary w-100" style="font-size: 0.8rem;">
-                                                <i class="fas fa-eye"></i> ดูรายละเอียด
-                                            </a>
-                                        </div>
-                                    </div>
+                                    <?php satitup_render_hall_item($item, $global_sdg_meta); ?>
                                 </div>
                                 <?php endforeach; ?>
                             <?php else: ?>
@@ -1861,33 +2050,7 @@ if ($conn && !$conn->connect_error) {
                             <?php if (!empty($hall_data['outstanding'])): ?>
                                 <?php foreach ($hall_data['outstanding'] as $item): ?>
                                 <div class="col">
-                                    <div class="card h-100 hall-of-fame-card">
-                                        <?php if ($item['image_path']): ?>
-                                        <img src="<?php echo htmlspecialchars($item['image_path']); ?>" 
-                                             class="card-img-top" style="height: 150px; object-fit: cover;"
-                                             alt="<?php echo htmlspecialchars($item['student_name']); ?>">
-                                        <?php else: ?>
-                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
-                                            <i class="fas fa-star fa-2x text-muted"></i>
-                                        </div>
-                                        <?php endif; ?>
-                                        <div class="card-body p-2">
-                                            <h6 class="card-title small" style="font-size: 0.9rem; line-height: 1.2; height: 2.4em; overflow: hidden;">
-                                                <?php echo mb_substr(htmlspecialchars($item['title']), 0, 50); ?>...
-                                            </h6>
-                                            <p class="card-text mb-2">
-                                                <small class="text-muted" style="font-size: 0.8rem;">
-                                                    <i class="fas fa-user"></i> <?php echo htmlspecialchars($item['student_name']); ?>
-                                                    <?php if ($item['class']): ?>
-                                                    <br><i class="fas fa-school"></i> <?php echo htmlspecialchars($item['class']); ?>
-                                                    <?php endif; ?>
-                                                </small>
-                                            </p>
-                                            <a href="hall_of_fame/view.php?id=<?php echo $item['id']; ?>" class="btn btn-sm btn-primary w-100" style="font-size: 0.8rem;">
-                                                <i class="fas fa-eye"></i> ดูรายละเอียด
-                                            </a>
-                                        </div>
-                                    </div>
+                                    <?php satitup_render_hall_item($item, $global_sdg_meta); ?>
                                 </div>
                                 <?php endforeach; ?>
                             <?php else: ?>
@@ -1915,44 +2078,17 @@ if ($conn && !$conn->connect_error) {
                 <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
                     <?php if (!empty($international_assignments)): ?>
                         <?php foreach (array_slice($international_assignments, 0, 15) as $assignment): ?>
-                        <div class="col">
-                            <div class="card h-100 hall-of-fame-card">
-                                <?php if (!empty($assignment['cover_image'])): ?>
-                                <img src="<?php echo htmlspecialchars($assignment['cover_image']); ?>"
-                                     class="card-img-top" style="height: 150px; object-fit: cover;"
-                                     alt="<?php echo htmlspecialchars($assignment['person_name']); ?>">
-                                <?php else: ?>
-                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
-                                    <i class="fas fa-globe fa-2x text-muted"></i>
+                                <div class="col">
+                            <?php satitup_render_international_item($assignment, $global_sdg_meta); ?>
                                 </div>
-                                <?php endif; ?>
-                                <div class="card-body p-2">
-                                    <h6 class="card-title small" style="font-size: 0.9rem; line-height: 1.2; height: 2.4em; overflow: hidden;">
-                                        <?php echo htmlspecialchars(mb_strimwidth($assignment['title'], 0, 60, '...')); ?>
-                                    </h6>
-                                    <p class="card-text mb-2">
-                                        <small class="text-muted" style="font-size: 0.8rem;">
-                                            <i class="fas fa-user"></i> <?php echo htmlspecialchars($assignment['person_name']); ?><br>
-                                            <?php if (!empty($assignment['role'])): ?>
-                                                <i class="fas fa-id-badge"></i> <?php echo htmlspecialchars($assignment['role']); ?><br>
-                                            <?php endif; ?>
-                                            <i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($assignment['city'] ? $assignment['city'] . ', ' : '') . htmlspecialchars($assignment['country']); ?>
-                                        </small>
-                                    </p>
-                                        <a href="international/view.php?id=<?php echo $assignment['id']; ?>" class="btn btn-sm btn-primary w-100" style="font-size: 0.8rem;" target="_blank" rel="noopener">
-                                        <i class="fas fa-eye"></i> ดูรายละเอียด
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <div class="col-12 text-center p-4">
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                            <div class="col-12 text-center p-4">
                     <i class="fas fa-globe fa-3x text-muted mb-3"></i>
                             <p class="text-muted">ยังไม่มีข้อมูลการไปต่างประเทศ</p>
                 </div>
-                    <?php endif; ?>
-                </div>
+                            <?php endif; ?>
+                        </div>
                 <div class="text-center mt-3">
                     <a href="international/index.php" class="btn btn-outline-primary" target="_blank" rel="noopener">ดูทั้งหมด</a>
                 </div>
@@ -2154,25 +2290,61 @@ document.addEventListener('DOMContentLoaded', function () {
         ? numberFormatter.format(value)
         : value.toString();
 
-    const incrementNewsView = (newsId) => {
-        const parsedId = parseInt(newsId, 10);
+    const viewEndpointMap = {
+        news: 'news/increment_view.php',
+        hall: 'hall_of_fame/increment_view.php',
+        international: 'international/increment_view.php'
+    };
+
+    const likeEndpointMap = {
+        news: 'news/like.php',
+        hall: 'hall_of_fame/like.php',
+        international: 'international/like.php'
+    };
+
+    const buildViewPayload = (type, id) => {
+        switch (type) {
+            case 'hall':
+                return { hall_id: id };
+            case 'international':
+                return { assignment_id: id };
+            default:
+                return { news_id: id };
+        }
+    };
+
+    const buildLikePayload = (type, id) => {
+        switch (type) {
+            case 'hall':
+                return { hall_id: id };
+            case 'international':
+                return { assignment_id: id };
+            default:
+                return { news_id: id };
+        }
+    };
+
+    const incrementItemView = (itemType, itemId) => {
+        const parsedId = parseInt(itemId, 10);
         if (!parsedId) {
             return;
         }
 
-        const payload = JSON.stringify({ news_id: parsedId });
+        const endpoint = viewEndpointMap[itemType] || viewEndpointMap.news;
+        const payloadObj = buildViewPayload(itemType, parsedId);
+        const payload = JSON.stringify(payloadObj);
 
         if (navigator.sendBeacon) {
             try {
                 const blob = new Blob([payload], { type: 'application/json' });
-                navigator.sendBeacon('news/increment_view.php', blob);
+                navigator.sendBeacon(endpoint, blob);
                 return;
             } catch (error) {
                 // fallback สู่ fetch
             }
         }
 
-        fetch('news/increment_view.php', {
+        fetch(endpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -2223,13 +2395,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const updateLikeAriaLabel = (button, value) => {
         const formatted = formatNumber(value);
-        button.setAttribute('aria-label', `ถูกใจข่าวนี้ (จำนวน ${formatted} ครั้ง)`);
+        button.setAttribute('aria-label', `ถูกใจรายการนี้ (จำนวน ${formatted} ครั้ง)`);
         button.setAttribute('title', `ถูกใจ (${formatted})`);
     };
 
     document.querySelectorAll('.news-like-button').forEach(function (button) {
-        const newsId = button.dataset.newsId;
-        const storageKey = `news_like_${newsId}`;
+        const itemIdRaw = button.dataset.itemId;
+        const itemType = button.dataset.itemType || 'news';
+        const storageKey = `content_like_${itemType}_${itemIdRaw}`;
+        const parsedId = parseInt(itemIdRaw, 10);
         const iconEl = button.querySelector('i');
         const countEl = button.querySelector('.news-like-count');
 
@@ -2252,6 +2426,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            if (!parsedId) {
+                return;
+            }
+
             const previousCount = parseCount(countEl);
             const optimisticCount = previousCount + 1;
 
@@ -2261,12 +2439,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
             button.classList.add('loading');
 
-            fetch('news/like.php', {
+            const endpoint = likeEndpointMap[itemType] || likeEndpointMap.news;
+            const payloadObj = buildLikePayload(itemType, parsedId);
+
+            fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ news_id: newsId })
+                body: JSON.stringify(payloadObj)
             })
                 .then(response => response.json())
                 .then(data => {
@@ -2305,11 +2486,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const url = card.dataset.detailUrl;
         if (!url) return;
 
-        const newsId = card.dataset.newsId;
+        const itemId = card.dataset.itemId;
+        const itemType = card.dataset.itemType || 'news';
 
         const openDetail = function () {
-            if (newsId) {
-                incrementNewsView(newsId);
+            if (itemId) {
+                incrementItemView(itemType, itemId);
             }
             bumpViewCount(card);
             window.open(url, '_blank', 'noopener');
@@ -2339,9 +2521,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const card = link.closest('.portfolio-content');
             if (!card) return;
             bumpViewCount(card);
-            const relatedNewsId = link.dataset.newsId || card.dataset.newsId;
-            if (relatedNewsId) {
-                incrementNewsView(relatedNewsId);
+            const relatedItemId = link.dataset.itemId || card.dataset.itemId;
+            const relatedItemType = link.dataset.itemType || card.dataset.itemType || 'news';
+            if (relatedItemId) {
+                incrementItemView(relatedItemType, relatedItemId);
             }
         });
     });

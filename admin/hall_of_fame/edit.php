@@ -8,6 +8,40 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+if (!function_exists('hall_ensure_column')) {
+    function hall_ensure_column(mysqli $conn, string $column, string $definition): void
+    {
+        $check = $conn->query("SHOW COLUMNS FROM `hall_of_fame` LIKE '" . $conn->real_escape_string($column) . "'");
+        if ($check && $check->num_rows === 0) {
+            $conn->query("ALTER TABLE `hall_of_fame` ADD COLUMN `$column` $definition");
+        }
+    }
+}
+
+hall_ensure_column($conn, 'sdg_goals', 'VARCHAR(255) DEFAULT NULL');
+hall_ensure_column($conn, 'likes', 'INT UNSIGNED NOT NULL DEFAULT 0');
+hall_ensure_column($conn, 'views', 'INT UNSIGNED NOT NULL DEFAULT 0');
+
+$sdg_options = [
+    1 => ['name' => 'ขจัดความยากจน', 'color' => '#E5243B'],
+    2 => ['name' => 'ขจัดความหิวโหย', 'color' => '#DDA63A'],
+    3 => ['name' => 'สุขภาพและความเป็นอยู่ที่ดี', 'color' => '#4C9F38'],
+    4 => ['name' => 'การศึกษาที่มีคุณภาพ', 'color' => '#C5192D'],
+    5 => ['name' => 'ความเท่าเทียมทางเพศ', 'color' => '#FF3A21'],
+    6 => ['name' => 'น้ำสะอาดและสุขาภิบาล', 'color' => '#26BDE2'],
+    7 => ['name' => 'พลังงานสะอาดที่เข้าถึงได้', 'color' => '#FCC30B'],
+    8 => ['name' => 'งานที่มีคุณค่าและการเติบโตทางเศรษฐกิจ', 'color' => '#A21942'],
+    9 => ['name' => 'อุตสาหกรรม นวัตกรรม และโครงสร้างพื้นฐาน', 'color' => '#FD6925'],
+    10 => ['name' => 'ลดความเหลื่อมล้ำ', 'color' => '#DD1367'],
+    11 => ['name' => 'เมืองและชุมชนที่ยั่งยืน', 'color' => '#FD9D24'],
+    12 => ['name' => 'การบริโภคและการผลิตที่ยั่งยืน', 'color' => '#BF8B2E'],
+    13 => ['name' => 'การดำเนินการด้านสภาพภูมิอากาศ', 'color' => '#3F7E44'],
+    14 => ['name' => 'ชีวิตใต้น้ำ', 'color' => '#0A97D9'],
+    15 => ['name' => 'ชีวิตบนบก', 'color' => '#56C02B'],
+    16 => ['name' => 'สันติภาพ ความยุติธรรม และสถาบันที่เข้มแข็ง', 'color' => '#00689D'],
+    17 => ['name' => 'ความร่วมมือเพื่อบรรลุเป้าหมาย', 'color' => '#19486A'],
+];
+
 // ตรวจสอบว่ามี ID ส่งมาหรือไม่
 if (!isset($_GET['id'])) {
     $_SESSION['error'] = "ไม่พบข้อมูลที่ต้องการแก้ไข";
@@ -30,6 +64,9 @@ if (!$achievement) {
     header("Location: index.php");
     exit();
 }
+
+$selected_sdgs = !empty($achievement['sdg_goals']) ? array_filter(array_map('trim', explode(',', $achievement['sdg_goals']))) : [];
+$sdg_values = array_map(static fn($value) => (string)(int)$value, $selected_sdgs);
 
 // ดึงรูปภาพเพิ่มเติม
 $gallery_sql = "SELECT * FROM hall_of_fame_gallery WHERE hall_id = ? ORDER BY sort_order";
@@ -54,6 +91,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $date_achieved = $_POST['date_achieved'] ?: null;
     $featured = isset($_POST['featured']) ? 1 : 0;
     $status = $_POST['status'];
+    $selected_sdgs = (isset($_POST['sdg_goals']) && is_array($_POST['sdg_goals'])) ? array_values(array_unique($_POST['sdg_goals'])) : [];
+    $sdg_values = array_map(static fn($value) => (string)(int)$value, $selected_sdgs);
+    $sdg_goals = !empty($sdg_values) ? implode(',', $sdg_values) : '';
     
     // จัดการอัพโหลดรูปภาพหลัก
     $image_path = $achievement['image_path'];
@@ -107,13 +147,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $sql = "UPDATE hall_of_fame SET 
             category = ?, title = ?, student_name = ?, class = ?, year = ?, 
             achievement = ?, description = ?, image_path = ?, certificate_path = ?, 
-            date_achieved = ?, featured = ?, status = ?
+            date_achieved = ?, sdg_goals = ?, featured = ?, status = ?
             WHERE id = ?";
             
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssssssssisi", 
+    $stmt->bind_param("sssssssssssisi", 
         $category, $title, $student_name, $class, $year, $achievement_text, $description,
-        $image_path, $certificate_path, $date_achieved, $featured, $status, $hall_id
+        $image_path, $certificate_path, $date_achieved, $sdg_goals, $featured, $status, $hall_id
     );
     
     if ($stmt->execute()) {
@@ -309,6 +349,52 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             top: 5px;
             right: 5px;
         }
+
+        .sdg-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+        }
+
+        .sdg-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid #e5e5e5;
+            background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+            transition: all 0.2s ease;
+        }
+
+        .sdg-option:hover {
+            border-color: var(--sdg-color, #7b3b95);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        .sdg-option input[type="checkbox"] {
+            accent-color: var(--sdg-color, #7b3b95);
+            transform: scale(1.05);
+        }
+
+        .sdg-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: var(--sdg-color, #7b3b95);
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .sdg-name {
+            font-size: 0.85rem;
+            color: #555;
+            line-height: 1.3;
+        }
     </style>
 </head>
 <body>
@@ -445,6 +531,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <label class="form-label">รายละเอียดเพิ่มเติม</label>
                                     <textarea name="description" class="form-control" rows="4" 
                                               placeholder="รายละเอียดเพิ่มเติม เบื้องหลัง หรือเรื่องราวที่น่าสนใจ"><?php echo htmlspecialchars($achievement['description']); ?></textarea>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">เป้าหมายการพัฒนาที่ยั่งยืน (SDGs)</label>
+                                    <div class="sdg-grid">
+                                        <?php foreach ($sdg_options as $sdgNumber => $sdg): 
+                                            $isChecked = in_array((string)$sdgNumber, $sdg_values, true);
+                                        ?>
+                                        <label class="sdg-option" style="--sdg-color: <?php echo htmlspecialchars($sdg['color']); ?>;">
+                                            <input type="checkbox" name="sdg_goals[]" value="<?php echo $sdgNumber; ?>" <?php echo $isChecked ? 'checked' : ''; ?>>
+                                            <span class="sdg-number"><?php echo $sdgNumber; ?></span>
+                                            <span class="sdg-name"><?php echo htmlspecialchars($sdg['name']); ?></span>
+                                        </label>
+                                        <?php endforeach; ?>
+                                    </div>
+                                    <small class="text-muted">เลือกหลายข้อได้ เพื่อสะท้อนผลกระทบของผลงานต่อ SDGs</small>
                                 </div>
                             </div>
                             

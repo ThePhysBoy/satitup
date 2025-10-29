@@ -13,6 +13,17 @@ $stmt->bind_param('i', $id);
 $stmt->execute();
 $result = $stmt->get_result();
 $assignment = $result->fetch_assoc();
+$stmt->close();
+
+if ($assignment) {
+    $updateViewsStmt = $conn->prepare("UPDATE international_assignments SET views = COALESCE(views, 0) + 1 WHERE id = ?");
+    if ($updateViewsStmt) {
+        $updateViewsStmt->bind_param('i', $id);
+        $updateViewsStmt->execute();
+        $updateViewsStmt->close();
+        $assignment['views'] = ($assignment['views'] ?? 0) + 1;
+    }
+}
 
 require_once '../header.php';
 require_once '../navbar.php';
