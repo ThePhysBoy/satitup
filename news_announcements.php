@@ -468,13 +468,13 @@ if ($conn && !$conn->connect_error) {
         
         .news-excerpt {
             display: none;
-            font-size: 4.8px;
+            font-size: 2.4px; /* ลดลง 50% จาก 4.8px */
             color: #666;
             line-height: 1.4;
             margin-top: 8px;
             opacity: 0;
             transition: opacity 0.3s ease;
-            font-weight: 200;
+            font-weight: 100; /* ลดความหนาลง 50% จาก 200 */
         }
 
         .portfolio-content:hover .news-excerpt {
@@ -499,7 +499,7 @@ if ($conn && !$conn->connect_error) {
 
         .news-stats .news-views i,
         .news-stats .news-like-button i {
-            font-size: 10.4px;
+            font-size: 13.5px; /* เพิ่มขึ้น 30% จาก 10.4px */
         }
 
         .news-like-button {
@@ -705,12 +705,12 @@ if ($conn && !$conn->connect_error) {
                 min-height: 72px;
             }
 
-            .news-excerpt {
-                font-size: 4.4px;
-                font-weight: 200;
-            }
+        .news-excerpt {
+            font-size: 2.2px; /* ลดลง 50% จาก 4.4px */
+            font-weight: 100; /* ลดความหนาลง 50% */
+        }
 
-            .news-stats {
+        .news-stats {
                 font-size: 8px;
                 gap: 6px;
             }
@@ -722,10 +722,10 @@ if ($conn && !$conn->connect_error) {
 
             .news-stats .news-views i,
             .news-stats .news-like-button i {
-                font-size: 9.4px;
-            }
+                font-size: 12.2px; /* เพิ่มขึ้น 30% จาก 9.4px */
+        }
 
-            .news-portfolio .portfolio-filters li {
+        .news-portfolio .portfolio-filters li {
                 font-size: 10.4px;
                 padding: 6px 10px;
             }
@@ -1203,8 +1203,8 @@ if ($conn && !$conn->connect_error) {
                                                     echo '';
                                                 } else {
                                                     $words = preg_split('/\s+/u', $rawExcerpt);
-                                                    if (count($words) > 80) {
-                                                        $words = array_slice($words, 0, 80);
+                                                    if (count($words) > 30) {
+                                                        $words = array_slice($words, 0, 30);
                                                         $rawExcerpt = implode(' ', $words) . '...';
                                                     }
                                                     echo htmlspecialchars($rawExcerpt);
