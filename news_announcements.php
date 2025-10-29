@@ -310,15 +310,22 @@ if ($conn && !$conn->connect_error) {
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            padding: 4px 8px;
+            padding: 0;
             background: transparent;
             color: #333;
-            border-radius: 999px;
+            border-radius: 0;
             font-size: 11px;
-            font-weight: 100;
+            font-weight: 500;
             box-shadow: none;
-            margin-top: 90px;
-            float: right;
+            margin-top: 8px;
+            margin-left: auto;
+            float: none;
+            white-space: nowrap;
+        }
+
+        .news-activity-date i {
+            font-size: 11px;
+            color: #666;
         }
         
         /* SDG Badges Styles */
@@ -482,12 +489,12 @@ if ($conn && !$conn->connect_error) {
         }
 
         .news-like-button:hover {
-            color: #e6397f;
+            color: #1877f2;
             transform: translateY(-1px);
         }
 
         .news-like-button.liked {
-            color: #e6397f;
+            color: #1877f2;
         }
 
         .news-like-button.liked i {
@@ -699,8 +706,8 @@ if ($conn && !$conn->connect_error) {
             }
             
             .news-activity-date {
-                font-size: 12px;
-                padding: 6px 10px;
+                font-size: 11px;
+                padding: 0;
             }
             
             .news-category-badge {
@@ -1206,11 +1213,11 @@ if ($conn && !$conn->connect_error) {
                                         <div class="news-stats mt-2">
                                             <span class="news-views" title="จำนวนผู้เข้าชม">
                                                 <i class="fas fa-eye"></i>
-                                                <span class="news-views-count"><?php echo number_format($item['views']); ?></span>
+                                                <span class="news-views-count" data-count="<?php echo (int)$item['views']; ?>"><?php echo number_format($item['views']); ?></span>
                                             </span>
                                             <button class="news-like-button" type="button" data-news-id="<?php echo $item['id']; ?>" title="ถูกใจ" aria-label="ถูกใจข่าวนี้ (จำนวน <?php echo number_format($item['likes']); ?> ครั้ง)">
-                                                <i class="far fa-heart"></i>
-                                                <span class="news-like-count"><?php echo number_format($item['likes']); ?></span>
+                                                <i class="far fa-thumbs-up"></i>
+                                                <span class="news-like-count" data-count="<?php echo (int)$item['likes']; ?>"><?php echo number_format($item['likes']); ?></span>
                                             </button>
                                         </div>
                                         <div class="news-activity-date">
@@ -1992,16 +1999,23 @@ if ($conn && !$conn->connect_error) {
 }
 
 .news-activity-date {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: rgba(123, 59, 149, 0.85);
-    color: white;
-    padding: 8px 15px;
-    border-radius: 20px;
+    position: static;
+    background: transparent;
+    color: #333;
+    padding: 0;
+    border-radius: 0;
     font-weight: 500;
-    font-size: 0.9rem;
-    backdrop-filter: blur(5px);
+    font-size: 11px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    margin-left: auto;
+}
+
+.news-activity-date i {
+    color: #666;
+    font-size: 11px;
 }
 
 .news-activity-content {
@@ -2138,25 +2152,72 @@ document.addEventListener('DOMContentLoaded', function () {
         ? new Intl.NumberFormat('th-TH')
         : null;
 
+    const formatNumber = (value) => numberFormatter
+        ? numberFormatter.format(value)
+        : value.toString();
+
+    const parseCount = (element) => {
+        const raw = element.dataset.count || element.textContent || '0';
+        const numeric = parseInt(raw.toString().replace(/[^0-9-]/g, ''), 10);
+        return Number.isNaN(numeric) ? 0 : numeric;
+    };
+
+    const setLikedState = (button, iconEl, liked) => {
+        if (liked) {
+            button.classList.add('liked');
+            button.dataset.liked = 'true';
+            if (iconEl.classList.contains('far')) {
+                iconEl.classList.remove('far');
+            }
+            iconEl.classList.add('fas');
+        } else {
+            button.classList.remove('liked');
+            button.dataset.liked = 'false';
+            if (iconEl.classList.contains('fas')) {
+                iconEl.classList.remove('fas');
+            }
+            iconEl.classList.add('far');
+        }
+    };
+
+    const updateCount = (element, value) => {
+        element.dataset.count = value;
+        element.textContent = formatNumber(value);
+    };
+
+    const updateLikeAriaLabel = (button, value) => {
+        const formatted = formatNumber(value);
+        button.setAttribute('aria-label', `ถูกใจข่าวนี้ (จำนวน ${formatted} ครั้ง)`);
+        button.setAttribute('title', `ถูกใจ (${formatted})`);
+    };
+
     document.querySelectorAll('.news-like-button').forEach(function (button) {
         const newsId = button.dataset.newsId;
         const storageKey = `news_like_${newsId}`;
         const iconEl = button.querySelector('i');
         const countEl = button.querySelector('.news-like-count');
 
+        if (!button.dataset.liked) {
+            button.dataset.liked = 'false';
+        }
+
+        updateLikeAriaLabel(button, parseCount(countEl));
+
         if (localStorage.getItem(storageKey)) {
-            button.classList.add('liked');
-            button.dataset.liked = 'true';
-            if (iconEl.classList.contains('far')) {
-                iconEl.classList.remove('far');
-                iconEl.classList.add('fas');
-            }
+            setLikedState(button, iconEl, true);
         }
 
         button.addEventListener('click', function () {
             if (button.classList.contains('loading') || button.dataset.liked === 'true') {
                 return;
             }
+
+            const previousCount = parseCount(countEl);
+            const optimisticCount = previousCount + 1;
+
+            setLikedState(button, iconEl, true);
+            updateCount(countEl, optimisticCount);
+            updateLikeAriaLabel(button, optimisticCount);
 
             button.classList.add('loading');
 
@@ -2170,18 +2231,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(response => response.json())
                 .then(data => {
                     if (data && data.success) {
-                        button.classList.add('liked');
-                        button.dataset.liked = 'true';
-                        if (iconEl.classList.contains('far')) {
-                            iconEl.classList.remove('far');
-                            iconEl.classList.add('fas');
-                        }
-
                         if (typeof data.likes !== 'undefined') {
-                            const likesValue = parseInt(data.likes, 10) || 0;
-                            countEl.textContent = numberFormatter
-                                ? numberFormatter.format(likesValue)
-                                : likesValue.toString();
+                            const likesValue = parseInt(data.likes, 10) || optimisticCount;
+                            updateCount(countEl, likesValue);
+                            updateLikeAriaLabel(button, likesValue);
                         }
 
                         try {
@@ -2189,14 +2242,21 @@ document.addEventListener('DOMContentLoaded', function () {
                         } catch (error) {
                             console.warn('ไม่สามารถบันทึกสถานะการกดถูกใจในเครื่องได้', error);
                         }
+                    } else {
+                        updateCount(countEl, previousCount);
+                        setLikedState(button, iconEl, false);
+                        updateLikeAriaLabel(button, previousCount);
                     }
                 })
                 .catch(error => {
                     console.error('ไม่สามารถบันทึกการกดถูกใจได้', error);
+                    updateCount(countEl, previousCount);
+                    setLikedState(button, iconEl, false);
+                    updateLikeAriaLabel(button, previousCount);
                 })
                 .finally(() => {
                     button.classList.remove('loading');
-                });
+            });
         });
     });
 });
