@@ -329,15 +329,26 @@ if ($conn && !$conn->connect_error) {
         }
         
         /* SDG Badges Styles */
-        .sdg-badges {
-            position: absolute;
-            top: 8px;
-            left: 8px;
+        .news-meta-top {
             display: flex;
-            gap: 4px;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .sdg-badges {
+            display: flex;
             flex-wrap: wrap;
-            max-width: calc(100% - 16px);
-            z-index: 10;
+            gap: 4px;
+            max-width: calc(100% - 120px);
+        }
+
+        .sdg-badges:empty {
+            display: none;
+        }
+
+        .news-meta-top .sdg-badges {
+            flex: 1 1 auto;
         }
         
         .sdg-badge {
@@ -708,6 +719,16 @@ if ($conn && !$conn->connect_error) {
             .news-activity-date {
                 font-size: 11px;
                 padding: 0;
+            }
+            .news-meta-top {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .news-meta-top .sdg-badges {
+                flex-basis: 100%;
+            }
+            .news-meta-top .news-activity-date {
+                margin-left: 0;
             }
             
             .news-category-badge {
@@ -1158,45 +1179,51 @@ if ($conn && !$conn->connect_error) {
                                 <div class="portfolio-content h-100">
                                     <div class="portfolio-image">
                                         <img src="<?php echo htmlspecialchars($item['cover_image']); ?>" class="img-fluid" alt="<?php echo htmlspecialchars($item['title']); ?>" onerror="this.src='images/comingsoon.png'">
-                                        <?php if (!empty($item['sdg_goals'])): ?>
-                                        <div class="sdg-badges">
-                                        <?php
-                                        $sdg_meta = [
-                                            1 => ['color' => '#E5243B', 'name' => 'SDG 1: ขจัดความยากจน'],
-                                            2 => ['color' => '#DDA63A', 'name' => 'SDG 2: ขจัดความหิวโหย'],
-                                            3 => ['color' => '#4C9F38', 'name' => 'SDG 3: สุขภาพและความเป็นอยู่ที่ดี'],
-                                            4 => ['color' => '#C5192D', 'name' => 'SDG 4: การศึกษาที่มีคุณภาพ'],
-                                            5 => ['color' => '#FF3A21', 'name' => 'SDG 5: ความเท่าเทียมทางเพศ'],
-                                            6 => ['color' => '#26BDE2', 'name' => 'SDG 6: น้ำสะอาดและสุขาภิบาล'],
-                                            7 => ['color' => '#FCC30B', 'name' => 'SDG 7: พลังงานสะอาดที่เข้าถึงได้'],
-                                            8 => ['color' => '#A21942', 'name' => 'SDG 8: งานที่มีคุณค่าและการเติบโตทางเศรษฐกิจ'],
-                                            9 => ['color' => '#FD6925', 'name' => 'SDG 9: อุตสาหกรรม นวัตกรรม และโครงสร้างพื้นฐาน'],
-                                            10 => ['color' => '#DD1367', 'name' => 'SDG 10: ลดความเหลื่อมล้ำ'],
-                                            11 => ['color' => '#FD9D24', 'name' => 'SDG 11: เมืองและชุมชนที่ยั่งยืน'],
-                                            12 => ['color' => '#BF8B2E', 'name' => 'SDG 12: การบริโภคและการผลิตที่ยั่งยืน'],
-                                            13 => ['color' => '#3F7E44', 'name' => 'SDG 13: การดำเนินการด้านสภาพภูมิอากาศ'],
-                                            14 => ['color' => '#0A97D9', 'name' => 'SDG 14: ชีวิตใต้น้ำ'],
-                                            15 => ['color' => '#56C02B', 'name' => 'SDG 15: ชีวิตบนบก'],
-                                            16 => ['color' => '#00689D', 'name' => 'SDG 16: สันติภาพ ความยุติธรรม และสถาบันที่เข้มแข็ง'],
-                                            17 => ['color' => '#19486A', 'name' => 'SDG 17: ความร่วมมือเพื่อบรรลุเป้าหมาย'],
-                                        ];
-                                        $sdgs = explode(',', $item['sdg_goals']);
-                                        foreach ($sdgs as $sdg):
-                                            $sdg = trim($sdg);
-                                            if (isset($sdg_meta[$sdg])):
-                                                $meta = $sdg_meta[$sdg];
-                                        ?>
-                                        <span class="sdg-badge" style="background-color: <?php echo $meta['color']; ?>" data-sdg-name="<?php echo htmlspecialchars($meta['name']); ?>">
-                                            <?php echo $sdg; ?>
-                                        </span>
-                                        <?php
-                                            endif;
-                                        endforeach;
-                                        ?>
-                                        </div>
-                                        <?php endif; ?>
                                     </div>
                                     <div class="portfolio-meta">
+                                        <div class="news-meta-top">
+                                            <?php if (!empty($item['sdg_goals'])): ?>
+                                            <div class="sdg-badges">
+                                            <?php
+                                            $sdg_meta = [
+                                                1 => ['color' => '#E5243B', 'name' => 'SDG 1: ขจัดความยากจน'],
+                                                2 => ['color' => '#DDA63A', 'name' => 'SDG 2: ขจัดความหิวโหย'],
+                                                3 => ['color' => '#4C9F38', 'name' => 'SDG 3: สุขภาพและความเป็นอยู่ที่ดี'],
+                                                4 => ['color' => '#C5192D', 'name' => 'SDG 4: การศึกษาที่มีคุณภาพ'],
+                                                5 => ['color' => '#FF3A21', 'name' => 'SDG 5: ความเท่าเทียมทางเพศ'],
+                                                6 => ['color' => '#26BDE2', 'name' => 'SDG 6: น้ำสะอาดและสุขาภิบาล'],
+                                                7 => ['color' => '#FCC30B', 'name' => 'SDG 7: พลังงานสะอาดที่เข้าถึงได้'],
+                                                8 => ['color' => '#A21942', 'name' => 'SDG 8: งานที่มีคุณค่าและการเติบโตทางเศรษฐกิจ'],
+                                                9 => ['color' => '#FD6925', 'name' => 'SDG 9: อุตสาหกรรม นวัตกรรม และโครงสร้างพื้นฐาน'],
+                                                10 => ['color' => '#DD1367', 'name' => 'SDG 10: ลดความเหลื่อมล้ำ'],
+                                                11 => ['color' => '#FD9D24', 'name' => 'SDG 11: เมืองและชุมชนที่ยั่งยืน'],
+                                                12 => ['color' => '#BF8B2E', 'name' => 'SDG 12: การบริโภคและการผลิตที่ยั่งยืน'],
+                                                13 => ['color' => '#3F7E44', 'name' => 'SDG 13: การดำเนินการด้านสภาพภูมิอากาศ'],
+                                                14 => ['color' => '#0A97D9', 'name' => 'SDG 14: ชีวิตใต้น้ำ'],
+                                                15 => ['color' => '#56C02B', 'name' => 'SDG 15: ชีวิตบนบก'],
+                                                16 => ['color' => '#00689D', 'name' => 'SDG 16: สันติภาพ ความยุติธรรม และสถาบันที่เข้มแข็ง'],
+                                                17 => ['color' => '#19486A', 'name' => 'SDG 17: ความร่วมมือเพื่อบรรลุเป้าหมาย'],
+                                            ];
+                                            $sdgs = explode(',', $item['sdg_goals']);
+                                            foreach ($sdgs as $sdg):
+                                                $sdg = trim($sdg);
+                                                if (isset($sdg_meta[$sdg])):
+                                                    $meta = $sdg_meta[$sdg];
+                                            ?>
+                                            <span class="sdg-badge" style="background-color: <?php echo $meta['color']; ?>" data-sdg-name="<?php echo htmlspecialchars($meta['name']); ?>">
+                                                <?php echo $sdg; ?>
+                                            </span>
+                                            <?php
+                                                endif;
+                                            endforeach;
+                                            ?>
+                                            </div>
+                                            <?php endif; ?>
+                                            <div class="news-activity-date">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                <?php echo date('d/m/Y', strtotime($item['display_date'])); ?>
+                                            </div>
+                                        </div>
                                         <h3 class="news-activity-title">
                                             <?php if (!empty($item['slug'])): ?>
                                             <a href="news/detail.php?slug=<?php echo urlencode($item['slug']); ?>"><?php echo htmlspecialchars($item['title']); ?></a>
@@ -1219,10 +1246,6 @@ if ($conn && !$conn->connect_error) {
                                                 <i class="far fa-thumbs-up"></i>
                                                 <span class="news-like-count" data-count="<?php echo (int)$item['likes']; ?>"><?php echo number_format($item['likes']); ?></span>
                                             </button>
-                                        </div>
-                                        <div class="news-activity-date">
-                                            <i class="fas fa-calendar-alt"></i>
-                                            <?php echo date('d/m/Y', strtotime($item['display_date'])); ?>
                                         </div>
                                     </div>
                                 </div>
@@ -2232,7 +2255,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(data => {
                     if (data && data.success) {
                         if (typeof data.likes !== 'undefined') {
-                            const likesValue = parseInt(data.likes, 10) || optimisticCount;
+                            const parsed = parseInt(data.likes, 10);
+                            const likesValue = Number.isNaN(parsed) ? optimisticCount : Math.max(parsed, optimisticCount);
                             updateCount(countEl, likesValue);
                             updateLikeAriaLabel(button, likesValue);
                         }
@@ -2256,7 +2280,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
                 .finally(() => {
                     button.classList.remove('loading');
-            });
+                });
         });
     });
 });
