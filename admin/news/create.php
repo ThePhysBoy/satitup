@@ -26,6 +26,7 @@ $excerpt = '';
 $category_id = '';
 $status = 'draft';
 $is_featured = 0;
+$sdg_goals = '';
 $errors = [];
 
 // Get categories for dropdown
@@ -46,6 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $category_id = (int)($_POST['category_id'] ?? 0);
     $status = $_POST['status'] ?? 'draft';
     $is_featured = isset($_POST['is_featured']) ? 1 : 0;
+    $sdg_goals = isset($_POST['sdg_goals']) ? implode(',', $_POST['sdg_goals']) : '';
 
     // Validate form data
     if (empty($title)) {
@@ -117,8 +119,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $published_at = ($status === 'published') ? date('Y-m-d H:i:s') : null;
 
         // Insert news into database
-        $stmt = $conn->prepare("INSERT INTO news (title, slug, content, excerpt, category_id, featured_image, author_id, status, is_featured, published_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
-        $stmt->bind_param('sssissssss', $title, $slug, $content, $excerpt, $category_id, $featured_image, $_SESSION['user_id'], $status, $is_featured, $published_at);
+        $stmt = $conn->prepare("INSERT INTO news (title, slug, content, excerpt, category_id, featured_image, author_id, status, is_featured, published_at, sdg_goals, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+        $stmt->bind_param('sssisssssss', $title, $slug, $content, $excerpt, $category_id, $featured_image, $_SESSION['user_id'], $status, $is_featured, $published_at, $sdg_goals);
 
         if ($stmt->execute()) {
             $news_id = $conn->insert_id;
@@ -599,6 +601,63 @@ $page_title = "เพิ่มข่าวใหม่";
             color: #ff6b95 !important;
         }
 
+        /* SDG Grid Styles */
+        .sdg-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .sdg-item {
+            position: relative;
+        }
+
+        .sdg-checkbox {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .sdg-label {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s ease;
+            opacity: 0.6;
+            border: 2px solid transparent;
+        }
+
+        .sdg-checkbox:checked + .sdg-label {
+            opacity: 1;
+            border-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .sdg-label:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .sdg-number {
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 8px;
+            min-width: 25px;
+            text-align: center;
+        }
+
+        .sdg-name {
+            font-size: 11px;
+            line-height: 1.2;
+            flex: 1;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .sidebar {
@@ -770,6 +829,60 @@ $page_title = "เพิ่มข่าวใหม่";
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SDG Goals Card -->
+                            <div class="card-modern">
+                                <div class="card-header-modern">
+                                    <h6><i class="fas fa-globe"></i>เป้าหมายการพัฒนาที่ยั่งยืน (SDGs)</h6>
+                                </div>
+                                <div class="card-body-modern">
+                                    <div class="mb-4">
+                                        <label class="form-label-modern">
+                                            <i class="fas fa-check-square"></i>เลือก SDG ที่เกี่ยวข้อง
+                                        </label>
+                                        <small class="text-muted-glass d-block mb-3">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            สามารถเลือกได้หลายเป้าหมาย
+                                        </small>
+                                        <div class="sdg-grid">
+                                            <?php
+                                            $sdg_list = [
+                                                1 => ['name' => 'ขจัดความยากจน', 'color' => '#E5243B'],
+                                                2 => ['name' => 'ขจัดความหิวโหย', 'color' => '#DDA63A'],
+                                                3 => ['name' => 'สุขภาพและความเป็นอยู่ที่ดี', 'color' => '#4C9F38'],
+                                                4 => ['name' => 'การศึกษาที่มีคุณภาพ', 'color' => '#C5192D'],
+                                                5 => ['name' => 'ความเท่าเทียมทางเพศ', 'color' => '#FF3A21'],
+                                                6 => ['name' => 'น้ำสะอาดและสุขาภิบาล', 'color' => '#26BDE2'],
+                                                7 => ['name' => 'พลังงานสะอาดที่เข้าถึงได้', 'color' => '#FCC30B'],
+                                                8 => ['name' => 'งานที่มีคุณค่าและการเติบโตทางเศรษฐกิจ', 'color' => '#A21942'],
+                                                9 => ['name' => 'อุตสาหกรรม นวัตกรรม และโครงสร้างพื้นฐาน', 'color' => '#FD6925'],
+                                                10 => ['name' => 'ลดความเหลื่อมล้ำ', 'color' => '#DD1367'],
+                                                11 => ['name' => 'เมืองและชุมชนที่ยั่งยืน', 'color' => '#FD9D24'],
+                                                12 => ['name' => 'การบริโภคและการผลิตที่ยั่งยืน', 'color' => '#BF8B2E'],
+                                                13 => ['name' => 'การดำเนินการด้านสภาพภูมิอากาศ', 'color' => '#3F7E44'],
+                                                14 => ['name' => 'ชีวิตใต้น้ำ', 'color' => '#0A97D9'],
+                                                15 => ['name' => 'ชีวิตบนบก', 'color' => '#56C02B'],
+                                                16 => ['name' => 'สันติภาพ ความยุติธรรม และสถาบันที่เข้มแข็ง', 'color' => '#00689D'],
+                                                17 => ['name' => 'ความร่วมมือเพื่อบรรลุเป้าหมาย', 'color' => '#19486A']
+                                            ];
+                                            
+                                            $selected_sdgs = !empty($sdg_goals) ? explode(',', $sdg_goals) : [];
+                                            foreach ($sdg_list as $num => $sdg):
+                                            ?>
+                                            <div class="sdg-item">
+                                                <input type="checkbox" class="sdg-checkbox" id="sdg_<?php echo $num; ?>" 
+                                                       name="sdg_goals[]" value="<?php echo $num; ?>"
+                                                       <?php echo in_array($num, $selected_sdgs) ? 'checked' : ''; ?>>
+                                                <label for="sdg_<?php echo $num; ?>" class="sdg-label" style="background-color: <?php echo $sdg['color']; ?>">
+                                                    <span class="sdg-number"><?php echo $num; ?></span>
+                                                    <span class="sdg-name"><?php echo $sdg['name']; ?></span>
+                                                </label>
+                                            </div>
+                                            <?php endforeach; ?>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

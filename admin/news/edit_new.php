@@ -25,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$excerpt = trim($_POST['excerpt'] ?? '');
 	$content = trim($_POST['content'] ?? '');
 	$status = $_POST['status'] ?? 'draft';
+	$sdg_goals = isset($_POST['sdg_goals']) ? implode(',', $_POST['sdg_goals']) : '';
 
 	if ($title === '') $errors['title'] = 'กรุณากรอกหัวข้อข่าว';
 	if ($content === '') $errors['content'] = 'กรุณากรอกเนื้อหาข่าว';
@@ -47,8 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		if ($status === 'published' && empty($published_at)) {
 			$published_at = date('Y-m-d H:i:s');
 		}
-		$stmt = $conn->prepare("UPDATE news SET title=?, excerpt=?, content=?, status=?, featured_image=?, published_at=?, updated_at=NOW() WHERE id=?");
-		$stmt->bind_param('ssssssi', $title, $excerpt, $content, $status, $featured_image, $published_at, $id);
+		$stmt = $conn->prepare("UPDATE news SET title=?, excerpt=?, content=?, status=?, featured_image=?, published_at=?, sdg_goals=?, updated_at=NOW() WHERE id=?");
+		$stmt->bind_param('sssssssi', $title, $excerpt, $content, $status, $featured_image, $published_at, $sdg_goals, $id);
 		if ($stmt->execute()) {
 			// Handle gallery uploads
 			if (isset($_FILES['images'])) {
@@ -217,7 +218,54 @@ ob_start();
                 </div>
             </div>
             
-            <!-- ลบการเลือกหมวดหมู่ออกแล้ว -->
+            <!-- SDG Goals Card -->
+            <div class="card-modern mb-4">
+                <div class="card-header-modern">
+                    <h5><i class="fas fa-globe me-2"></i>เป้าหมายการพัฒนาที่ยั่งยืน (SDGs)</h5>
+                </div>
+                <div class="card-body-modern">
+                    <small class="text-muted d-block mb-3">
+                        <i class="fas fa-info-circle me-1"></i>
+                        สามารถเลือกได้หลายเป้าหมาย
+                    </small>
+                    <div class="sdg-grid">
+                        <?php
+                        $sdg_list = [
+                            1 => ['name' => 'ขจัดความยากจน', 'color' => '#E5243B'],
+                            2 => ['name' => 'ขจัดความหิวโหย', 'color' => '#DDA63A'],
+                            3 => ['name' => 'สุขภาพและความเป็นอยู่ที่ดี', 'color' => '#4C9F38'],
+                            4 => ['name' => 'การศึกษาที่มีคุณภาพ', 'color' => '#C5192D'],
+                            5 => ['name' => 'ความเท่าเทียมทางเพศ', 'color' => '#FF3A21'],
+                            6 => ['name' => 'น้ำสะอาดและสุขาภิบาล', 'color' => '#26BDE2'],
+                            7 => ['name' => 'พลังงานสะอาดที่เข้าถึงได้', 'color' => '#FCC30B'],
+                            8 => ['name' => 'งานที่มีคุณค่าและการเติบโตทางเศรษฐกิจ', 'color' => '#A21942'],
+                            9 => ['name' => 'อุตสาหกรรม นวัตกรรม และโครงสร้างพื้นฐาน', 'color' => '#FD6925'],
+                            10 => ['name' => 'ลดความเหลื่อมล้ำ', 'color' => '#DD1367'],
+                            11 => ['name' => 'เมืองและชุมชนที่ยั่งยืน', 'color' => '#FD9D24'],
+                            12 => ['name' => 'การบริโภคและการผลิตที่ยั่งยืน', 'color' => '#BF8B2E'],
+                            13 => ['name' => 'การดำเนินการด้านสภาพภูมิอากาศ', 'color' => '#3F7E44'],
+                            14 => ['name' => 'ชีวิตใต้น้ำ', 'color' => '#0A97D9'],
+                            15 => ['name' => 'ชีวิตบนบก', 'color' => '#56C02B'],
+                            16 => ['name' => 'สันติภาพ ความยุติธรรม และสถาบันที่เข้มแข็ง', 'color' => '#00689D'],
+                            17 => ['name' => 'ความร่วมมือเพื่อบรรลุเป้าหมาย', 'color' => '#19486A']
+                        ];
+                        
+                        $selected_sdgs = !empty($news['sdg_goals']) ? explode(',', $news['sdg_goals']) : [];
+                        foreach ($sdg_list as $num => $sdg):
+                        ?>
+                        <div class="sdg-item">
+                            <input type="checkbox" class="sdg-checkbox" id="sdg_<?php echo $num; ?>" 
+                                   name="sdg_goals[]" value="<?php echo $num; ?>"
+                                   <?php echo in_array($num, $selected_sdgs) ? 'checked' : ''; ?>>
+                            <label for="sdg_<?php echo $num; ?>" class="sdg-label" style="background-color: <?php echo $sdg['color']; ?>">
+                                <span class="sdg-number"><?php echo $num; ?></span>
+                                <span class="sdg-name"><?php echo $sdg['name']; ?></span>
+                            </label>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
             
             <div class="card-modern mb-4">
                 <div class="card-header-modern">
@@ -255,6 +303,67 @@ ob_start();
 <?php
 // Set summernote flag for template
 $include_summernote = true;
+
+// Add custom styles for SDG
+$custom_styles = <<<EOT
+/* SDG Grid Styles */
+.sdg-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.sdg-item {
+    position: relative;
+}
+
+.sdg-checkbox {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.sdg-label {
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: white;
+    transition: all 0.3s ease;
+    opacity: 0.7;
+    border: 2px solid transparent;
+    font-size: 12px;
+}
+
+.sdg-checkbox:checked + .sdg-label {
+    opacity: 1;
+    border-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.sdg-label:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+.sdg-number {
+    font-weight: bold;
+    font-size: 16px;
+    margin-right: 6px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.sdg-name {
+    font-size: 10px;
+    line-height: 1.2;
+    flex: 1;
+}
+EOT;
 
 // Add custom scripts for this page
 $custom_scripts = <<<EOT

@@ -306,18 +306,49 @@ if ($conn && !$conn->connect_error) {
         }
         
         .news-activity-date {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(107, 70, 193, 0.9);
+            color: #fff;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(107, 70, 193, 0.25);
+            margin-top: 10px;
+            float: right;
+        }
+        
+        /* SDG Badges Styles */
+        .sdg-badges {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(255, 255, 255, 0.95);
-            color: #333;
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            backdrop-filter: blur(5px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            z-index: 2;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            max-width: calc(100% - 20px);
+            z-index: 10;
+        }
+        
+        .sdg-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .sdg-badge:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
         
         .news-category-badge {
@@ -1023,7 +1054,29 @@ if ($conn && !$conn->connect_error) {
                                 <div class="portfolio-content h-100">
                                     <div class="portfolio-image">
                                         <img src="<?php echo htmlspecialchars($item['cover_image']); ?>" class="img-fluid" alt="<?php echo htmlspecialchars($item['title']); ?>" onerror="this.src='images/comingsoon.png'">
-                                        <div class="news-activity-date"><?php echo date('d/m/Y', strtotime($item['display_date'])); ?></div>
+                                        <?php if (!empty($item['sdg_goals'])): ?>
+                                        <div class="sdg-badges">
+                                            <?php
+                                            $sdg_colors = [
+                                                1 => '#E5243B', 2 => '#DDA63A', 3 => '#4C9F38', 4 => '#C5192D',
+                                                5 => '#FF3A21', 6 => '#26BDE2', 7 => '#FCC30B', 8 => '#A21942',
+                                                9 => '#FD6925', 10 => '#DD1367', 11 => '#FD9D24', 12 => '#BF8B2E',
+                                                13 => '#3F7E44', 14 => '#0A97D9', 15 => '#56C02B', 16 => '#00689D',
+                                                17 => '#19486A'
+                                            ];
+                                            $sdgs = explode(',', $item['sdg_goals']);
+                                            foreach ($sdgs as $sdg):
+                                                if (isset($sdg_colors[$sdg])):
+                                            ?>
+                                            <span class="sdg-badge" style="background-color: <?php echo $sdg_colors[$sdg]; ?>">
+                                                <?php echo $sdg; ?>
+                                            </span>
+                                            <?php
+                                                endif;
+                                            endforeach;
+                                            ?>
+                                        </div>
+                                        <?php endif; ?>
                                     </div>
                                     <div class="portfolio-meta">
                                         <h3 class="news-activity-title">
@@ -1038,7 +1091,7 @@ if ($conn && !$conn->connect_error) {
                                             <?php echo htmlspecialchars(mb_substr(strip_tags($item['excerpt']), 0, 80) . (mb_strlen(strip_tags($item['excerpt'])) > 80 ? '...' : '')); ?>
                                         </div>
                                         <?php endif; ?>
-                                        <!-- แสดงยอดวิวและไลค์แทนหมวดหมู่ -->
+                                        <!-- แสดงยอดวิวและไลค์ -->
                                         <div class="news-stats mt-2">
                                             <span class="news-views me-3">
                                                 <i class="fas fa-eye"></i> <?php echo number_format($item['views']); ?>
@@ -1046,6 +1099,10 @@ if ($conn && !$conn->connect_error) {
                                             <span class="news-likes">
                                                 <i class="fas fa-heart"></i> <?php echo number_format($item['likes']); ?>
                                             </span>
+                                        </div>
+                                        <div class="news-activity-date">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            <?php echo date('d/m/Y', strtotime($item['display_date'])); ?>
                                         </div>
                                     </div>
                                 </div>
