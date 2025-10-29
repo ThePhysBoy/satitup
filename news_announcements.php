@@ -582,12 +582,21 @@ if ($conn && !$conn->connect_error) {
             border-top-left-radius: 12px;
             border-top-right-radius: 12px;
         }
-        
-        .news-portfolio .portfolio-image img {
-            width: 100%;
-            height: auto;
+
+        .news-portfolio .portfolio-image::before {
+            content: "";
             display: block;
-            object-fit: contain;
+            padding-top: 66.6667%; /* 3:2 aspect ratio */
+            width: 100%;
+        }
+
+        .news-portfolio .portfolio-image img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
             object-position: center;
             border-top-left-radius: 12px;
             border-top-right-radius: 12px;
