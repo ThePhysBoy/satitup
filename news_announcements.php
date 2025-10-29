@@ -1014,7 +1014,7 @@ if ($conn && !$conn->connect_error) {
         }
 
         .news-stats {
-                font-size: 12px;
+            font-size: 12px;
                 gap: 6px;
             }
 

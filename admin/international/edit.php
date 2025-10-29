@@ -202,7 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user_id = $_SESSION['user_id'] ?? null;
 
         $stmt->bind_param(
-            'sssssssssssssssssssiii',
+            'sssssssssssssssssssisii',
             $title,
             $person_name,
             $role,

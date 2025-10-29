@@ -89,6 +89,26 @@ if ($years_result) {
     }
 }
 
+$sdg_meta = [
+    1 => ['color' => '#E5243B', 'name' => 'SDG 1: ขจัดความยากจน'],
+    2 => ['color' => '#DDA63A', 'name' => 'SDG 2: ขจัดความหิวโหย'],
+    3 => ['color' => '#4C9F38', 'name' => 'SDG 3: สุขภาพและความเป็นอยู่ที่ดี'],
+    4 => ['color' => '#C5192D', 'name' => 'SDG 4: การศึกษาที่มีคุณภาพ'],
+    5 => ['color' => '#FF3A21', 'name' => 'SDG 5: ความเท่าเทียมทางเพศ'],
+    6 => ['color' => '#26BDE2', 'name' => 'SDG 6: น้ำสะอาดและสุขาภิบาล'],
+    7 => ['color' => '#FCC30B', 'name' => 'SDG 7: พลังงานสะอาดที่เข้าถึงได้'],
+    8 => ['color' => '#A21942', 'name' => 'SDG 8: งานที่มีคุณค่าและการเติบโตทางเศรษฐกิจ'],
+    9 => ['color' => '#FD6925', 'name' => 'SDG 9: อุตสาหกรรม นวัตกรรม และโครงสร้างพื้นฐาน'],
+    10 => ['color' => '#DD1367', 'name' => 'SDG 10: ลดความเหลื่อมล้ำ'],
+    11 => ['color' => '#FD9D24', 'name' => 'SDG 11: เมืองและชุมชนที่ยั่งยืน'],
+    12 => ['color' => '#BF8B2E', 'name' => 'SDG 12: การบริโภคและการผลิตที่ยั่งยืน'],
+    13 => ['color' => '#3F7E44', 'name' => 'SDG 13: การดำเนินการด้านสภาพภูมิอากาศ'],
+    14 => ['color' => '#0A97D9', 'name' => 'SDG 14: ชีวิตใต้น้ำ'],
+    15 => ['color' => '#56C02B', 'name' => 'SDG 15: ชีวิตบนบก'],
+    16 => ['color' => '#00689D', 'name' => 'SDG 16: สันติภาพ ความยุติธรรม และสถาบันที่เข้มแข็ง'],
+    17 => ['color' => '#19486A', 'name' => 'SDG 17: ความร่วมมือเพื่อบรรลุเป้าหมาย'],
+];
+
 // ฟังก์ชันสำหรับหมวดหมู่
 function getCategoryInfo($category) {
     $categories = [
@@ -513,6 +533,56 @@ function getCategoryInfo($category) {
             align-items: center;
             gap: 5px;
         }
+
+        .achievement-sdg-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 10px;
+            margin-top: 4px;
+        }
+
+        .achievement-sdg-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 11px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+            opacity: 0.75;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .achievement-sdg-badge:hover {
+            opacity: 1;
+            transform: translateY(-2px);
+        }
+
+        .achievement-sdg-badge::after {
+            content: attr(data-sdg-name);
+            position: absolute;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.85);
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .achievement-sdg-badge:hover::after {
+            opacity: 1;
+        }
         
         .filter-bar {
             background: white;
@@ -668,6 +738,24 @@ function getCategoryInfo($category) {
                         <i class="fas <?php echo $cat_info['icon']; ?> me-1"></i>
                         <?php echo $cat_info['name']; ?>
                     </span>
+
+                    <?php if (!empty($achievement['sdg_goals'])): ?>
+                    <div class="achievement-sdg-badges">
+                        <?php
+                        $sdg_values = array_filter(array_map('trim', explode(',', $achievement['sdg_goals'])));
+                        foreach ($sdg_values as $sdg) {
+                            $sdgKey = (int)$sdg;
+                            if (!isset($sdg_meta[$sdgKey])) {
+                                continue;
+                            }
+                            $meta = $sdg_meta[$sdgKey];
+                        ?>
+                        <span class="achievement-sdg-badge" style="background-color: <?php echo $meta['color']; ?>" data-sdg-name="<?php echo htmlspecialchars($meta['name']); ?>">
+                            <?php echo $sdgKey; ?>
+                        </span>
+                        <?php } ?>
+                    </div>
+                    <?php endif; ?>
                     
                     <h3 class="achievement-title" title="<?php echo htmlspecialchars($achievement['title']); ?>">
                         <?php 
