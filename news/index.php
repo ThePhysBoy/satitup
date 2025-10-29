@@ -6,7 +6,7 @@ $category_id = isset($_GET['category']) ? (int)$_GET['category'] : 0;
 $search = isset($_GET['q']) ? trim($_GET['q']) : '';
 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$per_page = 9;
+$per_page = 25;
 $offset = ($page - 1) * $per_page;
 
 $conditions = ["n.status='published'"];
@@ -56,49 +56,50 @@ $cats = $conn->query("SELECT * FROM news_categories ORDER BY name")->fetch_all(M
 			box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 		}
 		.news-card {
-			border: 1px solid #e0e0e0;
-			border-radius: 12px;
-			overflow: hidden;
-			box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-			transition: all 0.3s ease;
-			background: #fff;
-			cursor: pointer;
+		border: 1px solid #e0e0e0;
+		border-radius: 12px;
+		overflow: hidden;
+		box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+		transition: all 0.3s ease;
+		background: #fff;
+		cursor: pointer;
 		}
 		.news-card:hover {
 			transform: translateY(-8px);
 			box-shadow: 0 12px 32px rgba(0,0,0,0.15);
 			border-color: #0066cc;
 		}
-		.news-img {
-			height: 280px;
-			object-fit: cover;
-			object-position: center;
-			width: 100%;
-			background-color: #f5f5f5;
-			display: block;
-			transition: transform 0.4s ease;
-		}
+	.news-img {
+		height: 200px;
+		object-fit: cover;
+		object-position: center;
+		width: 100%;
+		background-color: #f5f5f5;
+		display: block;
+		transition: transform 0.4s ease;
+	}
 		
 		.news-card:hover .news-img {
 			transform: scale(1.08);
 		}
-		.card-body {
-			padding: 20px;
-			min-height: 150px;
-		}
-		.card-title {
-			font-size: 17px;
-			font-weight: 500;
-			margin-bottom: 15px;
-			color: #333;
-			display: -webkit-box;
-			-webkit-line-clamp: 3;
-			line-clamp: 3;
-			-webkit-box-orient: vertical;
-			overflow: hidden;
-			min-height: 76px;
-			line-height: 1.5;
-		}
+	.card-body {
+		padding: 16px;
+		min-height: 150px;
+		position: relative;
+	}
+	.card-title {
+		font-size: 16px;
+		font-weight: 500;
+		margin-bottom: 12px;
+		color: #333;
+		display: -webkit-box;
+		-webkit-line-clamp: 3;
+		line-clamp: 3;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		min-height: 70px;
+		line-height: 1.45;
+	}
 		
 		.card-title::before {
 			content: "📢 ";
@@ -145,15 +146,15 @@ $cats = $conn->query("SELECT * FROM news_categories ORDER BY name")->fetch_all(M
 			transform: translateY(-2px);
 			box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
 		}
-		.pagination .page-link {
-			color: #0066cc;
-			border-radius: 4px;
-			margin: 0 3px;
-			min-width: 40px;
-			height: 40px;
-			text-align: center;
-			line-height: 24px;
-		}
+	.pagination .page-link {
+		color: #0066cc;
+		border-radius: 4px;
+		margin: 0 3px;
+		min-width: 40px;
+		height: 40px;
+		text-align: center;
+		line-height: 24px;
+	}
 		.pagination .page-item.active .page-link {
 			background-color: #0066cc;
 			border-color: #0066cc;
@@ -182,7 +183,37 @@ $cats = $conn->query("SELECT * FROM news_categories ORDER BY name")->fetch_all(M
 			backdrop-filter: blur(5px);
 			box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 			z-index: 2;
+	}
+
+	.news-grid {
+		display: grid;
+		grid-template-columns: repeat(5, minmax(0, 1fr));
+		gap: 24px;
+	}
+
+	@media (max-width: 1400px) {
+		.news-grid {
+			grid-template-columns: repeat(4, minmax(0, 1fr));
 		}
+	}
+
+	@media (max-width: 1200px) {
+		.news-grid {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 992px) {
+		.news-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 576px) {
+		.news-grid {
+			grid-template-columns: repeat(1, minmax(0, 1fr));
+		}
+	}
 	</style>
 </head>
 <body>
@@ -225,43 +256,39 @@ $cats = $conn->query("SELECT * FROM news_categories ORDER BY name")->fetch_all(M
 			</form>
 		</div>
 
-		<div class="row g-4">
+		<div class="news-grid">
 			<?php foreach ($items as $n): ?>
-			<div class="col-md-6 col-lg-4">
-				<div class="card news-card h-100">
-					<div class="position-relative">
-						<?php if ($n['featured_image']): ?>
-							<img class="news-img" src="../<?php echo htmlspecialchars($n['featured_image']); ?>" alt="<?php echo htmlspecialchars($n['title']); ?>">
-						<?php else: ?>
-							<img class="news-img" src="../images/comingsoon.png" alt="ไม่มีรูปภาพ">
-						<?php endif; ?>
-						<span class="date-badge">
-							<?php echo $n['published_at'] ? date('d/m/Y', strtotime($n['published_at'])) : 'ไม่ระบุ'; ?>
-						</span>
-					</div>
-					<div class="card-body">
-						<?php if (!empty($n['category_name'])): ?>
-						<div class="category-badge">
-							<?php echo htmlspecialchars($n['category_name'] ?? 'ทั่วไป'); ?>
-						</div>
-						<?php endif; ?>
-						<h5 class="card-title"><?php echo htmlspecialchars($n['title']); ?></h5>
-						<a class="stretched-link" href="detail.php?slug=<?php echo urlencode($n['slug']); ?>"></a>
-					</div>
+			<article class="card news-card h-100">
+				<div class="position-relative">
+					<?php if ($n['featured_image']): ?>
+						<img class="news-img" src="../<?php echo htmlspecialchars($n['featured_image']); ?>" alt="<?php echo htmlspecialchars($n['title']); ?>">
+					<?php else: ?>
+						<img class="news-img" src="../images/comingsoon.png" alt="ไม่มีรูปภาพ">
+					<?php endif; ?>
+					<span class="date-badge">
+						<?php echo $n['published_at'] ? date('d/m/Y', strtotime($n['published_at'])) : 'ไม่ระบุ'; ?>
+					</span>
 				</div>
-			</div>
+				<div class="card-body">
+					<?php if (!empty($n['category_name'])): ?>
+					<div class="category-badge">
+						<?php echo htmlspecialchars($n['category_name'] ?? 'ทั่วไป'); ?>
+					</div>
+					<?php endif; ?>
+					<h5 class="card-title"><?php echo htmlspecialchars($n['title']); ?></h5>
+					<a class="stretched-link" href="detail.php?slug=<?php echo urlencode($n['slug']); ?>"></a>
+				</div>
+			</article>
 			<?php endforeach; ?>
-			
-			<?php if (count($items)===0): ?>
-			<div class="col-12">
-				<div class="alert alert-info text-center py-5">
-					<i class="fas fa-info-circle fa-3x mb-3"></i>
-					<h4>ไม่พบบทความ</h4>
-					<p class="mb-0">ไม่พบบทความที่ตรงกับเงื่อนไขการค้นหา กรุณาลองค้นหาด้วยคำค้นอื่น</p>
-				</div>
-			</div>
-			<?php endif; ?>
 		</div>
+
+		<?php if (count($items)===0): ?>
+		<div class="alert alert-info text-center py-5 mt-4">
+			<i class="fas fa-info-circle fa-3x mb-3"></i>
+			<h4>ไม่พบบทความ</h4>
+			<p class="mb-0">ไม่พบบทความที่ตรงกับเงื่อนไขการค้นหา กรุณาลองค้นหาด้วยคำค้นอื่น</p>
+		</div>
+		<?php endif; ?>
 
 		<?php if ($total_pages>1): ?>
 		<nav class="mt-5">

@@ -87,6 +87,13 @@
         100% { background-position: 0% 50%; }
     }
     
+    .program-card-link {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        height: 100%;
+    }
+
     .program-card:hover {
         transform: translateY(-10px) scale(1.02);
         box-shadow: 0 20px 40px rgba(0,0,0,0.15);
@@ -171,41 +178,6 @@
         font-weight: bold;
     }
     
-    .btn-program {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        padding: 12px 35px;
-        border-radius: 50px;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .btn-program::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        transition: left 0.5s ease;
-    }
-    
-    .btn-program:hover {
-        transform: scale(1.05);
-        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        color: white;
-    }
-    
-    .btn-program:hover::before {
-        left: 100%;
-    }
-    
     .special-badge {
         position: absolute;
         top: 20px;
@@ -262,6 +234,7 @@
         <div class="row program-container">
             <!-- หลักสูตรประถมศึกษา -->
             <div class="col-lg-3 col-md-6 mb-4">
+                <a href="curriculum/curriculum_primary.php" class="program-card-link" target="_blank">
                 <div class="program-card">
                     <div class="program-icon">
                         <i class="fas fa-child"></i>
@@ -276,14 +249,13 @@
                         <li>เน้นกิจกรรมสร้างสรรค์</li>
                         <li>พัฒนาทักษะชีวิต</li>
                     </ul>
-                    <a href="curriculum/curriculum_primary.php" class="btn-program" target="_blank">
-                        เรียนรู้เพิ่มเติม <i class="fas fa-arrow-right ms-2"></i>
-                    </a>
                 </div>
+                </a>
             </div>
             
             <!-- ศิลปวิทยาศาสตร์ ม.ต้น -->
             <div class="col-lg-3 col-md-6 mb-4">
+                <a href="curriculum/curriculum_arts_science_lower.php" class="program-card-link" target="_blank">
                 <div class="program-card">
                     <div class="program-icon">
                         <i class="fas fa-book"></i>
@@ -297,14 +269,13 @@
                         <li>ภาษาต่างประเทศ</li>
                         <li>ศิลปะและวัฒนธรรม</li>
                     </ul>
-                    <a href="curriculum/curriculum_arts_science_lower.php" class="btn-program" target="_blank">
-                        เรียนรู้เพิ่มเติม <i class="fas fa-arrow-right ms-2"></i>
-                    </a>
                 </div>
+                </a>
             </div>
             
             <!-- ศิลปวิทยาศาสตร์ ม.ปลาย -->
             <div class="col-lg-3 col-md-6 mb-4">
+                <a href="curriculum/curriculum_arts_science_upper.php" class="program-card-link" target="_blank">
                 <div class="program-card">
                     <div class="program-icon">
                         <i class="fas fa-graduation-cap"></i>
@@ -318,14 +289,13 @@
                         <li>เตรียมสอบ TCAS</li>
                         <li>โครงการแลกเปลี่ยน</li>
                     </ul>
-                    <a href="curriculum/curriculum_arts_science_upper.php" class="btn-program" target="_blank">
-                        เรียนรู้เพิ่มเติม <i class="fas fa-arrow-right ms-2"></i>
-                    </a>
                 </div>
+                </a>
             </div>
             
             <!-- โครงการ วมว.มพ. -->
             <div class="col-lg-3 col-md-6 mb-4">
+                <a href="curriculum/curriculum_scius.php" class="program-card-link" target="_blank">
                 <div class="program-card">
                     <span class="special-badge">พิเศษ</span>
                     <div class="program-icon">
@@ -340,10 +310,8 @@
                         <li>ห้องปฏิบัติการพิเศษ</li>
                         <li>อาจารย์ผู้เชี่ยวชาญ</li>
                     </ul>
-                    <a href="curriculum/curriculum_scius.php" class="btn-program" target="_blank">
-                        เรียนรู้เพิ่มเติม <i class="fas fa-arrow-right ms-2"></i>
-                    </a>
                 </div>
+                </a>
             </div>
         </div>
         
