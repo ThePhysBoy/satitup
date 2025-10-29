@@ -586,20 +586,18 @@ if ($conn && !$conn->connect_error) {
         .news-portfolio .portfolio-image::before {
             content: "";
             display: block;
-            padding-top: 130%; /* รองรับภาพแนวตั้งได้มากขึ้น */
+            padding-top: 56.25%; /* 16:9 aspect ratio */
             width: 100%;
         }
-
+        
         .news-portfolio .portfolio-image img {
             position: absolute;
-            inset: 0;
-            margin: auto;
-            max-width: 100%;
-            max-height: 100%;
-            width: auto;
-            height: auto;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             display: block;
-            object-fit: contain;
+            object-fit: cover;
             object-position: center;
             border-top-left-radius: 12px;
             border-top-right-radius: 12px;
@@ -1978,9 +1976,9 @@ if ($conn && !$conn->connect_error) {
                         $hall_sql = "SELECT id, title, student_name, class, year, achievement, description, image_path, 
                                             date_achieved, category, featured, status, views, likes, sdg_goals, created_at, updated_at
                                      FROM hall_of_fame 
-                                     WHERE category = '$category' AND status = 'active' 
-                                     ORDER BY featured DESC, date_achieved DESC, created_at DESC 
-                                     LIMIT 15";
+                                    WHERE category = '$category' AND status = 'active' 
+                                    ORDER BY featured DESC, date_achieved DESC, created_at DESC 
+                                    LIMIT 15";
                         $hall_result = $conn->query($hall_sql);
                         $hall_data[$category] = [];
                         if ($hall_result) {
