@@ -1928,6 +1928,9 @@ if ($conn && !$conn->connect_error) {
                             <?php endif; ?>
                         </ul>
                     </div>
+                    <div class="text-end mt-3">
+                        <a href="trainings/index.php" class="btn btn-outline-primary" target="_blank" rel="noopener">ดูประกาศอบรมทั้งหมด</a>
+                    </div>
                 </div>
             </div>
             

@@ -444,10 +444,22 @@ function getCategoryInfo($category) {
             text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
         }
         
+        .achievement-image-wrapper {
+            position: relative;
+            width: 100%;
+            min-height: 210px;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
         .achievement-image {
             width: 100%;
-            height: 180px;
-            object-fit: cover;
+            height: auto;
+            max-height: 260px;
+            object-fit: contain;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             filter: grayscale(50%) brightness(1.05);
             opacity: 0.9;
@@ -723,15 +735,19 @@ function getCategoryInfo($category) {
                 <?php if ($achievement['featured']): ?>
                     <i class="fas fa-star featured-star"></i>
                 <?php endif; ?>
-                <?php if ($achievement['image_path']): ?>
-                <img src="../<?php echo htmlspecialchars($achievement['image_path']); ?>" 
-                     alt="<?php echo htmlspecialchars($achievement['student_name']); ?>" 
-                     class="achievement-image">
-                <?php else: ?>
-                <div class="achievement-image d-flex align-items-center justify-content-center">
-                    <i class="fas <?php echo $cat_info['icon']; ?>" style="font-size: 3rem; color: #dee2e6;"></i>
+                <div class="achievement-image-wrapper">
+                    <?php if ($achievement['image_path']): ?>
+                    <img src="../<?php echo htmlspecialchars($achievement['image_path']); ?>" 
+                         alt="<?php echo htmlspecialchars($achievement['student_name']); ?>" 
+                         class="achievement-image">
+                    <?php else: ?>
+                    <div class="achievement-image-wrapper">
+                        <div class="achievement-image d-flex align-items-center justify-content-center" style="height: auto; max-height: 100%;">
+                            <i class="fas <?php echo $cat_info['icon']; ?>" style="font-size: 3rem; color: #dee2e6;"></i>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                 </div>
-                <?php endif; ?>
                 
                 <div class="achievement-body">
                     <span class="achievement-category" style="background: <?php echo $cat_info['color']; ?>;">
