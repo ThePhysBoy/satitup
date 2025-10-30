@@ -74,13 +74,25 @@ if ($conn) {
                     <h4 class="list-title">
                         <i class="fas fa-handshake me-2"></i>รายการพันธมิตร
                     </h4>
+                    <div id="partnerHoverCard" class="partner-hover-card d-none">
+                        <div class="hover-card-inner">
+                            <div class="hover-logo" id="hoverCardLogo"></div>
+                            <div class="hover-info">
+                                <h5 id="hoverCardName"></h5>
+                                <p id="hoverCardProject" class="mb-1"></p>
+                                <span id="hoverCardAddress" class="hover-address"></span>
+                            </div>
+                        </div>
+                    </div>
                     <div class="partners-list">
                         <?php if ($partners_result && $partners_result->num_rows > 0): ?>
                             <?php while ($partner = $partners_result->fetch_assoc()): ?>
                             <?php if ($partner['latitude'] && $partner['longitude']): ?>
                             <div class="partner-list-item" 
                                  data-partner-id="<?php echo $partner['id']; ?>"
-                                 onclick="focusMarker(<?php echo $partner['id']; ?>)">
+                                 onmouseover="highlightMarker(<?php echo $partner['id']; ?>)"
+                                 onmouseout="removeHighlightMarker(<?php echo $partner['id']; ?>)"
+                                 onclick="window.open('partners/view.php?id=<?php echo $partner['id']; ?>', '_blank')">
                                 <div class="d-flex align-items-center">
                                     <?php if (!empty($partner['logo_image']) && file_exists($partner['logo_image'])): ?>
                                     <img src="<?php echo htmlspecialchars($partner['logo_image']); ?>" 
@@ -176,6 +188,117 @@ if ($conn) {
     flex-direction: column;
 }
 
+.partner-hover-card {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.95), rgba(255, 140, 0, 0.9));
+    border-radius: 18px;
+    padding: 1rem;
+    box-shadow:
+        0 10px 25px rgba(255, 215, 0, 0.6),
+        0 0 35px rgba(255, 215, 0, 0.5),
+        inset 0 0 20px rgba(255, 255, 255, 0.3);
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+}
+
+.partner-hover-card::before {
+    content: '';
+    position: absolute;
+    top: -60%;
+    left: -60%;
+    width: 220%;
+    height: 220%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.35) 0%, transparent 60%);
+    animation: hoverCardPulse 4s ease-in-out infinite;
+}
+
+.partner-hover-card.d-none {
+    display: none !important;
+}
+
+.hover-card-inner {
+    position: relative;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    z-index: 2;
+}
+
+.hover-logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.hover-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.hover-info h5 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 0.3rem;
+    text-shadow: 0 2px 6px rgba(255,255,255,0.5);
+}
+
+.hover-info p {
+    font-size: 0.9rem;
+    color: #5a2e00;
+    margin-bottom: 0.5rem;
+}
+
+.hover-address {
+    display: inline-block;
+    font-size: 0.8rem;
+    color: rgba(45,55,72,0.85);
+}
+
+@keyframes hoverCardPulse {
+    0%, 100% {
+        transform: scale(0.95);
+        opacity: 0.7;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+}
+
+@keyframes markerRipple {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.5;
+    }
+    70% {
+        transform: translate(-50%, -50%) scale(3.8);
+        opacity: 0;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(3.8);
+        opacity: 0;
+    }
+}
+
+@keyframes markerFloat {
+    0%, 100% {
+        transform: translate(-50%, -60%);
+    }
+    50% {
+        transform: translate(-50%, -40%);
+    }
+}
+
 .list-title {
     font-size: 1.5rem;
     font-weight: 600;
@@ -215,22 +338,81 @@ if ($conn) {
     border: 2px solid transparent;
 }
 
-.partner-list-item:hover {
+.partner-list-item:hover:not(.active) {
     background: white;
     transform: translateX(5px);
     box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
     border-color: #667eea;
 }
 
+.partner-list-item.active:hover {
+    /* รักษาเอฟเฟกต์สีทองเมื่อ active และ hover */
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%) !important;
+    transform: translateX(10px) scale(1.08) !important;
+}
+
 .partner-list-item.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.5);
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%) !important;
+    color: #2d3748 !important;
+    box-shadow: 
+        0 8px 25px rgba(255, 215, 0, 0.6),
+        0 0 30px rgba(255, 215, 0, 0.4),
+        inset 0 0 20px rgba(255, 255, 255, 0.3) !important;
+    border-color: #ffd700 !important;
+    border-width: 3px !important;
+    transform: translateX(8px) scale(1.05) !important;
+    animation: goldenGlow 2s ease-in-out infinite !important;
+    position: relative !important;
+    overflow: hidden !important;
+    z-index: 10 !important;
+}
+
+.partner-list-item.active::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.5) 50%,
+        transparent 70%
+    );
+    animation: goldenShine 3s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes goldenGlow {
+    0%, 100% {
+        box-shadow: 
+            0 8px 25px rgba(255, 215, 0, 0.6),
+            0 0 30px rgba(255, 215, 0, 0.4),
+            inset 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+    50% {
+        box-shadow: 
+            0 12px 35px rgba(255, 215, 0, 0.8),
+            0 0 45px rgba(255, 215, 0, 0.6),
+            inset 0 0 25px rgba(255, 255, 255, 0.4);
+    }
+}
+
+@keyframes goldenShine {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
 }
 
 .partner-list-item.active .partner-name,
 .partner-list-item.active .text-muted {
-    color: white !important;
+    color: #2d3748 !important;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
 }
 
 .partner-list-logo {
@@ -271,28 +453,30 @@ if ($conn) {
     max-width: 280px;
 }
 
-/* Compact Info Window (เมื่อ hover) - โปร่งแสง ไม่บังหมุด */
+/* Compact Info Window (เมื่อ hover) - โปร่งแสง ไม่บังหมุด ไม่มีกรอบ */
 .info-window-compact {
-    padding: 5px 8px;
-    background: rgba(255, 61, 0, 0.85);
-    border-radius: 5px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    max-width: 150px;
+    padding: 6px 10px;
+    background: rgba(255, 61, 0, 0.9);
+    border-radius: 8px;
+    box-shadow: 0 3px 12px rgba(255, 61, 0, 0.5);
+    border: none !important;
+    max-width: 180px;
     text-align: center;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(6px);
+    position: relative;
+    z-index: 999999;
 }
 
 .compact-name {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 700;
     color: #ffffff;
     margin: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 1.1;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    line-height: 1.2;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 /* Full Info Window (เมื่อ click) */
@@ -301,16 +485,20 @@ if ($conn) {
     max-width: 280px;
 }
 
-/* ลบพื้นหลังทรงฟองของ Google Maps InfoWindow เพื่อไม่ให้เป็นสี่เหลี่ยมสีขาว */
-#partnersMap .gm-style .gm-style-iw-c {
+/* ลบพื้นหลังและกรอบสีขาวของ Google Maps InfoWindow ทั้งหมด */
+#partnersMap .gm-style .gm-style-iw-c,
+#partnersMap .gm-style .gm-style-iw-c * {
     padding: 0 !important;
     border-radius: 10px !important;
     background: transparent !important;
     box-shadow: none !important;
+    border: none !important;
 }
 
 #partnersMap .gm-style .gm-style-iw-d {
     overflow: visible !important;
+    background: transparent !important;
+    border: none !important;
 }
 
 #partnersMap .gm-style .gm-style-iw-t::after,
@@ -319,9 +507,12 @@ if ($conn) {
     background: transparent !important;
     box-shadow: none !important;
     display: none !important;
+    border: none !important;
 }
 
-#partnersMap .gm-style button[title="Close"] {
+/* ปุ่มปิด InfoWindow */
+#partnersMap .gm-style button[title="Close"],
+#partnersMap .gm-style button[aria-label="Close"] {
     top: 6px !important;
     right: 6px !important;
     border-radius: 50% !important;
@@ -329,6 +520,17 @@ if ($conn) {
     width: 20px !important;
     height: 20px !important;
     color: #fff !important;
+    border: none !important;
+}
+
+/* ลบกรอบสีขาวทุกประเภท */
+#partnersMap .gm-style div[style*="background"] {
+    background: transparent !important;
+}
+
+#partnersMap .gm-style-iw {
+    background: transparent !important;
+    border: none !important;
 }
 
 
@@ -398,19 +600,40 @@ if ($conn) {
 /* Custom top-most marker rendered via OverlayView (อยู่หน้าสุดเสมอ) */
 .partner-circle-marker {
     position: absolute;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     background: #FF3D00;
-    border: 3px solid #FFFFFF;
+    border: 4px solid #FFFFFF;
     border-radius: 50%;
     box-shadow: 0 0 0 3px rgba(255, 61, 0, 0.25), 0 6px 12px rgba(0,0,0,0.25);
     transform: translate(-50%, -50%);
     cursor: pointer;
     z-index: 2147483647; /* สูงสุด */
+    animation: markerFloat 2.2s ease-in-out infinite;
+    overflow: visible;
 }
 
 .partner-circle-marker:hover {
-    box-shadow: 0 0 0 6px rgba(255, 61, 0, 0.18), 0 10px 16px rgba(0,0,0,0.28);
+    box-shadow: 0 0 0 8px rgba(255, 61, 0, 0.2), 0 12px 18px rgba(0,0,0,0.3);
+}
+
+.partner-circle-marker::before,
+.partner-circle-marker::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 61, 0, 0.25);
+    animation: markerRipple 3.8s ease-out infinite;
+    pointer-events: none;
+}
+
+.partner-circle-marker::after {
+    animation-delay: 1.9s;
 }
 
 /* Responsive */
@@ -1071,6 +1294,14 @@ if ($conn) {
 // ข้อมูลพันธมิตร
 const partnersData = <?php echo json_encode($partners_json); ?>;
 
+// Hover card elements
+const hoverCardEl = document.getElementById('partnerHoverCard');
+const hoverCardLogoEl = document.getElementById('hoverCardLogo');
+const hoverCardNameEl = document.getElementById('hoverCardName');
+const hoverCardProjectEl = document.getElementById('hoverCardProject');
+const hoverCardAddressEl = document.getElementById('hoverCardAddress');
+let hoverCardCurrentId = null;
+
 // Variables for map and markers
 let map;
 let markers = [];
@@ -1177,13 +1408,23 @@ function createMarker(partner) {
             // events
             this.div.addEventListener('mouseover', () => {
                 highlightListItem(this.partner.id);
+                // แสดงการ์ดแบบย่อเมื่อ hover
+                showCompactInfoWindow({ getPosition: () => this.position }, this.partner);
+                showHoverCard(this.partner);
             });
             this.div.addEventListener('mouseout', () => {
                 removeHighlightListItem();
+                // ปิดการ์ดเมื่อเอาเมาส์ออก (แต่ถ้าเป็น activeMarkerId ไม่ปิด)
+                setTimeout(() => {
+                    if (activeMarkerId !== this.partner.id) {
+                        infoWindow.close();
+                    }
+                    hideHoverCard(this.partner.id);
+                }, 100);
             });
             this.div.addEventListener('click', () => {
-                activeMarkerId = this.partner.id;
-                showFullInfoWindow({ getPosition: () => this.position }, this.partner);
+                // เปิดหน้าใหม่ของ MOU ทันที
+                window.open('partners/view.php?id=' + this.partner.id, '_blank');
             });
         }
         draw() {
@@ -1202,6 +1443,7 @@ function createMarker(partner) {
     }
 
     const overlay = new PartnerMarker(partner);
+    overlay.partnerId = partner.id; // เพิ่ม property เพื่อหาได้ง่าย
     overlay.setMap(map);
     markers.push(overlay);
 }
@@ -1292,6 +1534,37 @@ function showInfoWindow(marker, partner, isFull = false) {
     }
 }
 
+// Remove highlight marker เมื่อเอาเมาส์ออกจากรายการ
+function removeHighlightMarker(partnerId) {
+    removeHighlightListItem();
+    // ปิด compact info window
+    setTimeout(() => {
+        if (activeMarkerId !== partnerId) {
+            infoWindow.close();
+        }
+    }, 100);
+    hideHoverCard(partnerId);
+}
+
+// Highlight marker เมื่อชี้ที่รายการ
+function highlightMarker(partnerId) {
+    const marker = markers.find(m => m.partnerId === partnerId);
+    if (marker) {
+        const partner = partnersData.find(p => p.id === partnerId);
+        
+        // Highlight list item
+        highlightListItem(partnerId);
+        
+        // แสดง compact info window บน marker
+        const position = marker.getPosition ? marker.getPosition() : marker.position;
+        showCompactInfoWindow({ getPosition: () => position }, partner);
+        showHoverCard(partner);
+        
+        // Focus ไปที่ marker (ไม่ต้อง zoom ถ้าไม่ต้องการ)
+        map.setCenter(position);
+    }
+}
+
 // Focus on specific marker
 function focusMarker(partnerId) {
     const marker = markers.find(m => m.partnerId === partnerId);
@@ -1329,6 +1602,10 @@ function highlightListItem(partnerId) {
         // Scroll into view
         item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
+    const partner = partnersData.find(p => p.id === partnerId);
+    if (partner) {
+        showHoverCard(partner);
+    }
 }
 
 // Remove highlight from list items
@@ -1336,6 +1613,30 @@ function removeHighlightListItem() {
     document.querySelectorAll('.partner-list-item').forEach(item => {
         item.classList.remove('active');
     });
+    hideHoverCard();
+}
+
+function showHoverCard(partner) {
+    if (!hoverCardEl) return;
+    hoverCardCurrentId = partner.id;
+    hoverCardNameEl.textContent = partner.name || '';
+    hoverCardProjectEl.textContent = partner.project_name || '';
+    hoverCardAddressEl.textContent = partner.address || '';
+    if (partner.logo_image) {
+        hoverCardLogoEl.innerHTML = `<img src="${partner.logo_image}" alt="${partner.name}">`;
+    } else {
+        hoverCardLogoEl.innerHTML = '<i class="fas fa-handshake fa-2x" style="color:#ff6f00;"></i>';
+    }
+    hoverCardEl.classList.remove('d-none');
+}
+
+function hideHoverCard(partnerId) {
+    if (!hoverCardEl) return;
+    if (partnerId && hoverCardCurrentId && hoverCardCurrentId !== partnerId) {
+        return;
+    }
+    hoverCardCurrentId = null;
+    hoverCardEl.classList.add('d-none');
 }
 
 // Load Google Maps API with Key from Database
