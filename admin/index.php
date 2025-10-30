@@ -91,6 +91,15 @@ if (isAdmin() || isPrOfficer()) {
     $partners_count = $result->fetch_assoc()['count'];
 }
 
+// Get API Keys count (for Admin only)
+$api_keys_count = 0;
+if (isAdmin()) {
+    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM api_keys WHERE is_active = 1");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $api_keys_count = $result->fetch_assoc()['count'];
+}
+
 // Get user information
 $user_type = $_SESSION['user_type'] ?? 'general';
 $full_name = $_SESSION['full_name'] ?? $_SESSION['username'];
@@ -400,6 +409,15 @@ if (isAdmin() || isPrOfficer()) {
                         </li>
                         <?php endif; ?>
                         
+                        <?php if (isAdmin()): ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="api_keys/index.php">
+                                <i class="fas fa-fw fa-key"></i>
+                                <span>จัดการ API Keys</span>
+                            </a>
+                        </li>
+                        <?php endif; ?>
+                        
                         <?php if (canManageStaff()): ?>
                         <li class="nav-item">
                             <a class="nav-link" href="staff/index.php">
@@ -683,6 +701,27 @@ if (isAdmin() || isPrOfficer()) {
                     <?php endif; ?>
                     
                     <?php if (isAdmin()): ?>
+                    <!-- API Keys Card -->
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-danger shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                            API Keys
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $api_keys_count; ?> ใช้งาน</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-key fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <?php if (isAdmin()): ?>
                     <!-- Users Card -->
                     <div class="col-xl-3 col-md-6 mb-4">
                         <div class="card border-left-success shadow h-100 py-2">
@@ -889,6 +928,15 @@ if (isAdmin() || isPrOfficer()) {
                                     <div class="col-md-3 mb-3">
                                         <a href="../index.php#partners" target="_blank" class="btn btn-info btn-block d-flex align-items-center justify-content-center p-3">
                                             <i class="fas fa-eye me-2"></i> ดูส่วนพันธมิตร
+                                        </a>
+                                    </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if (isAdmin()): ?>
+                                    <!-- API Keys Management -->
+                                    <div class="col-md-3 mb-3">
+                                        <a href="api_keys/index.php" class="btn btn-danger btn-block d-flex align-items-center justify-content-center p-3">
+                                            <i class="fas fa-key me-2"></i> จัดการ API Keys
                                         </a>
                                     </div>
                                     <?php endif; ?>

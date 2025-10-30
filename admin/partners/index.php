@@ -227,9 +227,18 @@ $total_partners = $count_result->fetch_assoc()['total'];
                             <span class="badge badge-status bg-info">
                                 ลำดับที่ <?php echo $partner['order_number']; ?>
                             </span>
+                            <?php if ($partner['latitude'] && $partner['longitude']): ?>
+                            <span class="badge badge-status bg-success">
+                                <i class="fas fa-map-marker-alt"></i> มีพิกัด
+                            </span>
+                            <?php else: ?>
+                            <span class="badge badge-status bg-warning">
+                                <i class="fas fa-map-marker-alt"></i> ยังไม่มีพิกัด
+                            </span>
+                            <?php endif; ?>
                         </div>
                         
-                        <div class="d-flex gap-2">
+                        <div class="d-flex gap-2 mb-2">
                             <a href="../../partners/view.php?id=<?php echo $partner['id']; ?>" 
                                class="btn btn-sm btn-outline-primary btn-action flex-fill" 
                                target="_blank">
@@ -239,9 +248,15 @@ $total_partners = $count_result->fetch_assoc()['total'];
                                class="btn btn-sm btn-warning btn-action flex-fill">
                                 <i class="fas fa-edit me-1"></i>แก้ไข
                             </a>
+                        </div>
+                        <div class="d-flex gap-2">
                             <a href="manage_gallery.php?id=<?php echo $partner['id']; ?>" 
                                class="btn btn-sm btn-info btn-action flex-fill">
                                 <i class="fas fa-images me-1"></i>แกลเลอรี่
+                            </a>
+                            <a href="manage_location.php?id=<?php echo $partner['id']; ?>" 
+                               class="btn btn-sm btn-success btn-action flex-fill">
+                                <i class="fas fa-map-marker-alt me-1"></i>ตำแหน่ง
                             </a>
                             <button onclick="confirmDelete(<?php echo $partner['id']; ?>)" 
                                     class="btn btn-sm btn-danger btn-action">
